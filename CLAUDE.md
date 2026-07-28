@@ -22,6 +22,8 @@ El sitio anterior murió porque publicar era difícil, no por falta de tecnolog�
 - **Buckets separados**: medios públicos, documentos de becarios privados con URL firmada, respaldos sin permiso de borrado. Nunca en el mismo bucket.
 - **Docs y specs actualizados en el mismo cambio que el código** que los vuelve obsoletos, en particular `docs/plan.md` al cerrar cada bloque de una fase.
 - **`.gitignore` estricto desde el primer commit de código**, en la raíz y en cualquier sub-app que se agregue (ej. `apps/api/.gitignore`). Un repo que trackea `node_modules/` o `dist/` puede pasar de unos cientos de archivos fuente a decenas de miles: cualquier búsqueda global del agente escanea todo eso y agota el contexto en segundos. Lección de un proyecto anterior — no repetirla.
+- **Editar con parches, no reescribir archivos enteros.** Cambiar 5 líneas de un archivo de 800 no justifica regenerarlo completo — consume miles de tokens de salida innecesarios. Usar siempre reemplazo selectivo del bloque exacto afectado.
+- **Tareas atómicas de 1 a 10 archivos.** Nada de "construye todo el módulo X de una sola vez" (base de datos + backend + frontend + facturación junto). Dividir en pasos chicos y verificables, marcados en `docs/plan.md`, cada uno con su propia comprobación antes de seguir (ej. Paso A: schema + migración → Paso B: controller/service + `tsc --noEmit` → Paso C: UI + `tsc --noEmit`). Perder el contexto a mitad de una tarea gigante obliga a rehacer todo.
 
 ## Cuándo usar qué skill de `.agents/skills/`
 
