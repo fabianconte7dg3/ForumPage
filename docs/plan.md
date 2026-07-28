@@ -42,7 +42,7 @@ Pendiente (depende de personas, no de código):
 - [ ] Informes anuales y podcast descargados de Google Drive / Anchor
 - [ ] Llenar las plantillas con datos reales de comunidades, sedes, centros educativos y becarios
 - [ ] Validar el consentimiento con asesoría legal panameña y **empezar la recolección de firmas** — punto crítico del cronograma
-- [ ] Realizar la entrevista al staff y completar el resumen en `entrevista-staff.md`
+- [x] Realizar la entrevista al staff y completar el resumen en [entrevista-staff.md](fase-0/entrevista-staff.md) — hallazgo clave: el sitio anterior murió porque solo el creador de WordPress tenía control, confirmando el riesgo de "mantenedor único"; volumen real ~20 actividades/mes; staff pidió campos avanzados visibles (ajustado en `04-diseno-y-sistema-visual.md §8.1`)
 - [ ] Ir tachando `docs/fase-0/accesos.md` conforme existan las cuentas reales
 
 **Criterio de cierre:** hoja de cálculo con comunidades/coordenadas + inventario de artículos + al menos un consentimiento firmado modelo.

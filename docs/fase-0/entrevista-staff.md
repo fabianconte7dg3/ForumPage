@@ -45,6 +45,25 @@ Insumo requerido en [02-plan-de-ejecucion.md](../../02-plan-de-ejecucion.md): "E
 - Si el presupuesto de 3 minutos no es realista para esta persona en particular, es una señal temprana — mejor saberlo en Fase 0 que después del lanzamiento.
 - Documentar aquí mismo, debajo de esta línea, un resumen de la entrevista real una vez realizada.
 
-## Resumen de la entrevista (completar tras realizarla)
+## Resumen de la entrevista (realizada)
 
-_Pendiente._
+**Dispositivo y contexto:** teléfonos de gama media y computadoras de oficina de buen rendimiento; conexión a Internet estable en el lugar de trabajo. Fotos tomadas el mismo día del evento, revisadas antes de publicar.
+
+**Volumen real:** ~20 actividades/mes (entregas de infraestructura, tutorías, visitas, becarios, otras iniciativas). Es un volumen sostenido, no esporádico — confirma que paginación y filtros del mural ([04-diseno-y-sistema-visual.md §7.3](../../04-diseno-y-sistema-visual.md)) son necesarios desde el lanzamiento, no una optimización futura.
+
+**Flujo de publicación:** la información (fotos + descripción) suele estar lista de inmediato; identifican sin dificultad la comunidad y el programa de cada actividad. Cómodos redactando en español; **necesitan apoyo para inglés** — confirma el nivel "opcional, con traducción asistida revisada por el staff" para noticias del día a día ([01-documento-de-proyecto.md §11](../../01-documento-de-proyecto.md)).
+
+**Por qué dejó de publicarse el sitio actual — hallazgo clave:** no fue solo fricción de UI. **Solo el creador original de WordPress tenía conocimiento y control del sitio**, y al dejar de estar activo en la organización, publicar dependió por completo de una sola persona ajena al staff. Esto es evidencia real, no hipotética, de exactamente el riesgo que el proyecto ya identificó como "mantenedor único" ([01-documento-de-proyecto.md §14](../../01-documento-de-proyecto.md)) y como amenaza humana en [05-ciberseguridad.md §10](../../05-ciberseguridad.md) ("ex miembro del staff, cuenta activa después de irse"). Refuerza por qué el modelo de IAM da CRUD de contenido a **cualquier staff**, no a un admin único, y por qué ninguna cuenta debe ser personal ([docs/fase-0/accesos.md](accesos.md)).
+
+**Otros publicadores:** varios miembros del staff publicarán, todos con nivel de comodidad tecnológica similar — no hay un usuario "avanzado" ni uno que necesite una versión simplificada aparte.
+
+## ⚠️ Tensión de diseño detectada: campos avanzados
+
+El staff pidió explícitamente que **los campos avanzados permanezcan siempre visibles** para tener "mayor control y visibilidad durante la edición" — lo opuesto a lo que definía [04-diseno-y-sistema-visual.md §8.1](../../04-diseno-y-sistema-visual.md), donde slug, extracto, SEO, `destacada` y proyecto quedaban plegados bajo "▸ Avanzado".
+
+**Resolución aplicada** (ver diff en el documento 04): se separan dos grupos dentro de "avanzado" en lugar de tratarlo como un bloque único:
+
+- **Siempre visibles** (el staff los usa para decidir, no son técnicos): `destacada`, `proyecto`, `extracto`
+- **Siguen plegados** (puramente técnicos, el staff no los mencionó): slug, metadatos SEO
+
+Esto respeta el pedido real de control sin reventar el presupuesto de 3 minutos con campos que nadie va a tocar. Si en la práctica el staff también quiere ver SEO/slug, ajustar de nuevo — es una hipótesis basada en la entrevista, no un hecho verificado con el panel real.

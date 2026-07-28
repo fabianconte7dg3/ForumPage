@@ -286,8 +286,11 @@ El orden de los campos importa porque el staff llega desde la galería del telé
 4. **Programa** ← predeterminado al último usado
 5. **Fecha** ← predeterminada a hoy
 6. **Texto**
+7. **Extracto, `destacada`, proyecto** ← visibles, no plegados
 ---
-*▸ Avanzado (plegado): slug, extracto, SEO, destacada, proyecto*
+*▸ Avanzado (plegado): solo slug y metadatos SEO*
+
+> **Actualizado tras la entrevista de Fase 0** ([docs/fase-0/entrevista-staff.md](docs/fase-0/entrevista-staff.md)): el staff pidió explícitamente que los campos avanzados queden visibles para tener control durante la edición. Se separan en dos grupos: lo que el staff usa para decidir (extracto, destacada, proyecto) queda siempre a la vista; lo puramente técnico y que nadie mencionó (slug, SEO) sigue plegado, para no romper el presupuesto de tres minutos con campos que no van a tocar.
 
 Presupuesto de los tres minutos:
 
