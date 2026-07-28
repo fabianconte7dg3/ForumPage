@@ -29,13 +29,21 @@ Hasta ahora existe únicamente la especificación (documentos 01–05) y el repo
 
 ### Fase 0 — Preparación *(sin código, bloquea todo lo demás)*
 
+Entregables ya producidos, pendientes de llenar con datos reales del staff:
+
+- [docs/fase-0/consentimiento.md](fase-0/consentimiento.md) — borrador bilingüe del formulario de consentimiento (becario + acudiente de menor), pendiente de validación legal
+- [docs/fase-0/plantillas/](fase-0/plantillas/) — CSV para comunidades, sedes, centros educativos, programas y becarios
+- [docs/fase-0/entrevista-staff.md](fase-0/entrevista-staff.md) — guion de entrevista a quien publicará en el sitio
+- [docs/fase-0/accesos.md](fase-0/accesos.md) — checklist vivo de cuentas y accesos
+
+Pendiente (depende de personas, no de código):
+
 - [ ] Inventario completo de artículos del WordPress actual
 - [ ] Informes anuales y podcast descargados de Google Drive / Anchor
-- [ ] Listado y coordenadas de comunidades, sedes, centros educativos
-- [ ] Padrón de becarios
-- [ ] Formulario de consentimiento de imagen (bilingüe) redactado y validado contra Ley 81
-- [ ] **Recolección de firmas de becarios iniciada** — punto crítico del cronograma
-- [ ] Accesos: WordPress, registrador de dominio, DigitalOcean, gestor de contraseñas, YouTube
+- [ ] Llenar las plantillas con datos reales de comunidades, sedes, centros educativos y becarios
+- [ ] Validar el consentimiento con asesoría legal panameña y **empezar la recolección de firmas** — punto crítico del cronograma
+- [ ] Realizar la entrevista al staff y completar el resumen en `entrevista-staff.md`
+- [ ] Ir tachando `docs/fase-0/accesos.md` conforme existan las cuentas reales
 
 **Criterio de cierre:** hoja de cálculo con comunidades/coordenadas + inventario de artículos + al menos un consentimiento firmado modelo.
 
