@@ -1,6 +1,6 @@
 nombre,descripcion_breve,color_hex_sugerido,icono_sugerido,activo(si/no)
-Becas John Y. Keffer,Becas universitarias para residentes de Coclé norte de escasos recursos,,,si
-Infraestructura,Obras de infraestructura educativa en comunidades de Coclé,,,si
-INADEH,Capacitación técnica en articulación con INADEH,,,si
-Biblioteca,Academia Forum / Biblioteca John Y. Keffer en El Caimito,,,si
-Tutorías,Tutorías académicas por materia y sede,,,si
+Becas John Y. Keffer,Becas universitarias para residentes de Coclé norte de escasos recursos,#C08A1E,birrete,si
+Infraestructura,Obras de infraestructura educativa en comunidades de Coclé,#17423B,casa,si
+INADEH,Capacitación técnica en articulación con INADEH,#2F7D8C,casco,si
+Biblioteca,Academia Forum / Biblioteca John Y. Keffer en El Caimito,#6B7770,libro,si
+Tutorías,Tutorías académicas por materia y sede,#2F7D8C,monitor,si

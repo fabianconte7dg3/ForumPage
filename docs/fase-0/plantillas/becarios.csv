@@ -1,1 +1,13 @@
 nombre_completo,comunidad_origen,universidad,carrera,anio_inicio,tipo_estudio(nacional/internacional),pais_estudio,ciudad_estudio,estado(activo/suspendido/graduado/retornado/retirado),consentimiento_firmado(si/no),mostrar_en_mapa(si/no)
+María Fernanda Gutiérrez,El Caimito,Universidad de Panamá,Enfermería,2022,nacional,Panamá,Ciudad de Panamá,activo,si,si
+Ricardo Antonio Vásquez,Toabré,Universidad Tecnológica de Panamá,Ingeniería Civil,2021,nacional,Panamá,Ciudad de Panamá,activo,si,si
+Yaritza Nicole Batista,La Pintada,Universidad de Panamá,Derecho,2023,nacional,Panamá,Penonomé,suspendido,si,si
+Carlos Eduardo Pérez,Chiguirí Arriba,University of Florida,Agronomía,2020,internacional,Estados Unidos,Gainesville,activo,si,si
+Ana Lucía Rodríguez,Río Indio,Universidad Autónoma de Chiriquí,Educación,2019,nacional,Panamá,David,graduado,si,si
+Jorge Luis Sánchez,El Harino,Universidad de Costa Rica,Medicina,2018,internacional,Costa Rica,San José,retornado,si,si
+Katherine Michelle Ortega,Coclesito,Universidad de Panamá,Contabilidad,2023,nacional,Panamá,Ciudad de Panamá,activo,no,no
+Luis Fernando Gómez,El Caimito,Universidad Especializada de las Américas,Fisioterapia,2021,nacional,Panamá,Ciudad de Panamá,activo,si,si
+Daniela Isabel Castillo,Toabré,Universidad de Panamá,Ingeniería Industrial,2022,nacional,Panamá,Penonomé,retirado,si,si
+Miguel Ángel Rodríguez,La Pintada,Technische Universität München,Ingeniería Mecánica,2020,internacional,Alemania,Múnich,activo,si,si
+Sofía Valentina Herrera,Chiguirí Arriba,Universidad de Panamá,Psicología,2023,nacional,Panamá,Ciudad de Panamá,activo,si,si
+Andrés Felipe Núñez,Río Indio,Universidad Latina de Panamá,Administración de Empresas,2021,nacional,Panamá,Santiago,suspendido,si,si

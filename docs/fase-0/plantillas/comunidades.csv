@@ -1,2 +1,9 @@
 nombre,distrito,corregimiento,latitud,longitud,descripcion_breve,foto_disponible(si/no)
-El Caimito,Penonomé,,,,"Sede de la Academia Forum / Biblioteca John Y. Keffer",
+El Caimito,Penonomé,El Caimito,8.5081,-80.3658,"Sede de la Academia Forum / Biblioteca John Y. Keffer",si
+Toabré,Penonomé,Toabré,8.5931,-80.3103,"Comunidad agrícola con biblioteca comunitaria",no
+Tulú,Penonomé,Tulú,8.6200,-80.3500,"Comunidad rural con escuela primaria apoyada",no
+Chiguirí Arriba,Penonomé,Chiguirí Arriba,8.6700,-80.2200,"Zona alta de la cordillera, acceso limitado en lluvias",si
+Río Indio,Penonomé,Río Indio,8.7100,-80.3800,"Comunidad ribereña con proyecto de infraestructura reciente",no
+La Pintada,La Pintada,La Pintada (cabecera),8.6850,-80.5000,"Centro de tutorías de fin de semana",si
+El Harino,La Pintada,El Harino,8.7300,-80.5300,"Comunidad con alta proporción de becarios universitarios",no
+Coclesito,Penonomé,Coclesito,8.9700,-80.2400,"Comunidad de montaña, la más aislada de la red",no

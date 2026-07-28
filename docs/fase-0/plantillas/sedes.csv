@@ -1,2 +1,4 @@
 nombre,tipo(sede_principal/biblioteca/centro),comunidad,latitud,longitud,destacada(si/no),horario,fotos_disponibles(si/no)
-Academia Forum / Biblioteca John Y. Keffer,sede_principal,El Caimito,,,si,,
+Academia Forum / Biblioteca John Y. Keffer,sede_principal,El Caimito,8.5081,-80.3658,si,"Lun-Vie 8:00-16:00",si
+Biblioteca Comunitaria Toabré,biblioteca,Toabré,8.5931,-80.3103,no,"Lun-Vie 13:00-17:00",no
+Centro de Tutorías La Pintada,centro,La Pintada,8.6850,-80.5000,no,"Sáb 9:00-12:00",si
