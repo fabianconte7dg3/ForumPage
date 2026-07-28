@@ -21,6 +21,7 @@ El sitio anterior murió porque publicar era difícil, no por falta de tecnolog�
 - **Control de acceso declarado explícitamente en cada colección de Payload** — nunca dejar el valor por defecto. La API expone todo lo que el `access` permita; se prueba contra `/api/`, no contra la interfaz.
 - **Buckets separados**: medios públicos, documentos de becarios privados con URL firmada, respaldos sin permiso de borrado. Nunca en el mismo bucket.
 - **Docs y specs actualizados en el mismo cambio que el código** que los vuelve obsoletos, en particular `docs/plan.md` al cerrar cada bloque de una fase.
+- **`.gitignore` estricto desde el primer commit de código**, en la raíz y en cualquier sub-app que se agregue (ej. `apps/api/.gitignore`). Un repo que trackea `node_modules/` o `dist/` puede pasar de unos cientos de archivos fuente a decenas de miles: cualquier búsqueda global del agente escanea todo eso y agota el contexto en segundos. Lección de un proyecto anterior — no repetirla.
 
 ## Cuándo usar qué skill de `.agents/skills/`
 

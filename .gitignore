@@ -1,0 +1,32 @@
+# Dependencias
+node_modules/
+.pnpm-store/
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Payload
+media/
+
+# Entorno y secretos
+.env
+.env.*
+!.env.example
+
+# Editor / SO
+.DS_Store
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Cobertura y cachés
+coverage/
+.turbo/
+.cache/
