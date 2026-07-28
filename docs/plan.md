@@ -4,10 +4,10 @@
 
 ## Estado actual
 
-**Fase:** 0 — Preparación (no iniciada)
+**Fase:** 1 — Base pública (arrancada)
 **Última actualización:** 2026-07-28
 
-Hasta ahora existe únicamente la especificación (documentos 01–05) y el repositorio en [github.com/fabianconte7dg3/ForumPage](https://github.com/fabianconte7dg3/ForumPage). No hay código de la aplicación, no hay droplet, no hay datos cargados.
+Fase 0 tiene sus entregables iniciales listos (ver abajo), pendientes de llenarse con datos reales. En paralelo arrancó Fase 1: existe un esqueleto Next.js + Payload CMS 3 + PostgreSQL corriendo en local, verificado (`/` y `/admin` responden 200). No hay droplet ni datos reales cargados todavía.
 
 ## Principios de ejecución (no negociables)
 
@@ -52,6 +52,14 @@ Pendiente (depende de personas, no de código):
 Infraestructura (Docker Compose, Payload, Postgres, Caddy) → colecciones base → Actividades y migración desde WordPress → sitio público (home, mural, fichas) → Mapa de Impacto → tutorías y panel de impacto → lanzamiento con redirecciones 301 y cambio de DNS.
 
 Criterio de aceptación clave: staff publica una actividad con 3 fotos desde el teléfono en **menos de 3 minutos**, cronometrado.
+
+**Progreso:**
+
+- [x] **Paso A — Payload arrancando en local.** Next.js 16 + Payload 3.82.1 + `@payloadcms/db-postgres`, Postgres local vía `docker-compose.yml` (solo DB), localización ES/EN configurada (`defaultLocale: es`) antes de crear ninguna colección, GraphQL desactivado. Colecciones `Users` y `Media` mínimas (placeholder). Verificado: `pnpm install`, `pnpm dev`, `/` y `/admin` responden 200. Ver [03-runbook-tecnico.md §2–4](../03-runbook-tecnico.md).
+- [ ] **Paso B — Colecciones base** (Bloque 1-2 del runbook §5): completar `Users` con los 4 roles, `Auditoria`, global `Configuracion`, `Comunidades`, `Sedes`, `CentrosEducativos`, `Programas`; cargar los datos ficticios de `docs/fase-0/plantillas/`
+- [ ] **Paso C — Actividades y script de extracción de Elementor**
+- [ ] Docker Compose de staging/producción (app + Caddy) — separado del compose de solo-DB usado en desarrollo
+- [ ] Resto del checklist de infraestructura, colecciones, frontend y mapa: ver [03-runbook-tecnico.md](../03-runbook-tecnico.md)
 
 ### Fase 2 — Centro de Aprendizaje
 

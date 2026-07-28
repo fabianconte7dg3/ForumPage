@@ -1,0 +1,38 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #f2f4f1;
+  color: #101c2b;
+}
+
+.home {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 24px;
+}
+
+.content {
+  text-align: center;
+  max-width: 480px;
+}
+
+.links {
+  margin-top: 24px;
+}
+
+.admin {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  background: #17423b;
+  color: #f2f4f1;
+  text-decoration: none;
+}

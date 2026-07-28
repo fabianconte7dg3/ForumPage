@@ -1,0 +1,17 @@
+# Solo para desarrollo local. El docker-compose de staging/producción
+# (app + Caddy) se agrega como paso separado — ver 03-runbook-tecnico.md §12.
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: devlocal
+      POSTGRES_DB: forum
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
