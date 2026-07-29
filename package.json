@@ -24,6 +24,7 @@
     "@payloadcms/ui": "3.82.1",
     "@tailwindcss/postcss": "4.3.3",
     "cross-env": "10.1.0",
+    "maplibre-gl": "^6.0.0",
     "next": "16.2.7",
     "payload": "3.82.1",
     "react": "19.2.6",
