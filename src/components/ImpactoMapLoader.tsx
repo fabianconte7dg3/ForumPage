@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic'
 
-import type { ComunidadFeature, SedeFeature } from '@/components/ImpactoMap'
+import type { ComunidadFeature, SedeFeature, Textos } from '@/components/ImpactoMap'
 
 const ImpactoMap = dynamic(() => import('@/components/ImpactoMap').then((m) => m.ImpactoMap), {
   ssr: false,
@@ -15,8 +15,8 @@ export function ImpactoMapLoader(props: {
   programas: { id: number; nombre: string; color: string }[]
   maptilerKey?: string
   locale: string
-  textoVerFicha: string
-  textoTodos: string
+  stats: { comunidades: number; sedes: number; proyectosActivos: number }
+  textos: Textos
 }) {
   return <ImpactoMap {...props} />
 }
