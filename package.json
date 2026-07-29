@@ -13,6 +13,8 @@
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "migrate:wordpress": "tsx --env-file=.env scripts/migrate-wordpress.ts",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
+    "typecheck": "tsc --noEmit",
+    "check:budget": "node scripts/check-bundle-budget.mjs",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "postinstall": "mkdir -p public && cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs public/",
     "seed": "tsx --env-file=.env scripts/seed.ts",

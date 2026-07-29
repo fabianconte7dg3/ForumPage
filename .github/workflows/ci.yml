@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Placeholders de build, igual que el Dockerfile — no se conecta a Postgres
+      # de verdad porque todas las páginas públicas usan `force-dynamic`.
+      PAYLOAD_SECRET: ci-placeholder
+      DATABASE_URI: postgresql://build:build@localhost:5432/build
+      NEXT_PUBLIC_SERVER_URL: https://staging.forum-foundation.org
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.3.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm build
+      - run: pnpm check:budget

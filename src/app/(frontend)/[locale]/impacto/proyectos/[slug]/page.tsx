@@ -6,7 +6,7 @@ import { ActividadCard } from '@/components/ActividadCard'
 import { formatearFecha } from '@/lib/format'
 import { defaultLocale, type Locale } from '@/i18n'
 import config from '@/payload.config'
-import type { Actividad, CentroEducativo, Comunidad, Programa, Proyecto } from '@/payload-types'
+import type { Actividad, CentroEducativo, Programa, Proyecto } from '@/payload-types'
 
 const ESTADOS = {
   es: {
