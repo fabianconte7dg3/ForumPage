@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 
 import config from '@/payload.config'
-import type { Locale } from '@/i18n'
+import { defaultLocale, type Locale } from '@/i18n'
 import type { Actividad, Tutoria } from '@/payload-types'
 
 const TEXTOS = {
@@ -65,7 +65,7 @@ const formatearFecha = (valor: string, locale: Locale) =>
 
 export default async function HomePage({ params }: { params: Promise<{ locale: Locale }> }) {
   const { locale } = await params
-  const t = TEXTOS[locale]
+  const t = TEXTOS[locale] ?? TEXTOS[defaultLocale]
   const payload = await getPayload({ config })
 
   const [comunidades, proyectosCompletados, configuracion, actividades, proximasTutorias] = await Promise.all([

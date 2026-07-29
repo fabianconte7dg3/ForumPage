@@ -2,7 +2,7 @@ import { getPayload } from 'payload'
 import type { Where } from 'payload'
 
 import config from '@/payload.config'
-import type { Locale } from '@/i18n'
+import { defaultLocale, type Locale } from '@/i18n'
 import type { Materia, Nivel, Recurso } from '@/payload-types'
 
 const TEXTOS = {
@@ -59,7 +59,7 @@ export default async function BibliotecaPage({
 }) {
   const { locale } = await params
   const filtros = await searchParams
-  const t = TEXTOS[locale]
+  const t = TEXTOS[locale] ?? TEXTOS[defaultLocale]
   const payload = await getPayload({ config })
 
   const where: Where = {}
