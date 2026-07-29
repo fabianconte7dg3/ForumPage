@@ -85,6 +85,7 @@ export interface Config {
     'registros-academicos': RegistrosAcademico;
     recuperaciones: Recuperacion;
     'horas-labor-social': HoraLaborSocial;
+    desembolsos: Desembolso;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -110,6 +111,7 @@ export interface Config {
     'registros-academicos': RegistrosAcademicosSelect<false> | RegistrosAcademicosSelect<true>;
     recuperaciones: RecuperacionesSelect<false> | RecuperacionesSelect<true>;
     'horas-labor-social': HorasLaborSocialSelect<false> | HorasLaborSocialSelect<true>;
+    desembolsos: DesembolsosSelect<false> | DesembolsosSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -644,6 +646,24 @@ export interface HoraLaborSocial {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "desembolsos".
+ */
+export interface Desembolso {
+  id: number;
+  becario: number | Becario;
+  monto: number;
+  fecha_programada: string;
+  /**
+   * Se completa cuando el pago realmente sale
+   */
+  fecha_efectiva?: string | null;
+  estado: 'programado' | 'retenido' | 'pagado' | 'cancelado';
+  concepto?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -737,6 +757,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'horas-labor-social';
         value: number | HoraLaborSocial;
+      } | null)
+    | ({
+        relationTo: 'desembolsos';
+        value: number | Desembolso;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1165,6 +1189,20 @@ export interface HorasLaborSocialSelect<T extends boolean = true> {
   estado?: T;
   aprobador?: T;
   comentario?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "desembolsos_select".
+ */
+export interface DesembolsosSelect<T extends boolean = true> {
+  becario?: T;
+  monto?: T;
+  fecha_programada?: T;
+  fecha_efectiva?: T;
+  estado?: T;
+  concepto?: T;
   updatedAt?: T;
   createdAt?: T;
 }

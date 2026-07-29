@@ -23,6 +23,7 @@ import { Tutorias } from './collections/Tutorias'
 import { RegistrosAcademicos } from './collections/RegistrosAcademicos'
 import { Recuperaciones } from './collections/Recuperaciones'
 import { HorasLaborSocial } from './collections/HorasLaborSocial'
+import { Desembolsos } from './collections/Desembolsos'
 import { Configuracion } from './globals/Configuracion'
 
 const filename = fileURLToPath(import.meta.url)
@@ -54,6 +55,7 @@ export default buildConfig({
     RegistrosAcademicos,
     Recuperaciones,
     HorasLaborSocial,
+    Desembolsos,
   ],
   globals: [Configuracion],
   editor: lexicalEditor(),

@@ -103,9 +103,13 @@ const reactivarSiYaNoDebeNada: CollectionAfterChangeHook<Recuperacion> = async (
     req,
   })
 
-  // Desembolsos aún no existe (se construye después en el Bloque 5) — cuando
-  // exista, este mismo hook se extiende para pasar sus 'retenido' a
-  // 'programado' (03-runbook-tecnico.md §6.2).
+  await req.payload.update({
+    collection: 'desembolsos',
+    where: { becario: { equals: becarioId }, estado: { equals: 'retenido' } },
+    data: { estado: 'programado' },
+    overrideAccess: true,
+    req,
+  })
 
   if (req.user) {
     await req.payload.create({

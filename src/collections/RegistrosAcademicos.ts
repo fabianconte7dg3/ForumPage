@@ -82,9 +82,13 @@ const suspenderPorReprobacion: CollectionAfterChangeHook<RegistrosAcademico> = a
     req,
   })
 
-  // Desembolsos aún no existe (Bloque 5 la construye después de
-  // RegistrosAcademicos) — cuando exista, este mismo hook se extiende para
-  // pasar sus 'programado' a 'retenido' (03-runbook-tecnico.md §6.1).
+  await req.payload.update({
+    collection: 'desembolsos',
+    where: { becario: { equals: becarioId }, estado: { equals: 'programado' } },
+    data: { estado: 'retenido' },
+    overrideAccess: true,
+    req,
+  })
 
   if (req.user) {
     await req.payload.create({
