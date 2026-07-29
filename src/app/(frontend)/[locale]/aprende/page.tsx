@@ -21,6 +21,8 @@ const TEXTOS = {
     tutoriasTexto: 'Sesiones de apoyo académico con fecha y sede.',
     practicas: 'Prácticas',
     practicasTexto: 'Ejercicios y quizzes de autoevaluación.',
+    ingles: 'Inglés',
+    inglesTexto: 'Aprende inglés como contenido propio — no es la traducción del sitio.',
     proximasTutorias: 'Próximas tutorías',
     verTodas: 'Ver todas →',
     sinTutorias: 'No hay tutorías programadas por ahora.',
@@ -34,6 +36,8 @@ const TEXTOS = {
     tutoriasTexto: 'Academic support sessions with date and site.',
     practicas: 'Practice',
     practicasTexto: 'Self-assessment exercises and quizzes.',
+    ingles: 'English',
+    inglesTexto: 'Learn English as content in itself — not a translation of the site.',
     proximasTutorias: 'Upcoming tutoring',
     verTodas: 'View all →',
     sinTutorias: 'No tutoring sessions scheduled right now.',
@@ -45,15 +49,29 @@ export default async function AprendePage({ params }: { params: Promise<{ locale
   const t = TEXTOS[locale] ?? TEXTOS[defaultLocale]
   const payload = await getPayload({ config })
 
-  const proximasTutorias = await payload.find({
-    collection: 'tutorias',
-    where: { fecha_hora: { greater_than_equal: new Date().toISOString() } },
-    sort: 'fecha_hora',
-    limit: 3,
-    depth: 1,
-    locale,
-    overrideAccess: true,
-  })
+  const [proximasTutorias, materiaIngles] = await Promise.all([
+    payload.find({
+      collection: 'tutorias',
+      where: { fecha_hora: { greater_than_equal: new Date().toISOString() } },
+      sort: 'fecha_hora',
+      limit: 3,
+      depth: 1,
+      locale,
+      overrideAccess: true,
+    }),
+    // Búsqueda por nombre, no un ID fijo — el inglés es la prioridad
+    // pedagógica declarada de la fundación (01-documento-de-proyecto.md
+    // §11), no una materia cualquiera; si el staff no la ha creado
+    // todavía, la tarjeta simplemente no aparece.
+    payload.find({
+      collection: 'materias',
+      where: { nombre: { equals: 'Inglés' } },
+      locale: 'es',
+      limit: 1,
+      overrideAccess: true,
+    }),
+  ])
+  const idIngles = materiaIngles.docs[0]?.id
 
   return (
     <div className="mx-auto max-w-(--container-content) px-4 py-12 md:px-16 md:py-24">
@@ -62,10 +80,18 @@ export default async function AprendePage({ params }: { params: Promise<{ locale
         <p className="mt-2 font-lectura text-lg text-tinta/70">{t.subtitulo}</p>
       </header>
 
-      <div className="mb-16 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="mb-16 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <AccesoCard href={`/${locale}/aprende/biblioteca`} texto={t.bibliotecaTexto} titulo={t.biblioteca} />
         <AccesoCard href={`/${locale}/aprende/tutorias`} texto={t.tutoriasTexto} titulo={t.tutorias} />
         <AccesoCard href={`/${locale}/aprende/practicas`} texto={t.practicasTexto} titulo={t.practicas} />
+        {idIngles && (
+          <AccesoCard
+            destacada
+            href={`/${locale}/aprende/biblioteca?materia=${idIngles}`}
+            texto={t.inglesTexto}
+            titulo={t.ingles}
+          />
+        )}
       </div>
 
       <section>
@@ -90,10 +116,22 @@ export default async function AprendePage({ params }: { params: Promise<{ locale
   )
 }
 
-function AccesoCard({ href, texto, titulo }: { href: string; texto: string; titulo: string }) {
+function AccesoCard({
+  destacada,
+  href,
+  texto,
+  titulo,
+}: {
+  destacada?: boolean
+  href: string
+  texto: string
+  titulo: string
+}) {
   return (
     <Link
-      className="flex flex-col rounded-lg border border-piedra/25 bg-white p-6 transition-colors hover:border-montana/50"
+      className={`flex flex-col rounded-lg border bg-white p-6 transition-colors hover:border-montana/50 ${
+        destacada ? 'border-cosecha' : 'border-piedra/25'
+      }`}
       href={href}
     >
       <h3 className="font-display text-lg font-bold uppercase text-montana">{titulo}</h3>
