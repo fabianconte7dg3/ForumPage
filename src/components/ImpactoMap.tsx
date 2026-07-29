@@ -54,6 +54,9 @@ export type Textos = {
   statComunidades: string
   statSedes: string
   statProyectosActivos: string
+  statObrasCompletadas: string
+  statBecariosActivos: string
+  statPaises: string
   capas: string
   capaComunidades: string
   capaSedes: string
@@ -80,7 +83,7 @@ export function ImpactoMap({
   programas: { id: number; nombre: string; color: string }[]
   maptilerKey?: string
   locale: string
-  stats: { comunidades: number; sedes: number; proyectosActivos: number }
+  stats: { comunidades: number; sedes: number; proyectosActivos: number; obrasCompletadas: number }
   textos: Textos
 }) {
   const contenedorRef = useRef<HTMLDivElement>(null)
@@ -194,8 +197,11 @@ export function ImpactoMap({
       <aside className="flex flex-col gap-6">
         <div className="grid grid-cols-3 gap-2">
           <StatCard label={t.statComunidades} value={stats.comunidades} />
+          <StatCard label={t.statObrasCompletadas} value={stats.obrasCompletadas} />
+          <StatCard label={t.statBecariosActivos} value="—" />
           <StatCard label={t.statSedes} value={stats.sedes} />
           <StatCard label={t.statProyectosActivos} value={stats.proyectosActivos} />
+          <StatCard label={t.statPaises} value="—" />
         </div>
 
         <div>
@@ -306,7 +312,7 @@ export function ImpactoMap({
   )
 }
 
-function StatCard({ label, value }: { label: string; value: number }) {
+function StatCard({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="rounded-md border border-piedra/25 p-3">
       <p className="font-dato text-2xl font-bold text-montana">{value}</p>

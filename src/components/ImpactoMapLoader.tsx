@@ -15,7 +15,7 @@ export function ImpactoMapLoader(props: {
   programas: { id: number; nombre: string; color: string }[]
   maptilerKey?: string
   locale: string
-  stats: { comunidades: number; sedes: number; proyectosActivos: number }
+  stats: { comunidades: number; sedes: number; proyectosActivos: number; obrasCompletadas: number }
   textos: Textos
 }) {
   return <ImpactoMap {...props} />

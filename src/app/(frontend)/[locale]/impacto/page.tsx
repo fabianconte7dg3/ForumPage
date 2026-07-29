@@ -22,9 +22,12 @@ const TEXTOS = {
     subtitulo: 'Comunidades y sedes donde trabaja la fundación en Coclé norte.',
     todos: 'Todos los programas',
     verFicha: 'Ver ficha completa →',
-    statComunidades: 'Comunidades',
+    statComunidades: 'Comunidades atendidas',
     statSedes: 'Sedes',
     statProyectosActivos: 'Proyectos activos',
+    statObrasCompletadas: 'Obras completadas',
+    statBecariosActivos: 'Becarios activos',
+    statPaises: 'Países alcanzados',
     capas: 'Capas',
     capaComunidades: 'Comunidades',
     capaSedes: 'Sedes',
@@ -40,9 +43,12 @@ const TEXTOS = {
     subtitulo: 'Communities and sites where the foundation works in northern Coclé.',
     todos: 'All programs',
     verFicha: 'View full page →',
-    statComunidades: 'Communities',
+    statComunidades: 'Communities served',
     statSedes: 'Sites',
     statProyectosActivos: 'Active projects',
+    statObrasCompletadas: 'Completed works',
+    statBecariosActivos: 'Active scholars',
+    statPaises: 'Countries reached',
     capas: 'Layers',
     capaComunidades: 'Communities',
     capaSedes: 'Sites',
@@ -147,6 +153,7 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
   const proyectosActivos = (proyectos.docs as Proyecto[]).filter(
     (p) => p.estado === 'en_ejecucion' || p.estado === 'aprobado',
   ).length
+  const obrasCompletadas = (proyectos.docs as Proyecto[]).filter((p) => p.estado === 'completado').length
 
   return (
     <div className="mx-auto max-w-(--container-content) px-4 py-12 md:px-16 md:py-24">
@@ -161,13 +168,21 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
         maptilerKey={process.env.MAPTILER_KEY}
         programas={(programas.docs as Programa[]).map((p) => ({ id: p.id, nombre: p.nombre, color: p.color }))}
         sedes={sedesFeatures}
-        stats={{ comunidades: comunidadesFeatures.length, sedes: sedesFeatures.length, proyectosActivos }}
+        stats={{
+          comunidades: comunidadesFeatures.length,
+          sedes: sedesFeatures.length,
+          proyectosActivos,
+          obrasCompletadas,
+        }}
         textos={{
           todos: t.todos,
           verFicha: t.verFicha,
           statComunidades: t.statComunidades,
           statSedes: t.statSedes,
           statProyectosActivos: t.statProyectosActivos,
+          statObrasCompletadas: t.statObrasCompletadas,
+          statBecariosActivos: t.statBecariosActivos,
+          statPaises: t.statPaises,
           capas: t.capas,
           capaComunidades: t.capaComunidades,
           capaSedes: t.capaSedes,
