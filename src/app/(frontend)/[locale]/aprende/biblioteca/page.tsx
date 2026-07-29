@@ -27,6 +27,8 @@ const TEXTOS = {
     fuente: 'Fuente',
     anterior: 'Anterior',
     siguiente: 'Siguiente',
+    descargar: '↓ Descargar para uso sin conexión',
+    abrir: 'Abrir enlace ↗',
     tipos: {
       pdf_propio: 'PDF',
       enlace_externo: 'Enlace',
@@ -46,6 +48,8 @@ const TEXTOS = {
     fuente: 'Source',
     anterior: 'Previous',
     siguiente: 'Next',
+    descargar: '↓ Download for offline use',
+    abrir: 'Open link ↗',
     tipos: {
       pdf_propio: 'PDF',
       enlace_externo: 'Link',
@@ -111,7 +115,14 @@ export default async function BibliotecaPage({
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {(recursos.docs as Recurso[]).map((recurso) => (
-                <RecursoCard key={recurso.id} recurso={recurso} textoFuente={t.fuente} tipos={t.tipos} />
+                <RecursoCard
+                  key={recurso.id}
+                  recurso={recurso}
+                  textoAbrir={t.abrir}
+                  textoDescargar={t.descargar}
+                  textoFuente={t.fuente}
+                  tipos={t.tipos}
+                />
               ))}
             </div>
           )}
@@ -147,16 +158,21 @@ export default async function BibliotecaPage({
 
 function RecursoCard({
   recurso,
+  textoAbrir,
+  textoDescargar,
   textoFuente,
   tipos,
 }: {
   recurso: Recurso
+  textoAbrir: string
+  textoDescargar: string
   textoFuente: string
   tipos: Record<Recurso['tipo'], string>
 }) {
   const nivel = typeof recurso.nivel === 'object' ? recurso.nivel : undefined
   const materia = typeof recurso.materia === 'object' ? recurso.materia : undefined
-  const href = recurso.tipo === 'pdf_propio' && typeof recurso.archivo === 'object' ? recurso.archivo?.url : recurso.url
+  const esDescargable = recurso.tipo === 'pdf_propio'
+  const href = esDescargable && typeof recurso.archivo === 'object' ? recurso.archivo?.url : recurso.url
   const videoId = recurso.tipo === 'video_youtube' && recurso.url ? extraerIdYoutube(recurso.url) : null
 
   const infoBlock = (
@@ -185,6 +201,11 @@ function RecursoCard({
         <div className="truncate font-dato text-[10px] uppercase text-piedra">
           {textoFuente}: {recurso.fuente_y_licencia}
         </div>
+        {(esDescargable || recurso.tipo === 'enlace_externo') && (
+          <div className="mt-2 font-dato text-[10px] uppercase tracking-wide text-cosecha">
+            {esDescargable ? textoDescargar : textoAbrir}
+          </div>
+        )}
       </div>
     </>
   )
@@ -201,9 +222,10 @@ function RecursoCard({
   return (
     <a
       className="flex flex-col justify-between rounded-lg border border-piedra/25 bg-white p-5 transition-colors hover:border-montana/50"
+      download={esDescargable ? true : undefined}
       href={href ?? '#'}
       rel={href ? 'noopener noreferrer' : undefined}
-      target={href ? '_blank' : undefined}
+      target={esDescargable ? undefined : href ? '_blank' : undefined}
     >
       {infoBlock}
     </a>
