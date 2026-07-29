@@ -70,6 +70,7 @@ export interface Config {
     users: User;
     media: Media;
     auditoria: Auditoria;
+    becarios: Becario;
     comunidades: Comunidad;
     sedes: Sede;
     'centros-educativos': CentroEducativo;
@@ -91,6 +92,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     auditoria: AuditoriaSelect<false> | AuditoriaSelect<true>;
+    becarios: BecariosSelect<false> | BecariosSelect<true>;
     comunidades: ComunidadesSelect<false> | ComunidadesSelect<true>;
     sedes: SedesSelect<false> | SedesSelect<true>;
     'centros-educativos': CentrosEducativosSelect<false> | CentrosEducativosSelect<true>;
@@ -153,6 +155,10 @@ export interface User {
   id: number;
   rol: 'admin' | 'staff' | 'directiva' | 'becario';
   activo?: boolean | null;
+  /**
+   * El registro de becario vinculado a esta cuenta
+   */
+  becario?: (number | null) | Becario;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -171,6 +177,78 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "becarios".
+ */
+export interface Becario {
+  id: number;
+  nombre: string;
+  comunidad?: (number | null) | Comunidad;
+  universidad?: string | null;
+  carrera?: string | null;
+  /**
+   * Año de la carrera que cursa actualmente
+   */
+  anio?: number | null;
+  /**
+   * Año en que inició la beca
+   */
+  anio_inicio?: number | null;
+  tipo_estudio?: ('nacional' | 'internacional') | null;
+  pais_estudio?: string | null;
+  ciudad_estudio?: string | null;
+  /**
+   * Ubicación de la universidad en el extranjero, para el arco en el Mapa de Impacto
+   */
+  coordenadas_estudio?: {
+    lat?: number | null;
+    lng?: number | null;
+  };
+  estado: 'activo' | 'suspendido' | 'graduado' | 'retornado' | 'retirado';
+  /**
+   * Lo que ve el becario suspendido. Se completa automáticamente al verificar un registro académico con materias reprobadas.
+   */
+  motivo_suspension?: string | null;
+  fecha_suspension?: string | null;
+  /**
+   * Sobrescribe la meta global de Configuracion — solo si esta universidad exige un mínimo distinto
+   */
+  meta_horas_personalizada?: number | null;
+  foto?: (number | null) | Media;
+  cita?: string | null;
+  historia?: string | null;
+  /**
+   * El becario puede revocar su consentimiento apagando esto en cualquier momento
+   */
+  mostrar_en_mapa?: boolean | null;
+  consentimiento_firmado?: boolean | null;
+  consentimiento_fecha?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comunidades".
+ */
+export interface Comunidad {
+  id: number;
+  nombre: string;
+  slug?: string | null;
+  distrito: string;
+  corregimiento?: string | null;
+  /**
+   * Centroide de la comunidad, nunca un domicilio
+   */
+  coordenadas: {
+    lat: number;
+    lng: number;
+  };
+  descripcion?: string | null;
+  foto?: (number | null) | Media;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -260,28 +338,6 @@ export interface Auditoria {
     | null;
   fecha: string;
   ip?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "comunidades".
- */
-export interface Comunidad {
-  id: number;
-  nombre: string;
-  slug?: string | null;
-  distrito: string;
-  corregimiento?: string | null;
-  /**
-   * Centroide de la comunidad, nunca un domicilio
-   */
-  coordenadas: {
-    lat: number;
-    lng: number;
-  };
-  descripcion?: string | null;
-  foto?: (number | null) | Media;
   updatedAt: string;
   createdAt: string;
 }
@@ -523,6 +579,10 @@ export interface PayloadLockedDocument {
         value: number | Auditoria;
       } | null)
     | ({
+        relationTo: 'becarios';
+        value: number | Becario;
+      } | null)
+    | ({
         relationTo: 'comunidades';
         value: number | Comunidad;
       } | null)
@@ -615,6 +675,7 @@ export interface PayloadMigration {
 export interface UsersSelect<T extends boolean = true> {
   rol?: T;
   activo?: T;
+  becario?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -709,6 +770,39 @@ export interface AuditoriaSelect<T extends boolean = true> {
   valor_nuevo?: T;
   fecha?: T;
   ip?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "becarios_select".
+ */
+export interface BecariosSelect<T extends boolean = true> {
+  nombre?: T;
+  comunidad?: T;
+  universidad?: T;
+  carrera?: T;
+  anio?: T;
+  anio_inicio?: T;
+  tipo_estudio?: T;
+  pais_estudio?: T;
+  ciudad_estudio?: T;
+  coordenadas_estudio?:
+    | T
+    | {
+        lat?: T;
+        lng?: T;
+      };
+  estado?: T;
+  motivo_suspension?: T;
+  fecha_suspension?: T;
+  meta_horas_personalizada?: T;
+  foto?: T;
+  cita?: T;
+  historia?: T;
+  mostrar_en_mapa?: T;
+  consentimiento_firmado?: T;
+  consentimiento_fecha?: T;
   updatedAt?: T;
   createdAt?: T;
 }

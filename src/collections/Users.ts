@@ -3,8 +3,6 @@ import type { CollectionConfig } from 'payload'
 import { esAdmin, esAdminFieldAccess } from '@/access'
 
 // IAM — ver docs/spec.md#control-de-acceso-iam y 03-runbook-tecnico.md §7.
-// El campo `becario` (relación, solo rol becario) se agrega cuando exista
-// la colección Becarios (Bloque 5).
 export const Users: CollectionConfig = {
   slug: 'users',
   admin: {
@@ -46,6 +44,19 @@ export const Users: CollectionConfig = {
       type: 'checkbox',
       defaultValue: true,
       // Cuentas se desactivan, nunca se borran — solo admin puede reactivar/desactivar.
+      access: {
+        update: esAdminFieldAccess,
+      },
+    },
+    {
+      name: 'becario',
+      type: 'relationship',
+      relationTo: 'becarios',
+      admin: {
+        condition: (data) => data?.rol === 'becario',
+        description: 'El registro de becario vinculado a esta cuenta',
+      },
+      // Un becario no puede vincularse a sí mismo a otro expediente.
       access: {
         update: esAdminFieldAccess,
       },

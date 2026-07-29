@@ -1,0 +1,203 @@
+import type { Access, CollectionConfig, FieldAccess, Where } from 'payload'
+
+import { esStaffOSuperior, esStaffOSuperiorFieldAccess } from '@/access'
+import type { User } from '@/payload-types'
+
+const rolDe = (user: User | null) => user?.rol
+
+// El estado del becario (activo/suspendido/...) y su motivo NUNCA se hacen
+// públicos, ni siquiera de forma agregada — no-negociable de CLAUDE.md. La API
+// expone todo lo que el access permita, así que esto se restringe por campo,
+// no solo filtrando qué documentos se listan.
+const soloPropioOStaffField: FieldAccess = ({ req, doc }) => {
+  const rol = rolDe(req.user as User | null)
+  if (rol === 'admin' || rol === 'staff' || rol === 'directiva') return true
+  const becarioId = (req.user as User | null)?.becario
+  return !!becarioId && doc?.id === becarioId
+}
+
+// Público: solo perfiles con mostrar_en_mapa (y sin los campos de estado,
+// vía field-access de arriba). Becario: solo su propio registro. Staff,
+// directiva y admin: todos — ver la matriz en 01-documento-de-proyecto.md §10.
+const lecturaBecarios: Access = ({ req }) => {
+  const rol = rolDe(req.user as User | null)
+  if (rol === 'admin' || rol === 'staff' || rol === 'directiva') return true
+  if (rol === 'becario') {
+    const becarioId = (req.user as User | null)?.becario
+    return becarioId ? ({ id: { equals: becarioId } } as Where) : false
+  }
+  return { mostrar_en_mapa: { equals: true } } as Where
+}
+
+// El becario solo puede llegar a su propio registro (para editar cita,
+// historia, foto, mostrar_en_mapa y su consentimiento — el resto de los
+// campos queda bloqueado por field-access). Staff y admin, todos. Directiva
+// es de solo lectura, nunca escribe.
+const escrituraBecarios: Access = ({ req }) => {
+  const rol = rolDe(req.user as User | null)
+  if (rol === 'admin' || rol === 'staff') return true
+  if (rol === 'becario') {
+    const becarioId = (req.user as User | null)?.becario
+    return becarioId ? ({ id: { equals: becarioId } } as Where) : false
+  }
+  return false
+}
+
+// Alta de becarios: creada por el staff mediante invitación — no hay
+// autorregistro (01-documento-de-proyecto.md §4.6).
+export const Becarios: CollectionConfig = {
+  slug: 'becarios',
+  typescript: { interface: 'Becario' },
+  admin: {
+    useAsTitle: 'nombre',
+    defaultColumns: ['nombre', 'universidad', 'estado', 'mostrar_en_mapa'],
+  },
+  access: {
+    read: lecturaBecarios,
+    create: esStaffOSuperior,
+    update: escrituraBecarios,
+    delete: esStaffOSuperior,
+  },
+  fields: [
+    {
+      name: 'nombre',
+      type: 'text',
+      required: true,
+      access: { update: esStaffOSuperiorFieldAccess },
+    },
+    {
+      name: 'comunidad',
+      type: 'relationship',
+      relationTo: 'comunidades',
+      access: { update: esStaffOSuperiorFieldAccess },
+    },
+    {
+      name: 'universidad',
+      type: 'text',
+      access: { update: esStaffOSuperiorFieldAccess },
+    },
+    {
+      name: 'carrera',
+      type: 'text',
+      localized: true,
+      access: { update: esStaffOSuperiorFieldAccess },
+    },
+    {
+      name: 'anio',
+      type: 'number',
+      admin: { description: 'Año de la carrera que cursa actualmente' },
+      access: { update: esStaffOSuperiorFieldAccess },
+    },
+    {
+      name: 'anio_inicio',
+      type: 'number',
+      admin: { description: 'Año en que inició la beca' },
+      access: { update: esStaffOSuperiorFieldAccess },
+    },
+    {
+      name: 'tipo_estudio',
+      type: 'select',
+      defaultValue: 'nacional',
+      options: [
+        { label: 'Nacional', value: 'nacional' },
+        { label: 'Internacional', value: 'internacional' },
+      ],
+      access: { update: esStaffOSuperiorFieldAccess },
+    },
+    {
+      name: 'pais_estudio',
+      type: 'text',
+      admin: { condition: (data) => data?.tipo_estudio === 'internacional' },
+      access: { update: esStaffOSuperiorFieldAccess },
+    },
+    {
+      name: 'ciudad_estudio',
+      type: 'text',
+      admin: { condition: (data) => data?.tipo_estudio === 'internacional' },
+      access: { update: esStaffOSuperiorFieldAccess },
+    },
+    {
+      name: 'coordenadas_estudio',
+      type: 'group',
+      admin: {
+        condition: (data) => data?.tipo_estudio === 'internacional',
+        description: 'Ubicación de la universidad en el extranjero, para el arco en el Mapa de Impacto',
+      },
+      access: { update: esStaffOSuperiorFieldAccess },
+      fields: [
+        { name: 'lat', type: 'number', min: -90, max: 90 },
+        { name: 'lng', type: 'number', min: -180, max: 180 },
+      ],
+    },
+    {
+      name: 'estado',
+      type: 'select',
+      required: true,
+      defaultValue: 'activo',
+      options: [
+        { label: 'Activo', value: 'activo' },
+        { label: 'Suspendido', value: 'suspendido' },
+        { label: 'Graduado', value: 'graduado' },
+        { label: 'Retornado', value: 'retornado' },
+        { label: 'Retirado', value: 'retirado' },
+      ],
+      // Nunca lo activa el becario, y nunca es público — ver soloPropioOStaffField.
+      access: { read: soloPropioOStaffField, update: esStaffOSuperiorFieldAccess },
+    },
+    {
+      name: 'motivo_suspension',
+      type: 'textarea',
+      admin: { description: 'Lo que ve el becario suspendido. Se completa automáticamente al verificar un registro académico con materias reprobadas.' },
+      access: { read: soloPropioOStaffField, update: esStaffOSuperiorFieldAccess },
+    },
+    {
+      name: 'fecha_suspension',
+      type: 'date',
+      access: { read: soloPropioOStaffField, update: esStaffOSuperiorFieldAccess },
+    },
+    {
+      name: 'meta_horas_personalizada',
+      type: 'number',
+      admin: { description: 'Sobrescribe la meta global de Configuracion — solo si esta universidad exige un mínimo distinto' },
+      access: { update: esStaffOSuperiorFieldAccess },
+    },
+    {
+      name: 'foto',
+      type: 'upload',
+      relationTo: 'media',
+    },
+    {
+      name: 'cita',
+      type: 'textarea',
+      localized: true,
+    },
+    {
+      name: 'historia',
+      type: 'textarea',
+      localized: true,
+    },
+    {
+      name: 'mostrar_en_mapa',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { description: 'El becario puede revocar su consentimiento apagando esto en cualquier momento' },
+      validate: (value, { siblingData }) => {
+        const data = siblingData as { consentimiento_firmado?: boolean }
+        if (value && !data?.consentimiento_firmado) {
+          return 'No se puede mostrar en el mapa sin consentimiento_firmado'
+        }
+        return true
+      },
+    },
+    {
+      name: 'consentimiento_firmado',
+      type: 'checkbox',
+      defaultValue: false,
+    },
+    {
+      name: 'consentimiento_fecha',
+      type: 'date',
+      admin: { condition: (data) => !!data?.consentimiento_firmado },
+    },
+  ],
+}

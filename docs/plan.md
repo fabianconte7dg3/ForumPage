@@ -4,7 +4,7 @@
 
 ## Estado actual
 
-**Fase:** 1 — Base pública (casi cerrada, 2 pendientes bloqueados por presupuesto: ver abajo) + 2 — Centro de Aprendizaje (cerrada). Siguiente: Fase 3 — Portal del Becario.
+**Fase:** 1 — Base pública (casi cerrada, 2 pendientes bloqueados por presupuesto: ver abajo) + 2 — Centro de Aprendizaje (cerrada) + 3 — Portal del Becario (arrancada).
 **Última actualización:** 2026-07-29
 
 Fase 0 tiene sus entregables iniciales listos (ver abajo), pendientes de llenarse con datos reales. En paralelo arrancó Fase 1: existe un esqueleto Next.js + Payload CMS 3 + PostgreSQL corriendo en local, verificado (`/` y `/admin` responden 200). No hay droplet ni datos reales cargados todavía.
@@ -98,6 +98,16 @@ Biblioteca, recursos con licencia obligatoria, prácticas en sus 3 modalidades, 
 ### Fase 3 — Portal del Becario
 
 Autenticación + 2FA, expediente académico con automatismo de suspensión/reactivación, labor social, desembolsos, pipeline de Necesidades.
+
+**Progreso:**
+
+- [x] **Paso A — Colección Becarios.** Primera de las 5 colecciones del Bloque 5 (runbook §5), en el orden establecido: `Becarios` → `RegistrosAcademicos` → `Recuperaciones` → `HorasLaborSocial` → `Desembolsos`. Campos según `01-documento-de-proyecto.md` §9: identidad y estudios (`nombre`, `comunidad`, `universidad`, `carrera` localizada, `anio`, `anio_inicio`), `tipo_estudio` nacional/internacional con `pais_estudio`/`ciudad_estudio`/`coordenadas_estudio` condicionados a "internacional" (deja lista la data para los arcos a universidades del Mapa de Impacto, aunque el mapa en sí sigue diferido), `estado` (activo/suspendido/graduado/retornado/retirado) con `motivo_suspension` y `fecha_suspension`, `meta_horas_personalizada` opcional, y los campos que el propio becario administra: `foto`, `cita`, `historia`, `mostrar_en_mapa`, `consentimiento_firmado` + fecha. Se agregó el campo `becario` (relación) a `Users`, restringido a rol `becario` y editable solo por admin (matriz: "Usuarios y roles" es admin-only, ver `01-documento-de-proyecto.md` §10).
+  **Control de acceso — el punto que exigía más cuidado, con el no-negociable de CLAUDE.md de por medio ("el estado suspendido nunca se hace público, ni agregado"):**
+  - Lectura: público solo ve becarios con `mostrar_en_mapa: true`; becario ve únicamente su propio registro (`id === user.becario`); staff/directiva/admin ven todos.
+  - **`estado`, `motivo_suspension` y `fecha_suspension` llevan field-access de lectura propio** (`soloPropioOStaffField`, definido en `Becarios.ts`): ni siquiera en un registro con `mostrar_en_mapa: true` estos tres campos llegan a una petición pública — se restringe por campo, no solo filtrando qué documentos se listan, exactamente la distinción que exige el runbook §7.2.
+  - Escritura: el becario solo puede llegar a su propio registro, y ahí solo puede tocar `foto`/`cita`/`historia`/`mostrar_en_mapa`/`consentimiento_firmado` — el resto de los campos (identidad, estudios, estado) queda bloqueado por field-access `esStaffOSuperiorFieldAccess`, reutilizado de Fase 2.
+  - Validación ya presente: `mostrar_en_mapa` no se puede activar sin `consentimiento_firmado` (mismo patrón que `Media.contiene_menores`).
+  Verificado con el servidor corriendo, **contra la API real, no la interfaz** (como exige CLAUDE.md): se creó un becario de prueba real con `estado: 'suspendido'` y `mostrar_en_mapa: true` — `GET /api/becarios` público lo devuelve (por el consentimiento) pero **sin `estado`, `motivo_suspension` ni `fecha_suspension` en absoluto**; un segundo becario de prueba con `mostrar_en_mapa: false` no aparece en la lista pública (`totalDocs: 1`, no 2); un tercer intento de crear un becario con `mostrar_en_mapa: true` y `consentimiento_firmado: false` fue bloqueado por la validación. Los tres registros de prueba se borraron después. Migración generada (`20260729_201249_agregar_becarios`) y verificada de punta a punta contra un Postgres realmente vacío (43 tablas, coincide con dev: 41 + `becarios` + `becarios_locales`).
 
 Detalle completo de cada fase (checklists exhaustivos): [02-plan-de-ejecucion.md](../02-plan-de-ejecucion.md)
 

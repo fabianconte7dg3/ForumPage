@@ -8,6 +8,7 @@ import sharp from 'sharp'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Auditoria } from './collections/Auditoria'
+import { Becarios } from './collections/Becarios'
 import { Comunidades } from './collections/Comunidades'
 import { Sedes } from './collections/Sedes'
 import { CentrosEducativos } from './collections/CentrosEducativos'
@@ -35,6 +36,7 @@ export default buildConfig({
     Users,
     Media,
     Auditoria,
+    Becarios,
     Comunidades,
     Sedes,
     CentrosEducativos,
