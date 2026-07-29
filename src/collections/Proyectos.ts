@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { esStaffOSuperior } from '@/access'
+import { slugField } from '@/fields/slug'
 
 export const Proyectos: CollectionConfig = {
   slug: 'proyectos',
@@ -21,6 +22,7 @@ export const Proyectos: CollectionConfig = {
       required: true,
       localized: true,
     },
+    slugField('titulo'),
     {
       name: 'programa',
       type: 'relationship',

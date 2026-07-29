@@ -86,7 +86,7 @@ export default async function ArticuloPage({
           </Link>
         )}
         {proyecto && (
-          <Link className="text-rio hover:underline" href={`/${locale}/impacto/proyectos/${proyecto.id}`}>
+          <Link className="text-rio hover:underline" href={`/${locale}/impacto/proyectos/${proyecto.slug}`}>
             {t.verProyecto} →
           </Link>
         )}

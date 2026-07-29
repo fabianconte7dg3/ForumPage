@@ -109,7 +109,11 @@ export default async function ComunidadPage({
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {(proyectos.docs as Proyecto[]).map((proyecto) => (
-              <div className="rounded-md border border-piedra/25 p-4" key={proyecto.id}>
+              <Link
+                className="block rounded-md border border-piedra/25 p-4 hover:border-montana"
+                href={`/${locale}/impacto/proyectos/${proyecto.slug}`}
+                key={proyecto.id}
+              >
                 <p className="font-dato text-xs uppercase tracking-wider text-tinta/60">
                   {estados[proyecto.estado] ?? proyecto.estado}
                 </p>
@@ -123,7 +127,7 @@ export default async function ComunidadPage({
                 <p className="mt-1 font-dato text-xs text-tinta/60">
                   {t.avance}: {proyecto.avance ?? 0}%
                 </p>
-              </div>
+              </Link>
             ))}
           </div>
         )}

@@ -346,6 +346,7 @@ export interface Programa {
 export interface Proyecto {
   id: number;
   titulo: string;
+  slug?: string | null;
   programa?: (number | null) | Programa;
   comunidad: number | Comunidad;
   centro_educativo?: (number | null) | CentroEducativo;
@@ -788,6 +789,7 @@ export interface ProgramasSelect<T extends boolean = true> {
  */
 export interface ProyectosSelect<T extends boolean = true> {
   titulo?: T;
+  slug?: T;
   programa?: T;
   comunidad?: T;
   centro_educativo?: T;
