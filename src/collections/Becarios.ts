@@ -199,5 +199,24 @@ export const Becarios: CollectionConfig = {
       type: 'date',
       admin: { condition: (data) => !!data?.consentimiento_firmado },
     },
+    // Dato sensible del expediente (01-documento-de-proyecto.md §8): la
+    // condición socioeconómica es un requisito de elegibilidad, no un campo
+    // de perfil — solo se registra que quedó verificada. La documentación de
+    // respaldo queda restringida al staff evaluador, ni siquiera la
+    // directiva o el propio becario la ven (solo ven que está verificada).
+    {
+      name: 'condicion_socioeconomica_verificada',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { description: 'Requisito de elegibilidad — no es un campo de perfil, solo se registra que se verificó' },
+      access: { update: esStaffOSuperiorFieldAccess },
+    },
+    {
+      name: 'documentacion_socioeconomica',
+      type: 'upload',
+      relationTo: 'media',
+      admin: { description: 'Acceso restringido al staff evaluador — ni la directiva ni el becario lo ven' },
+      access: { create: esStaffOSuperiorFieldAccess, read: esStaffOSuperiorFieldAccess, update: esStaffOSuperiorFieldAccess },
+    },
   ],
 }

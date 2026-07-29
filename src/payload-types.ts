@@ -233,6 +233,14 @@ export interface Becario {
   mostrar_en_mapa?: boolean | null;
   consentimiento_firmado?: boolean | null;
   consentimiento_fecha?: string | null;
+  /**
+   * Requisito de elegibilidad — no es un campo de perfil, solo se registra que se verificó
+   */
+  condicion_socioeconomica_verificada?: boolean | null;
+  /**
+   * Acceso restringido al staff evaluador — ni la directiva ni el becario lo ven
+   */
+  documentacion_socioeconomica?: (number | null) | Media;
   updatedAt: string;
   createdAt: string;
 }
@@ -593,6 +601,10 @@ export interface RegistrosAcademico {
    * Se completa sola al verificar
    */
   fecha_verificacion?: string | null;
+  /**
+   * Privado del staff evaluador — nunca lo ve el becario ni la directiva
+   */
+  nota_interna_evaluacion?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -939,6 +951,8 @@ export interface BecariosSelect<T extends boolean = true> {
   mostrar_en_mapa?: T;
   consentimiento_firmado?: T;
   consentimiento_fecha?: T;
+  condicion_socioeconomica_verificada?: T;
+  documentacion_socioeconomica?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1158,6 +1172,7 @@ export interface RegistrosAcademicosSelect<T extends boolean = true> {
   estado_verificacion?: T;
   verificado_por?: T;
   fecha_verificacion?: T;
+  nota_interna_evaluacion?: T;
   updatedAt?: T;
   createdAt?: T;
 }

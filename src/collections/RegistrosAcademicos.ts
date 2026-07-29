@@ -193,5 +193,15 @@ export const RegistrosAcademicos: CollectionConfig = {
       admin: { readOnly: true, description: 'Se completa sola al verificar' },
       access: { create: esStaffOSuperiorFieldAccess, update: esStaffOSuperiorFieldAccess },
     },
+    // Distinto de Becarios.motivo_suspension (lo que ve el becario): esta es
+    // la nota privada del staff sobre su propia evaluación — nunca la ve el
+    // becario ni la directiva (01-documento-de-proyecto.md §10, "Reglas a
+    // nivel de campo").
+    {
+      name: 'nota_interna_evaluacion',
+      type: 'textarea',
+      admin: { description: 'Privado del staff evaluador — nunca lo ve el becario ni la directiva' },
+      access: { create: esStaffOSuperiorFieldAccess, read: esStaffOSuperiorFieldAccess, update: esStaffOSuperiorFieldAccess },
+    },
   ],
 }
