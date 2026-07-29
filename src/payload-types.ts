@@ -82,6 +82,7 @@ export interface Config {
     recursos: Recurso;
     practicas: Practica;
     tutorias: Tutoria;
+    'registros-academicos': RegistrosAcademico;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -104,6 +105,7 @@ export interface Config {
     recursos: RecursosSelect<false> | RecursosSelect<true>;
     practicas: PracticasSelect<false> | PracticasSelect<true>;
     tutorias: TutoriasSelect<false> | TutoriasSelect<true>;
+    'registros-academicos': RegistrosAcademicosSelect<false> | RegistrosAcademicosSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -544,6 +546,52 @@ export interface Tutoria {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "registros-academicos".
+ */
+export interface RegistrosAcademico {
+  id: number;
+  becario: number | Becario;
+  /**
+   * Ej. "2026-1"
+   */
+  periodo: string;
+  universidad?: string | null;
+  materias_aprobadas?:
+    | {
+        nombre: string;
+        calificacion: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Si tiene al menos una materia acá, verificar este registro suspende al becario automáticamente
+   */
+  materias_reprobadas?:
+    | {
+        nombre: string;
+        calificacion: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Índice académico del período
+   */
+  indice?: number | null;
+  documento?: (number | null) | Media;
+  estado_verificacion: 'pendiente' | 'verificado';
+  /**
+   * Se completa solo al verificar
+   */
+  verificado_por?: (number | null) | User;
+  /**
+   * Se completa sola al verificar
+   */
+  fecha_verificacion?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -625,6 +673,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tutorias';
         value: number | Tutoria;
+      } | null)
+    | ({
+        relationTo: 'registros-academicos';
+        value: number | RegistrosAcademico;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -992,6 +1044,36 @@ export interface TutoriasSelect<T extends boolean = true> {
   responsable?: T;
   recurrencia?: T;
   notas?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "registros-academicos_select".
+ */
+export interface RegistrosAcademicosSelect<T extends boolean = true> {
+  becario?: T;
+  periodo?: T;
+  universidad?: T;
+  materias_aprobadas?:
+    | T
+    | {
+        nombre?: T;
+        calificacion?: T;
+        id?: T;
+      };
+  materias_reprobadas?:
+    | T
+    | {
+        nombre?: T;
+        calificacion?: T;
+        id?: T;
+      };
+  indice?: T;
+  documento?: T;
+  estado_verificacion?: T;
+  verificado_por?: T;
+  fecha_verificacion?: T;
   updatedAt?: T;
   createdAt?: T;
 }

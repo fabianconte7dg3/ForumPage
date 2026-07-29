@@ -1,0 +1,193 @@
+import type { Access, CollectionAfterChangeHook, CollectionBeforeChangeHook, CollectionConfig, Where } from 'payload'
+
+import { esStaffOSuperior, esStaffOSuperiorFieldAccess } from '@/access'
+import type { RegistrosAcademico, User } from '@/payload-types'
+
+const rolDe = (user: User | null) => user?.rol
+
+// Público: sin acceso. Becario: solo los propios. Staff/directiva/admin: todos.
+const lecturaRegistros: Access = ({ req }) => {
+  const rol = rolDe(req.user as User | null)
+  if (rol === 'admin' || rol === 'staff' || rol === 'directiva') return true
+  if (rol === 'becario') {
+    const becarioId = (req.user as User | null)?.becario
+    return becarioId ? ({ becario: { equals: becarioId } } as Where) : false
+  }
+  return false
+}
+
+const creacionRegistros: Access = ({ req }) => {
+  const rol = rolDe(req.user as User | null)
+  return rol === 'admin' || rol === 'staff' || rol === 'becario'
+}
+
+// El becario solo edita su propio registro, y solo mientras está pendiente —
+// una vez verificado queda congelado (01-documento-de-proyecto.md §10,
+// "Reglas por rol"). Staff y admin, siempre.
+const escrituraRegistros: Access = ({ req }) => {
+  const rol = rolDe(req.user as User | null)
+  if (rol === 'admin' || rol === 'staff') return true
+  if (rol === 'becario') {
+    const becarioId = (req.user as User | null)?.becario
+    if (!becarioId) return false
+    return {
+      and: [{ becario: { equals: becarioId } }, { estado_verificacion: { equals: 'pendiente' } }],
+    } as Where
+  }
+  return false
+}
+
+// Un becario no puede crear el registro de otro becario, sin importar qué
+// envíe el formulario — se fuerza server-side, no se confía en el cliente.
+const forzarPropioBecario: CollectionBeforeChangeHook = ({ data, req, operation }) => {
+  if (operation === 'create' && rolDe(req.user as User | null) === 'becario') {
+    return { ...data, becario: (req.user as User).becario }
+  }
+  return data
+}
+
+// "Firmado y fechado": quién verificó y cuándo lo pone el sistema al momento
+// de la transición, no un campo que el staff escriba a mano.
+const autocompletarVerificacion: CollectionBeforeChangeHook = ({ data, req, originalDoc }) => {
+  const pasaAVerificado = data.estado_verificacion === 'verificado' && originalDoc?.estado_verificacion !== 'verificado'
+  if (pasaAVerificado && req.user) {
+    return { ...data, verificado_por: req.user.id, fecha_verificacion: new Date().toISOString() }
+  }
+  return data
+}
+
+// El automatismo central de Fase 3 (03-runbook-tecnico.md §6.1): verificar un
+// registro con materias reprobadas suspende al becario, sin intervención
+// manual. Se dispara solo en la transición hacia "verificado" (no en cada
+// re-guardado de un registro ya verificado) para no reprocesar de más.
+const suspenderPorReprobacion: CollectionAfterChangeHook<RegistrosAcademico> = async ({
+  doc,
+  previousDoc,
+  operation,
+  req,
+}) => {
+  const seAcabaDeVerificar =
+    doc.estado_verificacion === 'verificado' && (operation === 'create' || previousDoc?.estado_verificacion !== 'verificado')
+  const materiasReprobadas = doc.materias_reprobadas ?? []
+  if (!seAcabaDeVerificar || materiasReprobadas.length === 0) return
+
+  const becarioId = typeof doc.becario === 'object' ? doc.becario.id : doc.becario
+  const motivo = `Materia(s) reprobada(s): ${materiasReprobadas.map((m) => m.nombre).join(', ')}`
+
+  await req.payload.update({
+    collection: 'becarios',
+    id: becarioId,
+    data: { estado: 'suspendido', motivo_suspension: motivo, fecha_suspension: new Date().toISOString() },
+    overrideAccess: true,
+    req,
+  })
+
+  // Desembolsos aún no existe (Bloque 5 la construye después de
+  // RegistrosAcademicos) — cuando exista, este mismo hook se extiende para
+  // pasar sus 'programado' a 'retenido' (03-runbook-tecnico.md §6.1).
+
+  if (req.user) {
+    await req.payload.create({
+      collection: 'auditoria',
+      data: {
+        actor: req.user.id,
+        accion: 'suspension_automatica',
+        coleccion: 'becarios',
+        documento_id: String(becarioId),
+        valor_nuevo: { estado: 'suspendido', motivo_suspension: motivo },
+        fecha: new Date().toISOString(),
+      },
+      overrideAccess: true,
+      req,
+    })
+  }
+}
+
+export const RegistrosAcademicos: CollectionConfig = {
+  slug: 'registros-academicos',
+  typescript: { interface: 'RegistrosAcademico' },
+  admin: {
+    useAsTitle: 'periodo',
+    defaultColumns: ['becario', 'periodo', 'estado_verificacion'],
+  },
+  access: {
+    read: lecturaRegistros,
+    create: creacionRegistros,
+    update: escrituraRegistros,
+    delete: esStaffOSuperior,
+  },
+  hooks: {
+    beforeChange: [forzarPropioBecario, autocompletarVerificacion],
+    afterChange: [suspenderPorReprobacion],
+  },
+  fields: [
+    {
+      name: 'becario',
+      type: 'relationship',
+      relationTo: 'becarios',
+      required: true,
+      access: { update: esStaffOSuperiorFieldAccess },
+    },
+    {
+      name: 'periodo',
+      type: 'text',
+      required: true,
+      admin: { description: 'Ej. "2026-1"' },
+    },
+    {
+      name: 'universidad',
+      type: 'text',
+    },
+    {
+      name: 'materias_aprobadas',
+      type: 'array',
+      fields: [
+        { name: 'nombre', type: 'text', required: true },
+        { name: 'calificacion', type: 'text', required: true },
+      ],
+    },
+    {
+      name: 'materias_reprobadas',
+      type: 'array',
+      admin: { description: 'Si tiene al menos una materia acá, verificar este registro suspende al becario automáticamente' },
+      fields: [
+        { name: 'nombre', type: 'text', required: true },
+        { name: 'calificacion', type: 'text', required: true },
+      ],
+    },
+    {
+      name: 'indice',
+      type: 'number',
+      admin: { description: 'Índice académico del período' },
+    },
+    {
+      name: 'documento',
+      type: 'upload',
+      relationTo: 'media',
+    },
+    {
+      name: 'estado_verificacion',
+      type: 'select',
+      required: true,
+      defaultValue: 'pendiente',
+      options: [
+        { label: 'Pendiente', value: 'pendiente' },
+        { label: 'Verificado', value: 'verificado' },
+      ],
+      access: { create: esStaffOSuperiorFieldAccess, update: esStaffOSuperiorFieldAccess },
+    },
+    {
+      name: 'verificado_por',
+      type: 'relationship',
+      relationTo: 'users',
+      admin: { readOnly: true, description: 'Se completa solo al verificar' },
+      access: { create: esStaffOSuperiorFieldAccess, update: esStaffOSuperiorFieldAccess },
+    },
+    {
+      name: 'fecha_verificacion',
+      type: 'date',
+      admin: { readOnly: true, description: 'Se completa sola al verificar' },
+      access: { create: esStaffOSuperiorFieldAccess, update: esStaffOSuperiorFieldAccess },
+    },
+  ],
+}
