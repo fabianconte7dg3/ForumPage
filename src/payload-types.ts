@@ -83,6 +83,7 @@ export interface Config {
     practicas: Practica;
     tutorias: Tutoria;
     'registros-academicos': RegistrosAcademico;
+    recuperaciones: Recuperacion;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -106,6 +107,7 @@ export interface Config {
     practicas: PracticasSelect<false> | PracticasSelect<true>;
     tutorias: TutoriasSelect<false> | TutoriasSelect<true>;
     'registros-academicos': RegistrosAcademicosSelect<false> | RegistrosAcademicosSelect<true>;
+    recuperaciones: RecuperacionesSelect<false> | RecuperacionesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -592,6 +594,31 @@ export interface RegistrosAcademico {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "recuperaciones".
+ */
+export interface Recuperacion {
+  id: number;
+  becario: number | Becario;
+  /**
+   * Debe coincidir con el nombre usado en materias_reprobadas del registro académico
+   */
+  materia: string;
+  periodo?: string | null;
+  evidencia?: (number | null) | Media;
+  estado: 'pendiente' | 'verificado';
+  /**
+   * Se completa solo al verificar
+   */
+  verificado_por?: (number | null) | User;
+  /**
+   * Se completa sola al verificar
+   */
+  fecha?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -677,6 +704,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'registros-academicos';
         value: number | RegistrosAcademico;
+      } | null)
+    | ({
+        relationTo: 'recuperaciones';
+        value: number | Recuperacion;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1074,6 +1105,21 @@ export interface RegistrosAcademicosSelect<T extends boolean = true> {
   estado_verificacion?: T;
   verificado_por?: T;
   fecha_verificacion?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "recuperaciones_select".
+ */
+export interface RecuperacionesSelect<T extends boolean = true> {
+  becario?: T;
+  materia?: T;
+  periodo?: T;
+  evidencia?: T;
+  estado?: T;
+  verificado_por?: T;
+  fecha?: T;
   updatedAt?: T;
   createdAt?: T;
 }

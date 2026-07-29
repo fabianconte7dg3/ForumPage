@@ -21,6 +21,7 @@ import { Recursos } from './collections/Recursos'
 import { Practicas } from './collections/Practicas'
 import { Tutorias } from './collections/Tutorias'
 import { RegistrosAcademicos } from './collections/RegistrosAcademicos'
+import { Recuperaciones } from './collections/Recuperaciones'
 import { Configuracion } from './globals/Configuracion'
 
 const filename = fileURLToPath(import.meta.url)
@@ -50,6 +51,7 @@ export default buildConfig({
     Practicas,
     Tutorias,
     RegistrosAcademicos,
+    Recuperaciones,
   ],
   globals: [Configuracion],
   editor: lexicalEditor(),
