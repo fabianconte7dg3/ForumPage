@@ -42,7 +42,7 @@ Documento vivo: marcar cada casilla cuando el acceso o la cuenta exista de verda
 
 ## Levantamiento de contenido (paralelo, no bloquea código)
 
-- [ ] Inventario completo de artículos del WordPress actual (título, URL, fecha real, imágenes, idioma)
+- [x] Inventario completo de artículos del WordPress actual (título, URL, fecha real, imágenes, idioma) — [docs/fase-0/plantillas/inventario-articulos.csv](plantillas/inventario-articulos.csv), 70 artículos extraídos vía la API REST pública. **Pendiente:** el staff completa la columna `accion` (migrar/archivar/reescribir) y `tipo_sugerido` — varios de los 70 son en realidad perfiles de becario, no actividades
 - [ ] Informes anuales descargados de Google Drive (2021, 2022 y los que existan)
 - [ ] Episodios del podcast descargados de Anchor
 - [ ] Biblioteca de medios de WordPress exportada en resolución original

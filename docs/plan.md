@@ -38,7 +38,7 @@ Entregables ya producidos, pendientes de llenar con datos reales del staff:
 
 Pendiente (depende de personas, no de código):
 
-- [ ] Inventario completo de artículos del WordPress actual
+- [x] Inventario completo de artículos del WordPress actual — ver [docs/fase-0/accesos.md](fase-0/accesos.md)
 - [ ] Informes anuales y podcast descargados de Google Drive / Anchor
 - [ ] Llenar las plantillas con datos reales de comunidades, sedes, centros educativos y becarios
 - [ ] Validar el consentimiento con asesoría legal panameña y **empezar la recolección de firmas** — punto crítico del cronograma
@@ -57,7 +57,7 @@ Criterio de aceptación clave: staff publica una actividad con 3 fotos desde el 
 
 - [x] **Paso A — Payload arrancando en local.** Next.js 16 + Payload 3.82.1 + `@payloadcms/db-postgres`, Postgres local vía `docker-compose.yml` (solo DB), localización ES/EN configurada (`defaultLocale: es`) antes de crear ninguna colección, GraphQL desactivado. Colecciones `Users` y `Media` mínimas (placeholder). Verificado: `pnpm install`, `pnpm dev`, `/` y `/admin` responden 200. Ver [03-runbook-tecnico.md §2–4](../03-runbook-tecnico.md).
 - [x] **Paso B — Colecciones base** (Bloque 1-2 del runbook §5): `Users` con los 4 roles + `activo` (protegidos a nivel de campo contra auto-escalación), `Media` con `imageSizes`/`consentimiento_verificado`/`contiene_menores` (con validación cruzada), `Auditoria` (solo lectura directiva/admin, escritura bloqueada desde panel), global `Configuracion`, `Comunidades`/`Sedes`/`CentrosEducativos`/`Programas`. Funciones de acceso reutilizables en `src/access/`, slug compartido en `src/fields/slug.ts`. Verificado: `tsc --noEmit` limpio, Postgres sincronizó las 23 tablas esperadas (`\dt` + columnas revisadas), `pnpm seed` cargó los 20 registros ficticios de `docs/fase-0/plantillas/` de forma idempotente (segunda corrida los detecta y omite).
-- [ ] **Paso C — Actividades y script de extracción de Elementor**
+- [x] **Paso C — Actividades y script de extracción de Elementor.** Colecciones `Proyectos` (con `foto_antes`/`foto_despues`, `estado`, `avance`) y `Actividades` (mural + blog unificados). `scripts/lib/elementor.ts` extrae texto e imágenes del HTML ya renderizado de Elementor (vía la API REST pública de WordPress, no scraping de HTML crudo), probado contra el sitio real. `scripts/migrate-wordpress.ts` orquesta: lee `docs/fase-0/plantillas/inventario-articulos.csv`, migra solo filas marcadas `accion=migrar`, sube imágenes a Media, crea la Actividad en locale `en` con la comunidad placeholder "Sin clasificar" (el staff reasigna la comunidad real al revisar), y emite `redirects.csv`. **Inventario real generado**: 70 artículos extraídos en vivo de forum-foundation.org (título, URL, fecha, idioma, conteo de imágenes) — cierra ese pendiente de Fase 0. Verificado con una migración real de prueba (1 artículo, revertida después): imagen descargada, Actividad creada con fecha y contenido reales, redirects.csv correcto. **Pendiente:** el staff completa la columna `accion` del inventario (varios de los 70 posts son perfiles de becario, no actividades) antes de correr `pnpm migrate:wordpress` para el resto.
 - [ ] Docker Compose de staging/producción (app + Caddy) — separado del compose de solo-DB usado en desarrollo
 - [ ] Resto del checklist de infraestructura, colecciones, frontend y mapa: ver [03-runbook-tecnico.md](../03-runbook-tecnico.md)
 

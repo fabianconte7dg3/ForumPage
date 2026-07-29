@@ -74,6 +74,8 @@ export interface Config {
     sedes: Sede;
     'centros-educativos': CentrosEducativo;
     programas: Programa;
+    proyectos: Proyecto;
+    actividades: Actividade;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -88,6 +90,8 @@ export interface Config {
     sedes: SedesSelect<false> | SedesSelect<true>;
     'centros-educativos': CentrosEducativosSelect<false> | CentrosEducativosSelect<true>;
     programas: ProgramasSelect<false> | ProgramasSelect<true>;
+    proyectos: ProyectosSelect<false> | ProyectosSelect<true>;
+    actividades: ActividadesSelect<false> | ActividadesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -327,6 +331,60 @@ export interface Programa {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "proyectos".
+ */
+export interface Proyecto {
+  id: number;
+  titulo: string;
+  programa?: (number | null) | Programa;
+  comunidad: number | Comunidade;
+  centro_educativo?: (number | null) | CentrosEducativo;
+  estado: 'propuesto' | 'aprobado' | 'en_ejecucion' | 'completado';
+  fecha_inicio?: string | null;
+  fecha_fin?: string | null;
+  monto?: number | null;
+  avance?: number | null;
+  foto_antes?: (number | null) | Media;
+  foto_despues?: (number | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "actividades".
+ */
+export interface Actividade {
+  id: number;
+  titulo: string;
+  slug?: string | null;
+  extracto?: string | null;
+  contenido?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  fecha_publicacion: string;
+  portada?: (number | null) | Media;
+  galeria?: (number | Media)[] | null;
+  comunidad: number | Comunidade;
+  programa?: (number | null) | Programa;
+  proyecto?: (number | null) | Proyecto;
+  destacada?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -376,6 +434,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'programas';
         value: number | Programa;
+      } | null)
+    | ({
+        relationTo: 'proyectos';
+        value: number | Proyecto;
+      } | null)
+    | ({
+        relationTo: 'actividades';
+        value: number | Actividade;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -592,6 +658,44 @@ export interface ProgramasSelect<T extends boolean = true> {
   color?: T;
   icono?: T;
   activo?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "proyectos_select".
+ */
+export interface ProyectosSelect<T extends boolean = true> {
+  titulo?: T;
+  programa?: T;
+  comunidad?: T;
+  centro_educativo?: T;
+  estado?: T;
+  fecha_inicio?: T;
+  fecha_fin?: T;
+  monto?: T;
+  avance?: T;
+  foto_antes?: T;
+  foto_despues?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "actividades_select".
+ */
+export interface ActividadesSelect<T extends boolean = true> {
+  titulo?: T;
+  slug?: T;
+  extracto?: T;
+  contenido?: T;
+  fecha_publicacion?: T;
+  portada?: T;
+  galeria?: T;
+  comunidad?: T;
+  programa?: T;
+  proyecto?: T;
+  destacada?: T;
   updatedAt?: T;
   createdAt?: T;
 }

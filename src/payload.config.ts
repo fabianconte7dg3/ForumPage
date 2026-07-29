@@ -12,6 +12,8 @@ import { Comunidades } from './collections/Comunidades'
 import { Sedes } from './collections/Sedes'
 import { CentrosEducativos } from './collections/CentrosEducativos'
 import { Programas } from './collections/Programas'
+import { Proyectos } from './collections/Proyectos'
+import { Actividades } from './collections/Actividades'
 import { Configuracion } from './globals/Configuracion'
 
 const filename = fileURLToPath(import.meta.url)
@@ -24,7 +26,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Auditoria, Comunidades, Sedes, CentrosEducativos, Programas],
+  collections: [Users, Media, Auditoria, Comunidades, Sedes, CentrosEducativos, Programas, Proyectos, Actividades],
   globals: [Configuracion],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
