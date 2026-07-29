@@ -138,7 +138,7 @@ async function main() {
     {
       titulo: 'Laboratorio de cómputo en Chiguirí Arriba',
       comunidad: 'Chiguirí Arriba',
-      programa: 'INADEH',
+      programa: 'Infraestructura',
       estado: 'en_ejecucion',
       avance: 60,
       monto: 8200,
@@ -194,7 +194,7 @@ async function main() {
     {
       titulo: 'Avance del laboratorio de cómputo en Chiguirí Arriba',
       comunidad: 'Chiguirí Arriba',
-      programa: 'INADEH',
+      programa: 'Infraestructura',
       proyecto: 'Laboratorio de cómputo en Chiguirí Arriba',
       fecha_publicacion: '2026-05-20',
       extracto: 'El nuevo laboratorio de cómputo avanza al 60% de su construcción.',
