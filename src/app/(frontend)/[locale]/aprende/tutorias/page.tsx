@@ -6,6 +6,11 @@ import { defaultLocale, type Locale } from '@/i18n'
 import config from '@/payload.config'
 import type { Materia, Nivel, Sede, Tutoria } from '@/payload-types'
 
+// Sin esto, Next intenta pre-renderizar la página en build time y necesita
+// Postgres alcanzable ahí mismo — el contenido de Payload cambia entre
+// despliegues, así que siempre se renderiza por request.
+export const dynamic = 'force-dynamic'
+
 const TEXTOS = {
   es: {
     titulo: 'Tutorías',

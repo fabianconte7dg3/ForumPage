@@ -16,6 +16,11 @@ const TIPOS_SEDE = {
   en: { sede_principal: 'Main site', biblioteca: 'Library', centro: 'Center' },
 } satisfies Record<Locale, Record<string, string>>
 
+// Sin esto, Next intenta pre-renderizar la página en build time y necesita
+// Postgres alcanzable ahí mismo — el contenido de Payload cambia entre
+// despliegues, así que siempre se renderiza por request.
+export const dynamic = 'force-dynamic'
+
 const TEXTOS = {
   es: {
     titulo: 'Mapa de Impacto',

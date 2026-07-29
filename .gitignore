@@ -19,6 +19,7 @@ public/maplibre-gl-shared.mjs
 .env
 .env.*
 !.env.example
+!.env.staging.example
 
 # Editor / SO
 .DS_Store

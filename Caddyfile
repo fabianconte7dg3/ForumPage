@@ -1,0 +1,16 @@
+# Ver 03-runbook-tecnico.md §12.3. SITE_DOMAIN se define en .env — así el
+# mismo compose sirve para staging.forum-foundation.org y forum-foundation.org
+# sin tocar este archivo.
+{$SITE_DOMAIN} {
+    reverse_proxy app:3000
+    encode gzip zstd
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy strict-origin-when-cross-origin
+    }
+    request_body {
+        max_size 25MB
+    }
+}

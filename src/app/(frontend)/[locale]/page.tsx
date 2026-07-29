@@ -7,6 +7,11 @@ import { formatearFecha } from '@/lib/format'
 import config from '@/payload.config'
 import type { Actividad, Tutoria } from '@/payload-types'
 
+// Sin esto, Next intenta pre-renderizar la página en build time y necesita
+// Postgres alcanzable ahí mismo — el contenido de Payload cambia entre
+// despliegues, así que siempre se renderiza por request.
+export const dynamic = 'force-dynamic'
+
 const TEXTOS = {
   es: {
     recordLabel: 'REGISTRO 001. MISIÓN PRINCIPAL',
