@@ -69,6 +69,11 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    auditoria: Auditoria;
+    comunidades: Comunidade;
+    sedes: Sede;
+    'centros-educativos': CentrosEducativo;
+    programas: Programa;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,6 +83,11 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    auditoria: AuditoriaSelect<false> | AuditoriaSelect<true>;
+    comunidades: ComunidadesSelect<false> | ComunidadesSelect<true>;
+    sedes: SedesSelect<false> | SedesSelect<true>;
+    'centros-educativos': CentrosEducativosSelect<false> | CentrosEducativosSelect<true>;
+    programas: ProgramasSelect<false> | ProgramasSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -87,8 +97,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('es' | 'en') | ('es' | 'en')[];
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    configuracion: Configuracion;
+  };
+  globalsSelect: {
+    configuracion: ConfiguracionSelect<false> | ConfiguracionSelect<true>;
+  };
   locale: 'es' | 'en';
   widgets: {
     collections: CollectionsWidget;
@@ -123,6 +137,8 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
+  rol: 'admin' | 'staff' | 'directiva' | 'becario';
+  activo?: boolean | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -149,6 +165,11 @@ export interface User {
 export interface Media {
   id: number;
   alt: string;
+  /**
+   * Requerido antes de publicar si contiene_menores está activo
+   */
+  consentimiento_verificado?: boolean | null;
+  contiene_menores?: boolean | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -160,6 +181,149 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    hero?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    og?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "auditoria".
+ */
+export interface Auditoria {
+  id: number;
+  actor: number | User;
+  accion: string;
+  coleccion: string;
+  documento_id: string;
+  valor_anterior?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  valor_nuevo?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  fecha: string;
+  ip?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comunidades".
+ */
+export interface Comunidade {
+  id: number;
+  nombre: string;
+  slug?: string | null;
+  distrito: string;
+  corregimiento?: string | null;
+  /**
+   * Centroide de la comunidad, nunca un domicilio
+   */
+  coordenadas: {
+    lat: number;
+    lng: number;
+  };
+  descripcion?: string | null;
+  foto?: (number | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sedes".
+ */
+export interface Sede {
+  id: number;
+  nombre: string;
+  tipo: 'sede_principal' | 'biblioteca' | 'centro';
+  comunidad: number | Comunidade;
+  coordenadas: {
+    lat: number;
+    lng: number;
+  };
+  /**
+   * La Academia Forum / Biblioteca John Y. Keffer destaca visualmente en el mapa
+   */
+  destacada?: boolean | null;
+  horario?: string | null;
+  fotos?: (number | Media)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "centros-educativos".
+ */
+export interface CentrosEducativo {
+  id: number;
+  nombre: string;
+  comunidad: number | Comunidade;
+  coordenadas: {
+    lat: number;
+    lng: number;
+  };
+  niveles_atendidos?: string | null;
+  matricula_aproximada?: number | null;
+  contacto?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "programas".
+ */
+export interface Programa {
+  id: number;
+  nombre: string;
+  descripcion?: string | null;
+  color: string;
+  icono?: string | null;
+  activo?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -192,6 +356,26 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'auditoria';
+        value: number | Auditoria;
+      } | null)
+    | ({
+        relationTo: 'comunidades';
+        value: number | Comunidade;
+      } | null)
+    | ({
+        relationTo: 'sedes';
+        value: number | Sede;
+      } | null)
+    | ({
+        relationTo: 'centros-educativos';
+        value: number | CentrosEducativo;
+      } | null)
+    | ({
+        relationTo: 'programas';
+        value: number | Programa;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -240,6 +424,8 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  rol?: T;
+  activo?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -263,6 +449,8 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  consentimiento_verificado?: T;
+  contiene_menores?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -274,6 +462,138 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        hero?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        og?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "auditoria_select".
+ */
+export interface AuditoriaSelect<T extends boolean = true> {
+  actor?: T;
+  accion?: T;
+  coleccion?: T;
+  documento_id?: T;
+  valor_anterior?: T;
+  valor_nuevo?: T;
+  fecha?: T;
+  ip?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comunidades_select".
+ */
+export interface ComunidadesSelect<T extends boolean = true> {
+  nombre?: T;
+  slug?: T;
+  distrito?: T;
+  corregimiento?: T;
+  coordenadas?:
+    | T
+    | {
+        lat?: T;
+        lng?: T;
+      };
+  descripcion?: T;
+  foto?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sedes_select".
+ */
+export interface SedesSelect<T extends boolean = true> {
+  nombre?: T;
+  tipo?: T;
+  comunidad?: T;
+  coordenadas?:
+    | T
+    | {
+        lat?: T;
+        lng?: T;
+      };
+  destacada?: T;
+  horario?: T;
+  fotos?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "centros-educativos_select".
+ */
+export interface CentrosEducativosSelect<T extends boolean = true> {
+  nombre?: T;
+  comunidad?: T;
+  coordenadas?:
+    | T
+    | {
+        lat?: T;
+        lng?: T;
+      };
+  niveles_atendidos?: T;
+  matricula_aproximada?: T;
+  contacto?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "programas_select".
+ */
+export interface ProgramasSelect<T extends boolean = true> {
+  nombre?: T;
+  descripcion?: T;
+  color?: T;
+  icono?: T;
+  activo?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -314,6 +634,61 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "configuracion".
+ */
+export interface Configuracion {
+  id: number;
+  /**
+   * Meta única de horas de labor social para todos los becarios
+   */
+  meta_horas_labor_social: number;
+  /**
+   * Calificaciones que cuentan como materia reprobada
+   */
+  calificaciones_reprobatorias?:
+    | {
+        calificacion: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Texto mostrado al becario suspendido explicando cómo reactivar
+   */
+  texto_aviso_suspension?: string | null;
+  contacto_institucional?: {
+    email?: string | null;
+    telefono?: string | null;
+    direccion?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "configuracion_select".
+ */
+export interface ConfiguracionSelect<T extends boolean = true> {
+  meta_horas_labor_social?: T;
+  calificaciones_reprobatorias?:
+    | T
+    | {
+        calificacion?: T;
+        id?: T;
+      };
+  texto_aviso_suspension?: T;
+  contacto_institucional?:
+    | T
+    | {
+        email?: T;
+        telefono?: T;
+        direccion?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

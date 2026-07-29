@@ -56,10 +56,12 @@ Criterio de aceptación clave: staff publica una actividad con 3 fotos desde el 
 **Progreso:**
 
 - [x] **Paso A — Payload arrancando en local.** Next.js 16 + Payload 3.82.1 + `@payloadcms/db-postgres`, Postgres local vía `docker-compose.yml` (solo DB), localización ES/EN configurada (`defaultLocale: es`) antes de crear ninguna colección, GraphQL desactivado. Colecciones `Users` y `Media` mínimas (placeholder). Verificado: `pnpm install`, `pnpm dev`, `/` y `/admin` responden 200. Ver [03-runbook-tecnico.md §2–4](../03-runbook-tecnico.md).
-- [ ] **Paso B — Colecciones base** (Bloque 1-2 del runbook §5): completar `Users` con los 4 roles, `Auditoria`, global `Configuracion`, `Comunidades`, `Sedes`, `CentrosEducativos`, `Programas`; cargar los datos ficticios de `docs/fase-0/plantillas/`
+- [x] **Paso B — Colecciones base** (Bloque 1-2 del runbook §5): `Users` con los 4 roles + `activo` (protegidos a nivel de campo contra auto-escalación), `Media` con `imageSizes`/`consentimiento_verificado`/`contiene_menores` (con validación cruzada), `Auditoria` (solo lectura directiva/admin, escritura bloqueada desde panel), global `Configuracion`, `Comunidades`/`Sedes`/`CentrosEducativos`/`Programas`. Funciones de acceso reutilizables en `src/access/`, slug compartido en `src/fields/slug.ts`. Verificado: `tsc --noEmit` limpio, Postgres sincronizó las 23 tablas esperadas (`\dt` + columnas revisadas), `pnpm seed` cargó los 20 registros ficticios de `docs/fase-0/plantillas/` de forma idempotente (segunda corrida los detecta y omite).
 - [ ] **Paso C — Actividades y script de extracción de Elementor**
 - [ ] Docker Compose de staging/producción (app + Caddy) — separado del compose de solo-DB usado en desarrollo
 - [ ] Resto del checklist de infraestructura, colecciones, frontend y mapa: ver [03-runbook-tecnico.md](../03-runbook-tecnico.md)
+
+> Nota de entorno: en esta máquina el dev server de Next.js con **Turbopack** produce un panic intermitente compilando el CSS del panel admin de Payload (`@payloadcms/ui`). Se fijó `next dev --webpack` en `package.json` como mitigación — ver commit correspondiente.
 
 ### Fase 2 — Centro de Aprendizaje
 
