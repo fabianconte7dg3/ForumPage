@@ -4,8 +4,8 @@
 
 ## Estado actual
 
-**Fase:** 1 — Base pública (arrancada)
-**Última actualización:** 2026-07-28
+**Fase:** 1 — Base pública (casi cerrada, 2 pendientes bloqueados por presupuesto: ver abajo) + 2 — Centro de Aprendizaje (arrancada)
+**Última actualización:** 2026-07-29
 
 Fase 0 tiene sus entregables iniciales listos (ver abajo), pendientes de llenarse con datos reales. En paralelo arrancó Fase 1: existe un esqueleto Next.js + Payload CMS 3 + PostgreSQL corriendo en local, verificado (`/` y `/admin` responden 200). No hay droplet ni datos reales cargados todavía.
 
@@ -85,6 +85,10 @@ Criterio de aceptación clave: staff publica una actividad con 3 fotos desde el 
 ### Fase 2 — Centro de Aprendizaje
 
 Biblioteca, recursos con licencia obligatoria, prácticas en sus 3 modalidades, videos de YouTube diferidos, progreso guardado en el dispositivo.
+
+**Progreso:**
+
+- [x] **Paso A — Quiz interactivo en Prácticas.** `Practicas` ya tenía el esquema completo desde Fase 1 (Paso D); faltaba la experiencia real de tomar el quiz. Se agregó `slugField('titulo')` a la colección (con backfill del único registro existente). Nueva `/aprende/practicas/[slug]`: modalidad `descargable` muestra el botón de descarga (reutiliza `archivo.url` de Media, mismo patrón que Biblioteca); `quiz_autocorregido`/`quiz_con_progreso` renderizan `<QuizPractica>` (cliente). **Decisión de seguridad no trivial:** calificar en el navegador habría obligado a mandar `respuesta_correcta` al cliente desde el primer render — visible en el HTML/RSC payload antes de responder nada. En vez de eso, se protegieron `respuesta_correcta` y `retroalimentacion` con field-access (`esStaffOSuperiorFieldAccess`, nuevo en `src/access/index.ts`) para que ni siquiera `/api/practicas` público las exponga (verificado con `curl` directo al endpoint, no solo mirando la interfaz — como exige CLAUDE.md), y se creó `src/actions/calificar-practica.ts` (`'use server'`, con `overrideAccess: true` de servidor) que recibe las respuestas del alumno y devuelve solo `{correcto, retroalimentacion}` por pregunta más el puntaje — nunca el índice correcto en sí. `quiz_con_progreso` además guarda `{aciertos, total, fecha}` en `localStorage` tras calificar (lectura diferida a un `useEffect` post-montaje para no romper la hidratación SSR/cliente) y muestra "Completado antes: X/Y" en visitas siguientes; `quiz_autocorregido` no persiste nada. Verificado con el servidor corriendo, contra un registro real: primer intento con una respuesta correcta y una incorrecta mostró ✓/✗ y retroalimentación reales, "Reintentar" limpia el estado; con la modalidad cambiada temporalmente a `quiz_con_progreso` (revertido después de probar) se confirmó el guardado y la lectura de `localStorage` tras recargar, sin errores de hidratación en consola.
 
 ### Fase 3 — Portal del Becario
 

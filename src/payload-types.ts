@@ -444,6 +444,7 @@ export interface Recurso {
 export interface Practica {
   id: number;
   titulo: string;
+  slug?: string | null;
   nivel?: (number | null) | Nivel;
   materia?: (number | null) | Materia;
   modalidad: 'descargable' | 'quiz_autocorregido' | 'quiz_con_progreso';
@@ -862,6 +863,7 @@ export interface RecursosSelect<T extends boolean = true> {
  */
 export interface PracticasSelect<T extends boolean = true> {
   titulo?: T;
+  slug?: T;
   nivel?: T;
   materia?: T;
   modalidad?: T;

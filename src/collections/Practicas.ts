@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
-import { esStaffOSuperior } from '@/access'
+import { esStaffOSuperior, esStaffOSuperiorFieldAccess } from '@/access'
+import { slugField } from '@/fields/slug'
 
 // Tres modalidades a elección del staff en un mismo formulario — ver
 // 01-documento-de-proyecto.md §4.5.
@@ -23,6 +24,7 @@ export const Practicas: CollectionConfig = {
       required: true,
       localized: true,
     },
+    slugField('titulo'),
     {
       name: 'nivel',
       type: 'relationship',
@@ -81,6 +83,7 @@ export const Practicas: CollectionConfig = {
           name: 'respuesta_correcta',
           type: 'number',
           required: true,
+          access: { read: esStaffOSuperiorFieldAccess },
           admin: {
             description: 'Índice (empezando en 0) de la opción correcta',
           },
@@ -89,6 +92,7 @@ export const Practicas: CollectionConfig = {
           name: 'retroalimentacion',
           type: 'textarea',
           localized: true,
+          access: { read: esStaffOSuperiorFieldAccess },
         },
       ],
     },

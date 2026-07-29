@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { getPayload } from 'payload'
 
 import { defaultLocale, type Locale } from '@/i18n'
@@ -58,7 +59,11 @@ export default async function PracticasPage({ params }: { params: Promise<{ loca
             const nivel = typeof practica.nivel === 'object' ? practica.nivel : undefined
             const materia = typeof practica.materia === 'object' ? practica.materia : undefined
             return (
-              <div className="rounded-lg border border-piedra/25 bg-white p-5" key={practica.id}>
+              <Link
+                className="block rounded-lg border border-piedra/25 bg-white p-5 hover:border-montana"
+                href={`/${locale}/aprende/practicas/${practica.slug}`}
+                key={practica.id}
+              >
                 <span className="rounded-sm border border-piedra/25 bg-niebla px-2 py-1 font-dato text-xs uppercase text-tinta">
                   {modalidades[practica.modalidad] ?? practica.modalidad}
                 </span>
@@ -75,7 +80,7 @@ export default async function PracticasPage({ params }: { params: Promise<{ loca
                     </span>
                   )}
                 </div>
-              </div>
+              </Link>
             )
           })}
         </div>
