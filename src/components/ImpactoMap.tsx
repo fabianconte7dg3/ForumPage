@@ -1,8 +1,14 @@
 'use client'
 
-import { Map as MapLibreMap, NavigationControl, Popup, type MapLayerMouseEvent } from 'maplibre-gl'
+import { Map as MapLibreMap, NavigationControl, Popup, setWorkerUrl, type MapLayerMouseEvent } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { useEffect, useRef, useState } from 'react'
+
+// maplibre-gl calcula la URL de su worker con `import.meta.url`, que bajo el
+// bundling de webpack (Next.js) no resuelve a una ruta real y rompe con un
+// 404 en texto/html ("Failed to load module script"). Se sirve una copia
+// propia desde /public (ver `postinstall` en package.json) y se apunta ahí.
+setWorkerUrl('/maplibre-gl-worker.mjs')
 
 // Tokens de docs/04-diseno-y-sistema-visual.md §3.1 — montana para la capa de
 // sedes, cosecha para la sede destacada, rio para lo interactivo (comunidades).
