@@ -2,6 +2,7 @@ import * as migration_20260729_052636_initial from './20260729_052636_initial';
 import * as migration_20260729_201249_agregar_becarios from './20260729_201249_agregar_becarios';
 import * as migration_20260729_202456_agregar_registros_academicos from './20260729_202456_agregar_registros_academicos';
 import * as migration_20260729_203156_agregar_recuperaciones from './20260729_203156_agregar_recuperaciones';
+import * as migration_20260729_204239_agregar_horas_labor_social from './20260729_204239_agregar_horas_labor_social';
 
 export const migrations = [
   {
@@ -22,6 +23,11 @@ export const migrations = [
   {
     up: migration_20260729_203156_agregar_recuperaciones.up,
     down: migration_20260729_203156_agregar_recuperaciones.down,
-    name: '20260729_203156_agregar_recuperaciones'
+    name: '20260729_203156_agregar_recuperaciones',
+  },
+  {
+    up: migration_20260729_204239_agregar_horas_labor_social.up,
+    down: migration_20260729_204239_agregar_horas_labor_social.down,
+    name: '20260729_204239_agregar_horas_labor_social'
   },
 ];

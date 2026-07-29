@@ -1,6 +1,6 @@
 import type { Access, CollectionAfterChangeHook, CollectionBeforeChangeHook, CollectionConfig, Where } from 'payload'
 
-import { esStaffOSuperior, esStaffOSuperiorFieldAccess } from '@/access'
+import { esStaffOSuperior, esStaffOSuperiorFieldAccess, idDeRelacion } from '@/access'
 import type { RegistrosAcademico, User } from '@/payload-types'
 
 const rolDe = (user: User | null) => user?.rol
@@ -10,7 +10,7 @@ const lecturaRegistros: Access = ({ req }) => {
   const rol = rolDe(req.user as User | null)
   if (rol === 'admin' || rol === 'staff' || rol === 'directiva') return true
   if (rol === 'becario') {
-    const becarioId = (req.user as User | null)?.becario
+    const becarioId = idDeRelacion((req.user as User | null)?.becario)
     return becarioId ? ({ becario: { equals: becarioId } } as Where) : false
   }
   return false
@@ -28,7 +28,7 @@ const escrituraRegistros: Access = ({ req }) => {
   const rol = rolDe(req.user as User | null)
   if (rol === 'admin' || rol === 'staff') return true
   if (rol === 'becario') {
-    const becarioId = (req.user as User | null)?.becario
+    const becarioId = idDeRelacion((req.user as User | null)?.becario)
     if (!becarioId) return false
     return {
       and: [{ becario: { equals: becarioId } }, { estado_verificacion: { equals: 'pendiente' } }],
@@ -41,7 +41,7 @@ const escrituraRegistros: Access = ({ req }) => {
 // envíe el formulario — se fuerza server-side, no se confía en el cliente.
 const forzarPropioBecario: CollectionBeforeChangeHook = ({ data, req, operation }) => {
   if (operation === 'create' && rolDe(req.user as User | null) === 'becario') {
-    return { ...data, becario: (req.user as User).becario }
+    return { ...data, becario: idDeRelacion((req.user as User).becario) }
   }
   return data
 }

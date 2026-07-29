@@ -23,6 +23,14 @@ export const publicoOAutenticado: Access = () => true
 
 export const esAdminFieldAccess: FieldAccess = ({ req }) => (req.user as User | null)?.rol === 'admin'
 
+// Una relación puede volver como el ID crudo o como el documento populado
+// según la profundidad con la que Payload cargó `req.user` — nunca hay que
+// asumir cuál de las dos es. Bug real encontrado en HorasLaborSocial (Fase 3
+// Paso D): comparar `req.user.becario` directo contra un id producía NaN en
+// la consulta apenas `becario` llegaba populado.
+export const idDeRelacion = (valor: number | { id: number } | null | undefined): number | undefined =>
+  typeof valor === 'object' && valor !== null ? valor.id : (valor ?? undefined)
+
 // Para campos que revelarían la respuesta correcta de un quiz si la colección
 // es de lectura pública (ej. Practicas) — la API expone todo lo que el access
 // permita, así que la respuesta debe quedar fuera del alcance público incluso

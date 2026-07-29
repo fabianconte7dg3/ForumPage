@@ -1,6 +1,6 @@
 import type { Access, CollectionAfterChangeHook, CollectionBeforeChangeHook, CollectionConfig, Where } from 'payload'
 
-import { esStaffOSuperior, esStaffOSuperiorFieldAccess } from '@/access'
+import { esStaffOSuperior, esStaffOSuperiorFieldAccess, idDeRelacion } from '@/access'
 import type { Recuperacion, RegistrosAcademico, User } from '@/payload-types'
 
 const rolDe = (user: User | null) => user?.rol
@@ -11,7 +11,7 @@ const lecturaRecuperaciones: Access = ({ req }) => {
   const rol = rolDe(req.user as User | null)
   if (rol === 'admin' || rol === 'staff' || rol === 'directiva') return true
   if (rol === 'becario') {
-    const becarioId = (req.user as User | null)?.becario
+    const becarioId = idDeRelacion((req.user as User | null)?.becario)
     return becarioId ? ({ becario: { equals: becarioId } } as Where) : false
   }
   return false
@@ -26,7 +26,7 @@ const escrituraRecuperaciones: Access = ({ req }) => {
   const rol = rolDe(req.user as User | null)
   if (rol === 'admin' || rol === 'staff') return true
   if (rol === 'becario') {
-    const becarioId = (req.user as User | null)?.becario
+    const becarioId = idDeRelacion((req.user as User | null)?.becario)
     if (!becarioId) return false
     return { and: [{ becario: { equals: becarioId } }, { estado: { equals: 'pendiente' } }] } as Where
   }
@@ -35,7 +35,7 @@ const escrituraRecuperaciones: Access = ({ req }) => {
 
 const forzarPropioBecario: CollectionBeforeChangeHook = ({ data, req, operation }) => {
   if (operation === 'create' && rolDe(req.user as User | null) === 'becario') {
-    return { ...data, becario: (req.user as User).becario }
+    return { ...data, becario: idDeRelacion((req.user as User).becario) }
   }
   return data
 }
@@ -47,9 +47,6 @@ const autocompletarVerificacion: CollectionBeforeChangeHook = ({ data, req, orig
   }
   return data
 }
-
-const nombreId = (v: number | { id: number } | null | undefined): number | undefined =>
-  typeof v === 'object' && v !== null ? v.id : (v ?? undefined)
 
 // Reverso del automatismo de suspensión (03-runbook-tecnico.md §6.2). No basta
 // con verificar UNA recuperación para reactivar: si el becario tiene varias
@@ -64,7 +61,7 @@ const reactivarSiYaNoDebeNada: CollectionAfterChangeHook<Recuperacion> = async (
   const seAcabaDeVerificar = doc.estado === 'verificado' && (operation === 'create' || previousDoc?.estado !== 'verificado')
   if (!seAcabaDeVerificar) return
 
-  const becarioId = nombreId(doc.becario)
+  const becarioId = idDeRelacion(doc.becario)
   if (!becarioId) return
 
   const becario = await req.payload.findByID({ collection: 'becarios', id: becarioId, overrideAccess: true, req })

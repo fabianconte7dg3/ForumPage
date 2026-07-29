@@ -1,6 +1,6 @@
 import type { Access, CollectionConfig, FieldAccess, Where } from 'payload'
 
-import { esStaffOSuperior, esStaffOSuperiorFieldAccess } from '@/access'
+import { esStaffOSuperior, esStaffOSuperiorFieldAccess, idDeRelacion } from '@/access'
 import type { User } from '@/payload-types'
 
 const rolDe = (user: User | null) => user?.rol
@@ -12,7 +12,7 @@ const rolDe = (user: User | null) => user?.rol
 const soloPropioOStaffField: FieldAccess = ({ req, doc }) => {
   const rol = rolDe(req.user as User | null)
   if (rol === 'admin' || rol === 'staff' || rol === 'directiva') return true
-  const becarioId = (req.user as User | null)?.becario
+  const becarioId = idDeRelacion((req.user as User | null)?.becario)
   return !!becarioId && doc?.id === becarioId
 }
 
@@ -23,7 +23,7 @@ const lecturaBecarios: Access = ({ req }) => {
   const rol = rolDe(req.user as User | null)
   if (rol === 'admin' || rol === 'staff' || rol === 'directiva') return true
   if (rol === 'becario') {
-    const becarioId = (req.user as User | null)?.becario
+    const becarioId = idDeRelacion((req.user as User | null)?.becario)
     return becarioId ? ({ id: { equals: becarioId } } as Where) : false
   }
   return { mostrar_en_mapa: { equals: true } } as Where
@@ -37,7 +37,7 @@ const escrituraBecarios: Access = ({ req }) => {
   const rol = rolDe(req.user as User | null)
   if (rol === 'admin' || rol === 'staff') return true
   if (rol === 'becario') {
-    const becarioId = (req.user as User | null)?.becario
+    const becarioId = idDeRelacion((req.user as User | null)?.becario)
     return becarioId ? ({ id: { equals: becarioId } } as Where) : false
   }
   return false

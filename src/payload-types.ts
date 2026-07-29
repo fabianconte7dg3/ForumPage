@@ -84,6 +84,7 @@ export interface Config {
     tutorias: Tutoria;
     'registros-academicos': RegistrosAcademico;
     recuperaciones: Recuperacion;
+    'horas-labor-social': HoraLaborSocial;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -108,6 +109,7 @@ export interface Config {
     tutorias: TutoriasSelect<false> | TutoriasSelect<true>;
     'registros-academicos': RegistrosAcademicosSelect<false> | RegistrosAcademicosSelect<true>;
     recuperaciones: RecuperacionesSelect<false> | RecuperacionesSelect<true>;
+    'horas-labor-social': HorasLaborSocialSelect<false> | HorasLaborSocialSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -619,6 +621,29 @@ export interface Recuperacion {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "horas-labor-social".
+ */
+export interface HoraLaborSocial {
+  id: number;
+  becario: number | Becario;
+  fecha: string;
+  horas: number;
+  descripcion?: string | null;
+  evidencia?: (number | null) | Media;
+  estado: 'pendiente' | 'aprobada' | 'rechazada';
+  /**
+   * Se completa solo al aprobar o rechazar
+   */
+  aprobador?: (number | null) | User;
+  /**
+   * Visible para el becario — especialmente útil al rechazar
+   */
+  comentario?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -708,6 +733,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'recuperaciones';
         value: number | Recuperacion;
+      } | null)
+    | ({
+        relationTo: 'horas-labor-social';
+        value: number | HoraLaborSocial;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1120,6 +1149,22 @@ export interface RecuperacionesSelect<T extends boolean = true> {
   estado?: T;
   verificado_por?: T;
   fecha?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "horas-labor-social_select".
+ */
+export interface HorasLaborSocialSelect<T extends boolean = true> {
+  becario?: T;
+  fecha?: T;
+  horas?: T;
+  descripcion?: T;
+  evidencia?: T;
+  estado?: T;
+  aprobador?: T;
+  comentario?: T;
   updatedAt?: T;
   createdAt?: T;
 }
