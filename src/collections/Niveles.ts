@@ -5,6 +5,7 @@ import { esStaffOSuperior } from '@/access'
 // Taxonomía simple, editable por el staff — nunca hardcodeada.
 export const Niveles: CollectionConfig = {
   slug: 'niveles',
+  typescript: { interface: 'Nivel' },
   admin: {
     useAsTitle: 'nombre',
   },

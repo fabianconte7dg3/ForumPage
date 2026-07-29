@@ -51,5 +51,12 @@ export const Configuracion: GlobalConfig = {
         { name: 'direccion', type: 'text', localized: true },
       ],
     },
+    {
+      name: 'fecha_actualizacion_impacto',
+      type: 'date',
+      admin: {
+        description: 'Fecha mostrada en el home junto a las cifras clave — no se promete tiempo real, se actualiza a mano (04-diseno-y-sistema-visual.md §7.1)',
+      },
+    },
   ],
 }

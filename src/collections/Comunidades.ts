@@ -7,6 +7,7 @@ import { slugField } from '@/fields/slug'
 // docs/spec.md#modelo-de-datos-colecciones.
 export const Comunidades: CollectionConfig = {
   slug: 'comunidades',
+  typescript: { interface: 'Comunidad' },
   admin: {
     useAsTitle: 'nombre',
     defaultColumns: ['nombre', 'distrito', 'corregimiento'],

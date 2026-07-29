@@ -6,6 +6,7 @@ import { esStaffOSuperior } from '@/access'
 // Niveles (Bloque 4) — entonces se convierte en relationship.
 export const CentrosEducativos: CollectionConfig = {
   slug: 'centros-educativos',
+  typescript: { interface: 'CentroEducativo' },
   admin: {
     useAsTitle: 'nombre',
     defaultColumns: ['nombre', 'comunidad', 'matricula_aproximada'],

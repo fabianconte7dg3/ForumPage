@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+/* Tokens del sistema de diseño — ver 04-diseno-y-sistema-visual.md.
+   Valores canónicos del documento, no los del mockup de referencia
+   (que tenía drift en montana/cosecha). */
+@theme {
+  --color-montana: #17423b;
+  --color-montana-hover: #123830;
+  --color-tinta: #101c2b;
+  --color-cosecha: #c08a1e;
+  --color-rio: #2f7d8c;
+  --color-piedra: #6b7770;
+  --color-niebla: #f2f4f1;
+
+  --font-display: var(--font-archivo), sans-serif;
+  --font-lectura: var(--font-source-serif), serif;
+  --font-dato: var(--font-plex-mono), monospace;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+
+  --container-content: 1200px;
+
+  --text-reading-width: 68ch;
+}
+
+body {
+  background-color: var(--color-niebla);
+  color: var(--color-tinta);
+}
+
+/* El arco — divisor de sección. Ver 04-diseno-y-sistema-visual.md §3.4.
+   Limitado a 3 apariciones en todo el sitio: aquí, insignia de comunidad, hero. */
+.arco-divisor {
+  position: relative;
+  height: 1px;
+  width: 100%;
+  overflow: hidden;
+}
+.arco-divisor::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: -10%;
+  width: 120%;
+  height: 40px;
+  border-bottom: 1px solid var(--color-cosecha);
+  border-radius: 50%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arco-trazado {
+    animation: none !important;
+  }
+}

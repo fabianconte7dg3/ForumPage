@@ -70,13 +70,13 @@ export interface Config {
     users: User;
     media: Media;
     auditoria: Auditoria;
-    comunidades: Comunidade;
+    comunidades: Comunidad;
     sedes: Sede;
-    'centros-educativos': CentrosEducativo;
+    'centros-educativos': CentroEducativo;
     programas: Programa;
     proyectos: Proyecto;
-    actividades: Actividade;
-    niveles: Nivele;
+    actividades: Actividad;
+    niveles: Nivel;
     materias: Materia;
     recursos: Recurso;
     practicas: Practica;
@@ -267,7 +267,7 @@ export interface Auditoria {
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "comunidades".
  */
-export interface Comunidade {
+export interface Comunidad {
   id: number;
   nombre: string;
   slug?: string | null;
@@ -293,7 +293,7 @@ export interface Sede {
   id: number;
   nombre: string;
   tipo: 'sede_principal' | 'biblioteca' | 'centro';
-  comunidad: number | Comunidade;
+  comunidad: number | Comunidad;
   coordenadas: {
     lat: number;
     lng: number;
@@ -311,10 +311,10 @@ export interface Sede {
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "centros-educativos".
  */
-export interface CentrosEducativo {
+export interface CentroEducativo {
   id: number;
   nombre: string;
-  comunidad: number | Comunidade;
+  comunidad: number | Comunidad;
   coordenadas: {
     lat: number;
     lng: number;
@@ -347,8 +347,8 @@ export interface Proyecto {
   id: number;
   titulo: string;
   programa?: (number | null) | Programa;
-  comunidad: number | Comunidade;
-  centro_educativo?: (number | null) | CentrosEducativo;
+  comunidad: number | Comunidad;
+  centro_educativo?: (number | null) | CentroEducativo;
   estado: 'propuesto' | 'aprobado' | 'en_ejecucion' | 'completado';
   fecha_inicio?: string | null;
   fecha_fin?: string | null;
@@ -363,7 +363,7 @@ export interface Proyecto {
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "actividades".
  */
-export interface Actividade {
+export interface Actividad {
   id: number;
   titulo: string;
   slug?: string | null;
@@ -386,7 +386,7 @@ export interface Actividade {
   fecha_publicacion: string;
   portada?: (number | null) | Media;
   galeria?: (number | Media)[] | null;
-  comunidad: number | Comunidade;
+  comunidad: number | Comunidad;
   programa?: (number | null) | Programa;
   proyecto?: (number | null) | Proyecto;
   destacada?: boolean | null;
@@ -397,7 +397,7 @@ export interface Actividade {
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "niveles".
  */
-export interface Nivele {
+export interface Nivel {
   id: number;
   nombre: string;
   updatedAt: string;
@@ -421,7 +421,7 @@ export interface Recurso {
   id: number;
   titulo: string;
   tipo: 'pdf_propio' | 'enlace_externo' | 'video_youtube' | 'practica';
-  nivel?: (number | null) | Nivele;
+  nivel?: (number | null) | Nivel;
   materia?: (number | null) | Materia;
   /**
    * Idioma del recurso, no una localización — un video en inglés sigue siendo contenido pedagógico en inglés
@@ -443,7 +443,7 @@ export interface Recurso {
 export interface Practica {
   id: number;
   titulo: string;
-  nivel?: (number | null) | Nivele;
+  nivel?: (number | null) | Nivel;
   materia?: (number | null) | Materia;
   modalidad: 'descargable' | 'quiz_autocorregido' | 'quiz_con_progreso';
   archivo?: (number | null) | Media;
@@ -474,7 +474,7 @@ export interface Practica {
 export interface Tutoria {
   id: number;
   materia: number | Materia;
-  nivel?: (number | null) | Nivele;
+  nivel?: (number | null) | Nivel;
   sede: number | Sede;
   fecha_hora: string;
   cupo?: number | null;
@@ -522,7 +522,7 @@ export interface PayloadLockedDocument {
       } | null)
     | ({
         relationTo: 'comunidades';
-        value: number | Comunidade;
+        value: number | Comunidad;
       } | null)
     | ({
         relationTo: 'sedes';
@@ -530,7 +530,7 @@ export interface PayloadLockedDocument {
       } | null)
     | ({
         relationTo: 'centros-educativos';
-        value: number | CentrosEducativo;
+        value: number | CentroEducativo;
       } | null)
     | ({
         relationTo: 'programas';
@@ -542,11 +542,11 @@ export interface PayloadLockedDocument {
       } | null)
     | ({
         relationTo: 'actividades';
-        value: number | Actividade;
+        value: number | Actividad;
       } | null)
     | ({
         relationTo: 'niveles';
-        value: number | Nivele;
+        value: number | Nivel;
       } | null)
     | ({
         relationTo: 'materias';
@@ -965,6 +965,10 @@ export interface Configuracion {
     telefono?: string | null;
     direccion?: string | null;
   };
+  /**
+   * Fecha mostrada en el home junto a las cifras clave — no se promete tiempo real, se actualiza a mano (04-diseno-y-sistema-visual.md §7.1)
+   */
+  fecha_actualizacion_impacto?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -988,6 +992,7 @@ export interface ConfiguracionSelect<T extends boolean = true> {
         telefono?: T;
         direccion?: T;
       };
+  fecha_actualizacion_impacto?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
