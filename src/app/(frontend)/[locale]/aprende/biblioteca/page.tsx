@@ -3,6 +3,8 @@ import { getPayload } from 'payload'
 import type { Where } from 'payload'
 
 import { FiltrosBiblioteca } from '@/components/FiltrosBiblioteca'
+import { VideoYoutube } from '@/components/VideoYoutube'
+import { extraerIdYoutube } from '@/lib/youtube'
 import config from '@/payload.config'
 import { defaultLocale, type Locale } from '@/i18n'
 import type { Materia, Nivel, Recurso } from '@/payload-types'
@@ -155,15 +157,11 @@ function RecursoCard({
   const nivel = typeof recurso.nivel === 'object' ? recurso.nivel : undefined
   const materia = typeof recurso.materia === 'object' ? recurso.materia : undefined
   const href = recurso.tipo === 'pdf_propio' && typeof recurso.archivo === 'object' ? recurso.archivo?.url : recurso.url
+  const videoId = recurso.tipo === 'video_youtube' && recurso.url ? extraerIdYoutube(recurso.url) : null
 
-  return (
-    <a
-      className="flex flex-col justify-between rounded-lg border border-piedra/25 bg-white p-5 transition-colors hover:border-montana/50"
-      href={href ?? '#'}
-      rel={href ? 'noopener noreferrer' : undefined}
-      target={href ? '_blank' : undefined}
-    >
-      <div>
+  const infoBlock = (
+    <>
+      <div className={videoId ? 'p-5' : ''}>
         <div className="mb-3 flex items-start justify-between">
           <span className="rounded-sm border border-piedra/25 bg-niebla px-2 py-1 font-dato text-xs uppercase text-tinta">
             {tipos[recurso.tipo]}
@@ -171,7 +169,7 @@ function RecursoCard({
         </div>
         <h3 className="mb-2 font-lectura text-base font-semibold leading-tight text-tinta">{recurso.titulo}</h3>
       </div>
-      <div className="mt-4 border-t border-piedra/25 pt-4">
+      <div className={`mt-4 border-t border-piedra/25 pt-4 ${videoId ? 'px-5 pb-5' : ''}`}>
         <div className="mb-3 flex flex-wrap gap-2">
           {nivel && (
             <span className="rounded-sm border border-piedra/25 px-2 py-0.5 font-dato text-[10px] uppercase text-tinta">
@@ -188,6 +186,26 @@ function RecursoCard({
           {textoFuente}: {recurso.fuente_y_licencia}
         </div>
       </div>
+    </>
+  )
+
+  if (videoId) {
+    return (
+      <div className="flex flex-col justify-between rounded-lg border border-piedra/25 bg-white transition-colors hover:border-montana/50">
+        <VideoYoutube titulo={recurso.titulo} videoId={videoId} />
+        {infoBlock}
+      </div>
+    )
+  }
+
+  return (
+    <a
+      className="flex flex-col justify-between rounded-lg border border-piedra/25 bg-white p-5 transition-colors hover:border-montana/50"
+      href={href ?? '#'}
+      rel={href ? 'noopener noreferrer' : undefined}
+      target={href ? '_blank' : undefined}
+    >
+      {infoBlock}
     </a>
   )
 }
