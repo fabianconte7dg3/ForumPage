@@ -14,6 +14,11 @@ import { CentrosEducativos } from './collections/CentrosEducativos'
 import { Programas } from './collections/Programas'
 import { Proyectos } from './collections/Proyectos'
 import { Actividades } from './collections/Actividades'
+import { Niveles } from './collections/Niveles'
+import { Materias } from './collections/Materias'
+import { Recursos } from './collections/Recursos'
+import { Practicas } from './collections/Practicas'
+import { Tutorias } from './collections/Tutorias'
 import { Configuracion } from './globals/Configuracion'
 
 const filename = fileURLToPath(import.meta.url)
@@ -26,7 +31,22 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Auditoria, Comunidades, Sedes, CentrosEducativos, Programas, Proyectos, Actividades],
+  collections: [
+    Users,
+    Media,
+    Auditoria,
+    Comunidades,
+    Sedes,
+    CentrosEducativos,
+    Programas,
+    Proyectos,
+    Actividades,
+    Niveles,
+    Materias,
+    Recursos,
+    Practicas,
+    Tutorias,
+  ],
   globals: [Configuracion],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

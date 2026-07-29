@@ -76,6 +76,11 @@ export interface Config {
     programas: Programa;
     proyectos: Proyecto;
     actividades: Actividade;
+    niveles: Nivele;
+    materias: Materia;
+    recursos: Recurso;
+    practicas: Practica;
+    tutorias: Tutoria;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -92,6 +97,11 @@ export interface Config {
     programas: ProgramasSelect<false> | ProgramasSelect<true>;
     proyectos: ProyectosSelect<false> | ProyectosSelect<true>;
     actividades: ActividadesSelect<false> | ActividadesSelect<true>;
+    niveles: NivelesSelect<false> | NivelesSelect<true>;
+    materias: MateriasSelect<false> | MateriasSelect<true>;
+    recursos: RecursosSelect<false> | RecursosSelect<true>;
+    practicas: PracticasSelect<false> | PracticasSelect<true>;
+    tutorias: TutoriasSelect<false> | TutoriasSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -385,6 +395,97 @@ export interface Actividade {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "niveles".
+ */
+export interface Nivele {
+  id: number;
+  nombre: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "materias".
+ */
+export interface Materia {
+  id: number;
+  nombre: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "recursos".
+ */
+export interface Recurso {
+  id: number;
+  titulo: string;
+  tipo: 'pdf_propio' | 'enlace_externo' | 'video_youtube' | 'practica';
+  nivel?: (number | null) | Nivele;
+  materia?: (number | null) | Materia;
+  /**
+   * Idioma del recurso, no una localización — un video en inglés sigue siendo contenido pedagógico en inglés
+   */
+  idioma: 'es' | 'en';
+  archivo?: (number | null) | Media;
+  url?: string | null;
+  /**
+   * De dónde viene el recurso y bajo qué licencia se puede publicar
+   */
+  fuente_y_licencia: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "practicas".
+ */
+export interface Practica {
+  id: number;
+  titulo: string;
+  nivel?: (number | null) | Nivele;
+  materia?: (number | null) | Materia;
+  modalidad: 'descargable' | 'quiz_autocorregido' | 'quiz_con_progreso';
+  archivo?: (number | null) | Media;
+  preguntas?:
+    | {
+        enunciado: string;
+        opciones?:
+          | {
+              texto: string;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Índice (empezando en 0) de la opción correcta
+         */
+        respuesta_correcta: number;
+        retroalimentacion?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tutorias".
+ */
+export interface Tutoria {
+  id: number;
+  materia: number | Materia;
+  nivel?: (number | null) | Nivele;
+  sede: number | Sede;
+  fecha_hora: string;
+  cupo?: number | null;
+  responsable?: string | null;
+  recurrencia?: ('ninguna' | 'semanal' | 'quincenal' | 'mensual') | null;
+  notas?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -442,6 +543,26 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'actividades';
         value: number | Actividade;
+      } | null)
+    | ({
+        relationTo: 'niveles';
+        value: number | Nivele;
+      } | null)
+    | ({
+        relationTo: 'materias';
+        value: number | Materia;
+      } | null)
+    | ({
+        relationTo: 'recursos';
+        value: number | Recurso;
+      } | null)
+    | ({
+        relationTo: 'practicas';
+        value: number | Practica;
+      } | null)
+    | ({
+        relationTo: 'tutorias';
+        value: number | Tutoria;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -696,6 +817,83 @@ export interface ActividadesSelect<T extends boolean = true> {
   programa?: T;
   proyecto?: T;
   destacada?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "niveles_select".
+ */
+export interface NivelesSelect<T extends boolean = true> {
+  nombre?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "materias_select".
+ */
+export interface MateriasSelect<T extends boolean = true> {
+  nombre?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "recursos_select".
+ */
+export interface RecursosSelect<T extends boolean = true> {
+  titulo?: T;
+  tipo?: T;
+  nivel?: T;
+  materia?: T;
+  idioma?: T;
+  archivo?: T;
+  url?: T;
+  fuente_y_licencia?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "practicas_select".
+ */
+export interface PracticasSelect<T extends boolean = true> {
+  titulo?: T;
+  nivel?: T;
+  materia?: T;
+  modalidad?: T;
+  archivo?: T;
+  preguntas?:
+    | T
+    | {
+        enunciado?: T;
+        opciones?:
+          | T
+          | {
+              texto?: T;
+              id?: T;
+            };
+        respuesta_correcta?: T;
+        retroalimentacion?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tutorias_select".
+ */
+export interface TutoriasSelect<T extends boolean = true> {
+  materia?: T;
+  nivel?: T;
+  sede?: T;
+  fecha_hora?: T;
+  cupo?: T;
+  responsable?: T;
+  recurrencia?: T;
+  notas?: T;
   updatedAt?: T;
   createdAt?: T;
 }

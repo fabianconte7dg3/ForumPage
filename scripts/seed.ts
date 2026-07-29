@@ -40,7 +40,18 @@ const lexicalParrafo = (texto: string) => ({
   },
 })
 
-type Coleccion = 'programas' | 'comunidades' | 'sedes' | 'centros-educativos' | 'proyectos' | 'actividades'
+type Coleccion =
+  | 'programas'
+  | 'comunidades'
+  | 'sedes'
+  | 'centros-educativos'
+  | 'proyectos'
+  | 'actividades'
+  | 'niveles'
+  | 'materias'
+  | 'recursos'
+  | 'practicas'
+  | 'tutorias'
 
 async function crearSiNoExiste(
   payload: Awaited<ReturnType<typeof getPayload>>,
@@ -225,6 +236,124 @@ async function main() {
       },
       'titulo',
     )
+  }
+
+  console.log('Niveles:')
+  const nivelPorNombre = new Map<string, number>()
+  for (const nombre of ['Primaria', 'Premedia', 'Media']) {
+    const doc = await crearSiNoExiste(payload, 'niveles', nombre, { nombre })
+    nivelPorNombre.set(nombre, doc.id as number)
+  }
+
+  console.log('Materias:')
+  const materiaPorNombre = new Map<string, number>()
+  for (const nombre of ['Matemáticas', 'Español', 'Inglés', 'Ciencias']) {
+    const doc = await crearSiNoExiste(payload, 'materias', nombre, { nombre })
+    materiaPorNombre.set(nombre, doc.id as number)
+  }
+
+  console.log('Recursos:')
+  const recursos = [
+    {
+      titulo: 'Guía de fracciones para premedia',
+      nivel: 'Premedia',
+      materia: 'Matemáticas',
+      tipo: 'enlace_externo',
+      url: 'https://www.khanacademy.org/math/pre-algebra/pre-algebra-fractions',
+      fuente_y_licencia: 'Khan Academy — acceso abierto, uso educativo permitido',
+    },
+    {
+      titulo: 'Video: introducción a la fotosíntesis',
+      nivel: 'Primaria',
+      materia: 'Ciencias',
+      tipo: 'video_youtube',
+      url: 'https://www.youtube.com/watch?v=example',
+      fuente_y_licencia: 'Canal educativo de YouTube — licencia estándar de YouTube',
+    },
+    {
+      titulo: 'Vocabulario básico en inglés',
+      nivel: 'Primaria',
+      materia: 'Inglés',
+      tipo: 'enlace_externo',
+      url: 'https://www.duolingo.com',
+      fuente_y_licencia: 'Duolingo — acceso abierto',
+    },
+  ]
+  for (const r of recursos) {
+    await crearSiNoExiste(
+      payload,
+      'recursos',
+      r.titulo,
+      {
+        titulo: r.titulo,
+        tipo: r.tipo,
+        nivel: nivelPorNombre.get(r.nivel),
+        materia: materiaPorNombre.get(r.materia),
+        idioma: 'es',
+        url: r.url,
+        fuente_y_licencia: r.fuente_y_licencia,
+      },
+      'titulo',
+    )
+  }
+
+  console.log('Prácticas:')
+  await crearSiNoExiste(
+    payload,
+    'practicas',
+    'Quiz de tablas de multiplicar',
+    {
+      titulo: 'Quiz de tablas de multiplicar',
+      nivel: nivelPorNombre.get('Primaria'),
+      materia: materiaPorNombre.get('Matemáticas'),
+      modalidad: 'quiz_autocorregido',
+      preguntas: [
+        {
+          enunciado: '¿Cuánto es 7 × 8?',
+          opciones: [{ texto: '54' }, { texto: '56' }, { texto: '64' }],
+          respuesta_correcta: 1,
+          retroalimentacion: '7 × 8 = 56',
+        },
+        {
+          enunciado: '¿Cuánto es 9 × 6?',
+          opciones: [{ texto: '54' }, { texto: '45' }, { texto: '63' }],
+          respuesta_correcta: 0,
+          retroalimentacion: '9 × 6 = 54',
+        },
+      ],
+    },
+    'titulo',
+  )
+
+  console.log('Tutorías:')
+  const tutorias = [
+    { materia: 'Matemáticas', nivel: 'Premedia', sede: 'Centro de Tutorías La Pintada', fecha_hora: '2026-08-08T14:00:00.000Z', cupo: 15, responsable: 'Prof. Ana Gómez' },
+    { materia: 'Español', nivel: 'Primaria', sede: 'Biblioteca Comunitaria Toabré', fecha_hora: '2026-08-09T13:00:00.000Z', cupo: 12, responsable: 'Prof. Luis Herrera' },
+  ]
+  for (const t of tutorias) {
+    const sede = await payload.find({ collection: 'sedes', where: { nombre: { equals: t.sede } }, limit: 1 })
+    const materiaId = materiaPorNombre.get(t.materia)
+    const existente = await payload.find({
+      collection: 'tutorias',
+      where: { and: [{ materia: { equals: materiaId } }, { fecha_hora: { equals: t.fecha_hora } }] },
+      limit: 1,
+    })
+    if (existente.docs.length > 0) {
+      console.log(`  = tutorias/${t.materia} ${t.fecha_hora} ya existe, se omite`)
+      continue
+    }
+    await payload.create({
+      collection: 'tutorias',
+      data: {
+        materia: materiaId,
+        nivel: nivelPorNombre.get(t.nivel),
+        sede: sede.docs[0]?.id,
+        fecha_hora: t.fecha_hora,
+        cupo: t.cupo,
+        responsable: t.responsable,
+      } as any,
+    })
+    console.log(`  + tutorias/${t.materia} ${t.fecha_hora} creada`)
   }
 
   console.log('Listo.')
