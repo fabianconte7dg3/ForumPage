@@ -13,6 +13,7 @@ media/
 
 # Copiado por postinstall desde node_modules/maplibre-gl (ver package.json)
 public/maplibre-gl-worker.mjs
+public/maplibre-gl-shared.mjs
 
 # Entorno y secretos
 .env

@@ -14,7 +14,7 @@
     "migrate:wordpress": "tsx --env-file=.env scripts/migrate-wordpress.ts",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
-    "postinstall": "mkdir -p public && cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs public/maplibre-gl-worker.mjs",
+    "postinstall": "mkdir -p public && cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs public/",
     "seed": "tsx --env-file=.env scripts/seed.ts",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start"
   },
