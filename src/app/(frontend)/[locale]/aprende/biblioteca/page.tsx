@@ -1,6 +1,8 @@
+import Link from 'next/link'
 import { getPayload } from 'payload'
 import type { Where } from 'payload'
 
+import { FiltrosBiblioteca } from '@/components/FiltrosBiblioteca'
 import config from '@/payload.config'
 import { defaultLocale, type Locale } from '@/i18n'
 import type { Materia, Nivel, Recurso } from '@/payload-types'
@@ -18,7 +20,6 @@ const TEXTOS = {
     nivel: 'Nivel educativo',
     materia: 'Materia',
     todos: 'Todos',
-    aplicar: 'Aplicar filtros',
     resultados: (n: number) => `${n} resultado${n === 1 ? '' : 's'}`,
     vacio: 'Ningún recurso coincide. Prueba con otro nivel o materia.',
     fuente: 'Fuente',
@@ -38,7 +39,6 @@ const TEXTOS = {
     nivel: 'Grade level',
     materia: 'Subject',
     todos: 'All',
-    aplicar: 'Apply filters',
     resultados: (n: number) => `${n} result${n === 1 ? '' : 's'}`,
     vacio: 'No resource matches. Try another level or subject.',
     fuente: 'Source',
@@ -89,35 +89,12 @@ export default async function BibliotecaPage({
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
         <aside className="md:col-span-3">
-          <form className="flex flex-col gap-6" method="get">
-            <FiltroSelect
-              label={t.tipo}
-              name="tipo"
-              options={Object.entries(t.tipos).map(([value, label]) => ({ value, label }))}
-              todosLabel={t.todos}
-              value={filtros.tipo}
-            />
-            <FiltroSelect
-              label={t.nivel}
-              name="nivel"
-              options={(niveles.docs as Nivel[]).map((n) => ({ value: String(n.id), label: n.nombre }))}
-              todosLabel={t.todos}
-              value={filtros.nivel}
-            />
-            <FiltroSelect
-              label={t.materia}
-              name="materia"
-              options={(materias.docs as Materia[]).map((m) => ({ value: String(m.id), label: m.nombre }))}
-              todosLabel={t.todos}
-              value={filtros.materia}
-            />
-            <button
-              className="rounded-md bg-montana px-4 py-2 font-dato text-xs uppercase tracking-wider text-niebla hover:bg-montana-hover"
-              type="submit"
-            >
-              {t.aplicar}
-            </button>
-          </form>
+          <FiltrosBiblioteca
+            materias={(materias.docs as Materia[]).map((m) => ({ value: String(m.id), label: m.nombre }))}
+            niveles={(niveles.docs as Nivel[]).map((n) => ({ value: String(n.id), label: n.nombre }))}
+            textos={{ tipo: t.tipo, nivel: t.nivel, materia: t.materia, todos: t.todos }}
+            tipos={Object.entries(t.tipos).map(([value, label]) => ({ value, label }))}
+          />
         </aside>
 
         <section className="md:col-span-9">
@@ -140,63 +117,28 @@ export default async function BibliotecaPage({
           {recursos.totalPages > 1 && (
             <nav className="mt-12 flex items-center justify-center gap-4 font-dato text-xs text-piedra">
               {recursos.hasPrevPage && (
-                <a
+                <Link
                   className="hover:text-montana"
                   href={`?${new URLSearchParams({ ...filtros, page: String(pagina - 1) }).toString()}`}
                 >
                   ← {t.anterior}
-                </a>
+                </Link>
               )}
               <span className="text-tinta">
                 {recursos.page} / {recursos.totalPages}
               </span>
               {recursos.hasNextPage && (
-                <a
+                <Link
                   className="hover:text-montana"
                   href={`?${new URLSearchParams({ ...filtros, page: String(pagina + 1) }).toString()}`}
                 >
                   {t.siguiente} →
-                </a>
+                </Link>
               )}
             </nav>
           )}
         </section>
       </div>
-    </div>
-  )
-}
-
-function FiltroSelect({
-  label,
-  name,
-  options,
-  todosLabel,
-  value,
-}: {
-  label: string
-  name: string
-  options: { value: string; label: string }[]
-  todosLabel: string
-  value?: string
-}) {
-  return (
-    <div>
-      <label className="mb-2 block font-dato text-xs uppercase tracking-wider text-tinta/60" htmlFor={name}>
-        {label}
-      </label>
-      <select
-        className="w-full rounded-md border border-piedra/25 bg-white px-3 py-2 font-lectura text-sm text-tinta"
-        defaultValue={value ?? ''}
-        id={name}
-        name={name}
-      >
-        <option value="">{todosLabel}</option>
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
     </div>
   )
 }
