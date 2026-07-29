@@ -1,6 +1,25 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionAfterLoginHook, CollectionBeforeLoginHook, CollectionConfig } from 'payload'
 
 import { esAdmin, esAdminFieldAccess } from '@/access'
+
+// Cuenta desactivada (baja de personal, no borrado) no puede iniciar sesión
+// aunque la contraseña siga siendo válida (05-ciberseguridad.md "procedimiento
+// de baja": desactivar, no eliminar).
+const bloquearInactivos: CollectionBeforeLoginHook = ({ user }) => {
+  if (!user.activo) {
+    throw new Error('Esta cuenta está desactivada')
+  }
+}
+
+const registrarUltimoAcceso: CollectionAfterLoginHook = async ({ user, req }) => {
+  await req.payload.update({
+    collection: 'users',
+    id: user.id,
+    data: { ultimo_acceso: new Date().toISOString() },
+    overrideAccess: true,
+    req,
+  })
+}
 
 // IAM — ver docs/spec.md#control-de-acceso-iam y 03-runbook-tecnico.md §7.
 export const Users: CollectionConfig = {
@@ -10,6 +29,10 @@ export const Users: CollectionConfig = {
     defaultColumns: ['email', 'rol', 'activo'],
   },
   auth: true,
+  hooks: {
+    beforeLogin: [bloquearInactivos],
+    afterLogin: [registrarUltimoAcceso],
+  },
   access: {
     create: esAdmin,
     read: ({ req }) => {
@@ -47,6 +70,12 @@ export const Users: CollectionConfig = {
       access: {
         update: esAdminFieldAccess,
       },
+    },
+    {
+      name: 'ultimo_acceso',
+      type: 'date',
+      admin: { readOnly: true, description: 'Se completa solo en cada login exitoso' },
+      access: { create: esAdminFieldAccess, update: esAdminFieldAccess },
     },
     {
       name: 'becario',

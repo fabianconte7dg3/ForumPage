@@ -5,6 +5,7 @@ import * as migration_20260729_203156_agregar_recuperaciones from './20260729_20
 import * as migration_20260729_204239_agregar_horas_labor_social from './20260729_204239_agregar_horas_labor_social';
 import * as migration_20260729_210041_agregar_desembolsos from './20260729_210041_agregar_desembolsos';
 import * as migration_20260729_210606_agregar_campos_privacidad from './20260729_210606_agregar_campos_privacidad';
+import * as migration_20260729_234324_agregar_activo_login from './20260729_234324_agregar_activo_login';
 
 export const migrations = [
   {
@@ -40,6 +41,11 @@ export const migrations = [
   {
     up: migration_20260729_210606_agregar_campos_privacidad.up,
     down: migration_20260729_210606_agregar_campos_privacidad.down,
-    name: '20260729_210606_agregar_campos_privacidad'
+    name: '20260729_210606_agregar_campos_privacidad',
+  },
+  {
+    up: migration_20260729_234324_agregar_activo_login.up,
+    down: migration_20260729_234324_agregar_activo_login.down,
+    name: '20260729_234324_agregar_activo_login'
   },
 ];

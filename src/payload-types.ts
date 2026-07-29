@@ -164,6 +164,10 @@ export interface User {
   rol: 'admin' | 'staff' | 'directiva' | 'becario';
   activo?: boolean | null;
   /**
+   * Se completa solo en cada login exitoso
+   */
+  ultimo_acceso?: string | null;
+  /**
    * El registro de becario vinculado a esta cuenta
    */
   becario?: (number | null) | Becario;
@@ -823,6 +827,7 @@ export interface PayloadMigration {
 export interface UsersSelect<T extends boolean = true> {
   rol?: T;
   activo?: T;
+  ultimo_acceso?: T;
   becario?: T;
   updatedAt?: T;
   createdAt?: T;
