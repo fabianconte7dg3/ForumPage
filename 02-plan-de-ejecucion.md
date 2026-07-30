@@ -254,7 +254,7 @@ Ningún módulo se da por terminado sin cumplir estos seis puntos. Aplica a las 
 
 - [x] Colección **Necesidades** con su flujo de estados — ver `docs/plan.md` Fase 3 Paso O
 - [x] Formulario público de solicitud — ver `docs/plan.md` Fase 3 Paso P
-- [ ] Cola priorizada para la directiva
+- [x] Cola priorizada para la directiva — ver `docs/plan.md` Fase 3 Paso Q
 - [ ] Vista de directiva de solo lectura sobre todo el sistema
 - [ ] Auditoría activa sobre estados, verificaciones, horas, desembolsos y roles
 

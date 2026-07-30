@@ -465,6 +465,7 @@ export interface Necesidade {
   solicitante?: string | null;
   descripcion?: string | null;
   prioridad: 'baja' | 'media' | 'alta';
+  prioridad_orden?: number | null;
   costo_estimado?: number | null;
   /**
    * La barra de progreso pública mide esto — estado del caso, no dinero recaudado
@@ -1116,6 +1117,7 @@ export interface NecesidadesSelect<T extends boolean = true> {
   solicitante?: T;
   descripcion?: T;
   prioridad?: T;
+  prioridad_orden?: T;
   costo_estimado?: T;
   estado?: T;
   proyecto_resultante?: T;

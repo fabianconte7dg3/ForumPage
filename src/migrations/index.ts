@@ -10,6 +10,7 @@ import * as migration_20260730_000008_agregar_dos_fa from './20260730_000008_agr
 import * as migration_20260730_002624_agregar_invitacion from './20260730_002624_agregar_invitacion';
 import * as migration_20260730_051309_agregar_fecha_reactivacion from './20260730_051309_agregar_fecha_reactivacion';
 import * as migration_20260730_055512_agregar_necesidades from './20260730_055512_agregar_necesidades';
+import * as migration_20260730_062005_agregar_prioridad_orden from './20260730_062005_agregar_prioridad_orden';
 
 export const migrations = [
   {
@@ -70,6 +71,11 @@ export const migrations = [
   {
     up: migration_20260730_055512_agregar_necesidades.up,
     down: migration_20260730_055512_agregar_necesidades.down,
-    name: '20260730_055512_agregar_necesidades'
+    name: '20260730_055512_agregar_necesidades',
+  },
+  {
+    up: migration_20260730_062005_agregar_prioridad_orden.up,
+    down: migration_20260730_062005_agregar_prioridad_orden.down,
+    name: '20260730_062005_agregar_prioridad_orden'
   },
 ];

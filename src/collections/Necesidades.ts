@@ -1,9 +1,22 @@
-import type { Access, CollectionConfig } from 'payload'
+import type { Access, CollectionBeforeChangeHook, CollectionConfig } from 'payload'
 
 import { esStaffDirectivaOAdminFieldAccess, esStaffOSuperior } from '@/access'
-import type { User } from '@/payload-types'
+import type { Necesidade, User } from '@/payload-types'
 
 const rolDe = (user: User | null) => user?.rol
+
+// `prioridad` es texto (alta/media/baja) y ordenarlo alfabéticamente da
+// "alta, baja, media" — no la prioridad real. Este campo numérico oculto se
+// mantiene sincronizado para poder ordenar de verdad (cola priorizada de la
+// directiva).
+const ORDEN_PRIORIDAD: Record<Necesidade['prioridad'], number> = { alta: 1, media: 2, baja: 3 }
+
+const sincronizarOrdenPrioridad: CollectionBeforeChangeHook<Necesidade> = ({ data }) => {
+  if (data.prioridad) {
+    return { ...data, prioridad_orden: ORDEN_PRIORIDAD[data.prioridad as Necesidade['prioridad']] }
+  }
+  return data
+}
 
 // Público y becario ven exactamente lo mismo acá: solo lo que el staff marcó
 // como `visible_publicamente` (01-documento-de-proyecto.md §10, matriz de
@@ -30,6 +43,9 @@ export const Necesidades: CollectionConfig = {
     create: esStaffOSuperior,
     update: esStaffOSuperior,
     delete: esStaffOSuperior,
+  },
+  hooks: {
+    beforeChange: [sincronizarOrdenPrioridad],
   },
   fields: [
     {
@@ -68,6 +84,12 @@ export const Necesidades: CollectionConfig = {
         { label: 'Media', value: 'media' },
         { label: 'Alta', value: 'alta' },
       ],
+    },
+    {
+      name: 'prioridad_orden',
+      type: 'number',
+      admin: { hidden: true },
+      access: { create: () => false, update: () => false },
     },
     {
       name: 'costo_estimado',
