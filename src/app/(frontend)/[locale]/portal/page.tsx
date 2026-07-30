@@ -4,10 +4,11 @@ import { getPayload } from 'payload'
 import { BotonCerrarSesion } from '@/components/BotonCerrarSesion'
 import { FormularioLogin } from '@/components/FormularioLogin'
 import { defaultLocale, type Locale } from '@/i18n'
-import { formatearFecha } from '@/lib/format'
+import { dentroDeVentana, formatearFecha } from '@/lib/format'
 import { sesionActual } from '@/lib/auth'
+import { materiasPendientes } from '@/lib/materias-pendientes'
 import config from '@/payload.config'
-import type { Becario, Configuracion, Desembolso } from '@/payload-types'
+import type { Becario, Configuracion, Desembolso, Recuperacion, RegistrosAcademico } from '@/payload-types'
 
 // El progreso de horas y el aviso de suspensión dependen de datos que
 // cambian todo el tiempo (aprobaciones del staff, reactivaciones) — nunca
@@ -26,6 +27,9 @@ const TEXTOS = {
     horasDetalle: 'de',
     horasAprobadas: 'horas aprobadas',
     suspendidoTitulo: 'Tu beca está suspendida',
+    materiasPendientesTitulo: 'Todavía te falta recuperar',
+    reactivadoTitulo: '¡Tu beca fue reactivada!',
+    reactivadoDetalle: 'Ya podés seguir usando tu beneficio con normalidad.',
     desembolsosTitulo: 'Desembolsos',
     desembolsosVacio: 'Todavía no hay desembolsos registrados.',
     estadoProgramado: 'Programado',
@@ -44,6 +48,9 @@ const TEXTOS = {
     horasDetalle: 'of',
     horasAprobadas: 'approved hours',
     suspendidoTitulo: 'Your scholarship is suspended',
+    materiasPendientesTitulo: 'Still pending recovery',
+    reactivadoTitulo: 'Your scholarship was reactivated!',
+    reactivadoDetalle: 'You can keep using your benefit as usual.',
     desembolsosTitulo: 'Disbursements',
     desembolsosVacio: 'No disbursements recorded yet.',
     estadoProgramado: 'Scheduled',
@@ -93,6 +100,35 @@ export default async function PortalPage({ params }: { params: Promise<{ locale:
   const becario = becarioId ? ((await payload.findByID({ collection: 'becarios', id: becarioId, overrideAccess: true })) as Becario) : null
   const configuracion = (await payload.findGlobal({ slug: 'configuracion', overrideAccess: true })) as Configuracion
 
+  // Lista en vivo, no una copia congelada de `motivo_suspension` al momento de
+  // la suspensión — si el becario ya recuperó una de dos materias, acá deja
+  // de aparecer esa aunque el texto viejo todavía la mencione.
+  const pendientes =
+    becario?.estado === 'suspendido'
+      ? materiasPendientes(
+          (
+            await payload.find({
+              collection: 'registros-academicos',
+              where: { becario: { equals: becario.id }, estado_verificacion: { equals: 'verificado' } },
+              limit: 1000,
+              overrideAccess: true,
+            })
+          ).docs as RegistrosAcademico[],
+          (
+            await payload.find({
+              collection: 'recuperaciones',
+              where: { becario: { equals: becario.id }, estado: { equals: 'verificado' } },
+              limit: 1000,
+              overrideAccess: true,
+            })
+          ).docs as Recuperacion[],
+        )
+      : []
+
+  const SIETE_DIAS_MS = 7 * 24 * 60 * 60 * 1000
+  const reactivadoReciente =
+    becario?.estado === 'activo' && !!becario.fecha_reactivacion && dentroDeVentana(becario.fecha_reactivacion, SIETE_DIAS_MS)
+
   const meta = becario?.meta_horas_personalizada ?? configuracion.meta_horas_labor_social
   const horasAprobadas = becario
     ? (
@@ -137,7 +173,19 @@ export default async function PortalPage({ params }: { params: Promise<{ locale:
         <div className="mb-8 rounded-md border border-cosecha bg-cosecha/10 p-5">
           <p className="font-display text-sm font-bold uppercase text-cosecha">{t.suspendidoTitulo}</p>
           {becario.motivo_suspension && <p className="mt-2 font-lectura text-sm text-tinta">{becario.motivo_suspension}</p>}
+          {pendientes.length > 0 && (
+            <p className="mt-2 font-lectura text-sm text-tinta">
+              {t.materiasPendientesTitulo}: {pendientes.join(', ')}
+            </p>
+          )}
           {configuracion.texto_aviso_suspension && <p className="mt-2 font-lectura text-sm text-tinta">{configuracion.texto_aviso_suspension}</p>}
+        </div>
+      )}
+
+      {reactivadoReciente && (
+        <div className="mb-8 rounded-md border border-montana/40 bg-montana/10 p-5">
+          <p className="font-display text-sm font-bold uppercase text-montana">{t.reactivadoTitulo}</p>
+          <p className="mt-2 font-lectura text-sm text-tinta">{t.reactivadoDetalle}</p>
         </div>
       )}
 

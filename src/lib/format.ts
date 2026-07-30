@@ -6,3 +6,5 @@ export const formatearFecha = (valor: string, locale: Locale) =>
     month: 'short',
     year: 'numeric',
   })
+
+export const dentroDeVentana = (valor: string, ventanaMs: number) => Date.now() - new Date(valor).getTime() < ventanaMs

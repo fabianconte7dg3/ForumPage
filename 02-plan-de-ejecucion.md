@@ -245,10 +245,10 @@ Ningún módulo se da por terminado sin cumplir estos seis puntos. Aplica a las 
 
 ### 3.4 Experiencia del becario suspendido
 
-- [ ] Mensaje explicando la causa y la materia pendiente
-- [ ] Instrucciones visibles del proceso de recuperación
-- [ ] Confirmación al reactivarse
-- [ ] Verificación de que el estado de suspensión **no aparece** en el mapa ni en cifras públicas
+- [x] Mensaje explicando la causa y la materia pendiente (en vivo, no una foto congelada) — ver `docs/plan.md` Fase 3 Paso N
+- [x] Instrucciones visibles del proceso de recuperación (`Configuracion.texto_aviso_suspension`, mostrado en el panel desde el Paso L)
+- [x] Confirmación al reactivarse — banner en el panel, `Becarios.fecha_reactivacion` nuevo
+- [x] Verificación de que el estado de suspensión **no aparece** en el mapa ni en cifras públicas — confirmado con una petición real a `/api/becarios` (sin sesión) sobre un becario suspendido con `mostrar_en_mapa: true`: nunca expone `estado`/`motivo_suspension`/`fecha_suspension`/`fecha_reactivacion`. Cierra "3.4" por completo.
 
 ### 3.5 Necesidades y cierre
 

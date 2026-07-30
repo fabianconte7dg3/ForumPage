@@ -1,7 +1,7 @@
-import type { Access, CollectionConfig, FieldAccess, Where } from 'payload'
+import type { Access, CollectionBeforeChangeHook, CollectionConfig, FieldAccess, Where } from 'payload'
 
 import { esStaffOSuperior, esStaffOSuperiorFieldAccess, idDeRelacion } from '@/access'
-import type { User } from '@/payload-types'
+import type { Becario, User } from '@/payload-types'
 
 const rolDe = (user: User | null) => user?.rol
 
@@ -43,6 +43,18 @@ const escrituraBecarios: Access = ({ req }) => {
   return false
 }
 
+// "Confirmación al reactivarse" (3.4 del plan de ejecución): registra CUÁNDO
+// pasó, sin importar si fue el automatismo de Recuperaciones o un cambio
+// manual del staff en el panel — ambos casos pasan por acá porque los dos
+// terminan en un `update` sobre esta colección. El panel del becario usa esta
+// fecha para mostrar un aviso de bienvenida de vuelta por unos días.
+const registrarReactivacion: CollectionBeforeChangeHook<Becario> = ({ data, originalDoc, operation }) => {
+  if (operation === 'update' && originalDoc?.estado === 'suspendido' && data.estado === 'activo') {
+    return { ...data, fecha_reactivacion: new Date().toISOString() }
+  }
+  return data
+}
+
 // Alta de becarios: creada por el staff mediante invitación — no hay
 // autorregistro (01-documento-de-proyecto.md §4.6).
 export const Becarios: CollectionConfig = {
@@ -57,6 +69,9 @@ export const Becarios: CollectionConfig = {
     create: esStaffOSuperior,
     update: escrituraBecarios,
     delete: esStaffOSuperior,
+  },
+  hooks: {
+    beforeChange: [registrarReactivacion],
   },
   fields: [
     {
@@ -153,6 +168,12 @@ export const Becarios: CollectionConfig = {
     {
       name: 'fecha_suspension',
       type: 'date',
+      access: { read: soloPropioOStaffField, update: esStaffOSuperiorFieldAccess },
+    },
+    {
+      name: 'fecha_reactivacion',
+      type: 'date',
+      admin: { readOnly: true, description: 'Se completa sola cada vez que el becario vuelve a activo desde suspendido — automática o manual' },
       access: { read: soloPropioOStaffField, update: esStaffOSuperiorFieldAccess },
     },
     {

@@ -234,6 +234,10 @@ export interface Becario {
   motivo_suspension?: string | null;
   fecha_suspension?: string | null;
   /**
+   * Se completa sola cada vez que el becario vuelve a activo desde suspendido — automática o manual
+   */
+  fecha_reactivacion?: string | null;
+  /**
    * Sobrescribe la meta global de Configuracion — solo si esta universidad exige un mínimo distinto
    */
   meta_horas_personalizada?: number | null;
@@ -961,6 +965,7 @@ export interface BecariosSelect<T extends boolean = true> {
   estado?: T;
   motivo_suspension?: T;
   fecha_suspension?: T;
+  fecha_reactivacion?: T;
   meta_horas_personalizada?: T;
   foto?: T;
   cita?: T;

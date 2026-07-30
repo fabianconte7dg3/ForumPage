@@ -1,6 +1,7 @@
 import type { Access, CollectionAfterChangeHook, CollectionBeforeChangeHook, CollectionConfig, Where } from 'payload'
 
 import { esStaffOSuperior, esStaffOSuperiorFieldAccess, idDeRelacion } from '@/access'
+import { materiasPendientes } from '@/lib/materias-pendientes'
 import type { Recuperacion, RegistrosAcademico, User } from '@/payload-types'
 
 const rolDe = (user: User | null) => user?.rol
@@ -82,18 +83,8 @@ const reactivarSiYaNoDebeNada: CollectionAfterChangeHook<Recuperacion> = async (
     req,
   })
 
-  const pendientes = new Map<string, number>()
-  for (const registro of registros.docs as RegistrosAcademico[]) {
-    for (const m of registro.materias_reprobadas ?? []) {
-      pendientes.set(m.nombre, (pendientes.get(m.nombre) ?? 0) + 1)
-    }
-  }
-  for (const recuperacion of recuperaciones.docs as Recuperacion[]) {
-    const restante = pendientes.get(recuperacion.materia) ?? 0
-    if (restante > 0) pendientes.set(recuperacion.materia, restante - 1)
-  }
-  const quedaAlgoPendiente = Array.from(pendientes.values()).some((n) => n > 0)
-  if (quedaAlgoPendiente) return
+  const pendientes = materiasPendientes(registros.docs as RegistrosAcademico[], recuperaciones.docs as Recuperacion[])
+  if (pendientes.length > 0) return
 
   await req.payload.update({
     collection: 'becarios',
