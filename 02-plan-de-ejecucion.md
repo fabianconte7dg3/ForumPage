@@ -240,7 +240,7 @@ Ningún módulo se da por terminado sin cumplir estos seis puntos. Aplica a las 
 - [x] Barra de progreso contra la meta configurable — ver `docs/plan.md` Fase 3 Paso L
 - [x] Excepción individual por universidad (`meta_horas_personalizada` en Becarios, ya usado por la barra de progreso)
 - [x] Colección **Desembolsos** con sus cuatro estados (Bloque 5, Fase 3 Paso E)
-- [ ] Calendario e historial visible para el becario
+- [x] Calendario e historial visible para el becario — ver `docs/plan.md` Fase 3 Paso M. Cierra "3.3 Labor social y pagos" por completo.
 - [x] Aviso destacado al iniciar sesión — banner de suspensión en el panel principal, ver Paso L
 
 ### 3.4 Experiencia del becario suspendido

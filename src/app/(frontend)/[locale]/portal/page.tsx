@@ -4,9 +4,10 @@ import { getPayload } from 'payload'
 import { BotonCerrarSesion } from '@/components/BotonCerrarSesion'
 import { FormularioLogin } from '@/components/FormularioLogin'
 import { defaultLocale, type Locale } from '@/i18n'
+import { formatearFecha } from '@/lib/format'
 import { sesionActual } from '@/lib/auth'
 import config from '@/payload.config'
-import type { Becario, Configuracion } from '@/payload-types'
+import type { Becario, Configuracion, Desembolso } from '@/payload-types'
 
 // El progreso de horas y el aviso de suspensión dependen de datos que
 // cambian todo el tiempo (aprobaciones del staff, reactivaciones) — nunca
@@ -25,6 +26,12 @@ const TEXTOS = {
     horasDetalle: 'de',
     horasAprobadas: 'horas aprobadas',
     suspendidoTitulo: 'Tu beca está suspendida',
+    desembolsosTitulo: 'Desembolsos',
+    desembolsosVacio: 'Todavía no hay desembolsos registrados.',
+    estadoProgramado: 'Programado',
+    estadoRetenido: 'Retenido',
+    estadoPagado: 'Pagado',
+    estadoCancelado: 'Cancelado',
   },
   en: {
     tituloLogin: 'Becario Portal',
@@ -37,8 +44,21 @@ const TEXTOS = {
     horasDetalle: 'of',
     horasAprobadas: 'approved hours',
     suspendidoTitulo: 'Your scholarship is suspended',
+    desembolsosTitulo: 'Disbursements',
+    desembolsosVacio: 'No disbursements recorded yet.',
+    estadoProgramado: 'Scheduled',
+    estadoRetenido: 'Withheld',
+    estadoPagado: 'Paid',
+    estadoCancelado: 'Cancelled',
   },
 } satisfies Record<Locale, Record<string, string>>
+
+const ESTILO_ESTADO: Record<Desembolso['estado'], string> = {
+  cancelado: 'border-piedra/25 text-piedra line-through',
+  pagado: 'border-montana/40 bg-montana/10 text-montana',
+  programado: 'border-piedra/25 text-tinta',
+  retenido: 'border-cosecha bg-cosecha/10 text-cosecha',
+}
 
 export default async function PortalPage({ params }: { params: Promise<{ locale: Locale }> }) {
   const { locale } = await params
@@ -86,6 +106,24 @@ export default async function PortalPage({ params }: { params: Promise<{ locale:
     : 0
   const progreso = meta > 0 ? Math.min(100, Math.round((horasAprobadas / meta) * 100)) : 0
 
+  const desembolsos = becario
+    ? (
+        await payload.find({
+          collection: 'desembolsos',
+          where: { becario: { equals: becario.id } },
+          sort: '-fecha_programada',
+          limit: 100,
+          overrideAccess: true,
+        })
+      ).docs
+    : []
+  const ESTADO_LABEL: Record<Desembolso['estado'], string> = {
+    cancelado: t.estadoCancelado,
+    pagado: t.estadoPagado,
+    programado: t.estadoProgramado,
+    retenido: t.estadoRetenido,
+  }
+
   return (
     <div className="mx-auto max-w-(--container-content) px-4 py-12 md:px-16 md:py-24">
       <header className="mb-8 flex items-center justify-between border-b border-piedra/25 pb-8">
@@ -103,7 +141,7 @@ export default async function PortalPage({ params }: { params: Promise<{ locale:
         </div>
       )}
 
-      <section>
+      <section className="mb-8">
         <h2 className="font-display text-sm font-bold uppercase tracking-widest text-tinta">{t.horasTitulo}</h2>
         <p className="mt-1 font-dato text-xs text-tinta/70">
           {horasAprobadas} {t.horasDetalle} {meta} {t.horasAprobadas}
@@ -111,6 +149,32 @@ export default async function PortalPage({ params }: { params: Promise<{ locale:
         <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-piedra/15">
           <div className="h-full bg-montana transition-[width]" style={{ width: `${progreso}%` }} />
         </div>
+      </section>
+
+      <section>
+        <h2 className="font-display text-sm font-bold uppercase tracking-widest text-tinta">{t.desembolsosTitulo}</h2>
+        {desembolsos.length === 0 ? (
+          <p className="mt-2 font-lectura text-sm text-tinta/70">{t.desembolsosVacio}</p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {desembolsos.map((d) => (
+              <li className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-piedra/25 bg-white px-4 py-3" key={d.id}>
+                <div>
+                  <p className="font-dato text-xs text-tinta/70">{formatearFecha(d.fecha_efectiva ?? d.fecha_programada, locale)}</p>
+                  {d.concepto && <p className="font-lectura text-sm text-tinta">{d.concepto}</p>}
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="font-display text-sm font-bold text-tinta">
+                    {d.monto.toLocaleString(locale === 'es' ? 'es-PA' : 'en-US', { currency: 'USD', style: 'currency' })}
+                  </span>
+                  <span className={`rounded-sm border px-2 py-0.5 font-dato text-xs uppercase tracking-widest ${ESTILO_ESTADO[d.estado]}`}>
+                    {ESTADO_LABEL[d.estado]}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </div>
   )
