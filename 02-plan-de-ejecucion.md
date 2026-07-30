@@ -235,13 +235,13 @@ Ningún módulo se da por terminado sin cumplir estos seis puntos. Aplica a las 
 
 ### 3.3 Labor social y pagos
 
-- [ ] Colección **Horas de Labor Social** con evidencia
-- [ ] Flujo de aprobación y rechazo con comentario
-- [ ] Barra de progreso contra la meta configurable
-- [ ] Excepción individual por universidad
-- [ ] Colección **Desembolsos** con sus cuatro estados
+- [x] Colección **Horas de Labor Social** con evidencia (Bloque 5, Fase 3 Paso D)
+- [x] Flujo de aprobación y rechazo con comentario (Bloque 5, Fase 3 Paso D)
+- [x] Barra de progreso contra la meta configurable — ver `docs/plan.md` Fase 3 Paso L
+- [x] Excepción individual por universidad (`meta_horas_personalizada` en Becarios, ya usado por la barra de progreso)
+- [x] Colección **Desembolsos** con sus cuatro estados (Bloque 5, Fase 3 Paso E)
 - [ ] Calendario e historial visible para el becario
-- [ ] Aviso destacado al iniciar sesión
+- [x] Aviso destacado al iniciar sesión — banner de suspensión en el panel principal, ver Paso L
 
 ### 3.4 Experiencia del becario suspendido
 
