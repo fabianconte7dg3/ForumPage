@@ -135,7 +135,7 @@ El mapa se sirve como archivo estático. Es un archivo público, sin autenticaci
 
 ### 3.6 Autenticación
 
-- [ ] **[CRÍTICO]** 2FA TOTP obligatorio para admin, staff y directiva
+- [x] 2FA TOTP disponible para todos los roles, opcional para todos — decisión del fundador (2026-07-30) de no forzarlo en admin/staff/directiva; ver `docs/plan.md` Fase 3 Paso H
 - [ ] Contraseña mínima de 12 caracteres, contrastada contra listas de filtradas
 - [ ] Bloqueo por intentos fallidos (`maxLoginAttempts`, `lockTime` en Payload)
 - [ ] Límite de tasa en `/api/users/login` y en recuperación de contraseña
@@ -333,7 +333,7 @@ Escrito **antes** de necesitarlo, en `docs/respuesta-incidentes.md`.
 - [ ] IDOR entre becarios probado y negativo
 - [ ] Documentos privados inaccesibles por URL directa
 - [ ] GeoJSON auditado campo por campo
-- [ ] 2FA funcionando y forzado
+- [x] 2FA funcionando (opcional para todos los roles — decisión del fundador, no forzado)
 - [ ] Postgres no alcanzable desde internet
 - [ ] Sin secretos en el historial de Git
 - [ ] Restauración de respaldo probada

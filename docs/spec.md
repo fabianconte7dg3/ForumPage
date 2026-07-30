@@ -84,7 +84,7 @@ Reglas clave:
 - **Cualquier staff verifica registros académicos** (sin doble aprobación) — el control es trazable, no preventivo
 - `motivo_suspension` (visible al becario) ≠ `nota_interna_evaluacion` (solo staff/admin) — campos separados, nunca el mismo
 - Documentación socioeconómica: solo staff/admin ven el expediente; directiva ve solo "requisito verificado"
-- 2FA obligatorio para staff/directiva/admin; opcional para becarios
+- 2FA TOTP disponible para todos los roles, **opcional para todos** — decisión explícita del fundador (2026-07-30), reemplaza la obligatoriedad original de 01-documento-de-proyecto.md/05-ciberseguridad.md para staff/directiva/admin
 - Cuentas se desactivan, **nunca se borran** (rompería trazabilidad de verificaciones)
 - Alta de becarios solo por invitación del staff — sin autorregistro
 

@@ -459,7 +459,7 @@ Dos separaciones que no se resuelven por colección sino por campo:
 
 ### Operación
 
-- **2FA obligatorio** para staff, directiva y administrador. Opcional para becarios.
+- **2FA disponible para todos los roles, opcional para todos** — decisión del fundador (2026-07-30): no se fuerza en staff/directiva/administrador, cada quien decide activarlo.
 - **Auditoría** sobre: cambios de estado del becario, verificaciones académicas, aprobación de horas, desembolsos y cambios de rol.
 - **Baja de personal**: la cuenta se desactiva, nunca se elimina. Borrarla rompería la trazabilidad de lo que esa persona verificó.
 - **Duración de sesión**: corta para staff y directiva, larga para becarios.

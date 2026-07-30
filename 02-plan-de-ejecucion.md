@@ -215,7 +215,7 @@ Ningún módulo se da por terminado sin cumplir estos seis puntos. Aplica a las 
 ### 3.1 Autenticación
 
 - [ ] Login, recuperación de contraseña y alta por invitación
-- [ ] 2FA obligatorio para staff, directiva y admin
+- [x] 2FA TOTP disponible para todos los roles, opcional para todos (decisión del fundador, no forzado)
 - [ ] Matriz de permisos implementada colección por colección
 - [ ] Reglas a nivel de campo: `motivo_suspension` vs `nota_interna_evaluacion`
 - [ ] Duración de sesión diferenciada por rol
