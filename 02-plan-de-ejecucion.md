@@ -215,7 +215,7 @@ Ningún módulo se da por terminado sin cumplir estos seis puntos. Aplica a las 
 ### 3.1 Autenticación
 
 - [x] Login (en dos pasos si hay 2FA) y alta de becarios por invitación con enlace caduco — ver `docs/plan.md` Fase 3 Pasos H e I
-- [ ] Recuperación de contraseña (falta la página/flujo para una cuenta ya activa que olvidó su contraseña; y cerrar el gap de 2FA en `/api/users/reset-password`, hoy reutilizado tal cual sin ese chequeo)
+- [x] Recuperación de contraseña, en dos pasos si hay 2FA — ver `docs/plan.md` Fase 3 Paso J
 - [x] 2FA TOTP disponible para todos los roles, opcional para todos (decisión del fundador, no forzado)
 - [x] Matriz de permisos implementada colección por colección (Becarios, RegistrosAcademicos, Recuperaciones, HorasLaborSocial, Desembolsos)
 - [x] Reglas a nivel de campo: `motivo_suspension` vs `nota_interna_evaluacion`

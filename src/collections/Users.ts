@@ -86,6 +86,18 @@ function respuestaConSesion(req: PayloadRequest, token: string, exp: number): Re
   return Response.json({ token, exp }, { headers: { 'Set-Cookie': cookie } })
 }
 
+// payload.resetPassword() no devuelve `exp` (solo login() lo hace) — se lee
+// del propio JWT, que ya lo trae como claim (jwtSign lo firma con setExpirationTime).
+function expDeJwt(token: string): number | undefined {
+  const payload = token.split('.')[1]
+  if (!payload) return undefined
+  try {
+    return (JSON.parse(Buffer.from(payload, 'base64url').toString('utf-8')) as { exp?: number }).exp
+  } catch {
+    return undefined
+  }
+}
+
 // Reemplaza el /login por defecto de Payload (un endpoint propio con el mismo
 // path+method gana — Payload hace `.find()` y los endpoints del usuario van
 // primero en el arreglo). Login en dos pasos cuando el usuario tiene 2FA
@@ -128,6 +140,54 @@ const iniciarSesion: PayloadHandler = async (req) => {
   }
 
   return respuestaConSesion(req, resultado.token, resultado.exp)
+}
+
+// Reemplaza el /reset-password por defecto de Payload — el de por defecto
+// emite sesión directo apenas el token+contraseña son válidos, sin mirar si
+// la cuenta tiene 2FA habilitado (gap real detectado en el Paso I: serviría
+// para saltear el segundo factor con solo el enlace de "olvidé mi
+// contraseña"). Mismo patrón de desafío en dos pasos que /login.
+const restablecerContrasena: PayloadHandler = async (req) => {
+  const body = (await req.json?.()) as
+    | { codigo?: string; desafioId?: string; password?: string; token?: string }
+    | undefined
+
+  if (body?.desafioId) {
+    const resultado = body.codigo ? verificarYConsumirDesafio(body.desafioId, body.codigo) : undefined
+    if (!resultado) {
+      return Response.json({ message: 'Código inválido o expirado' }, { status: 401 })
+    }
+    return respuestaConSesion(req, resultado.token, resultado.exp)
+  }
+
+  if (!body?.token || !body?.password) {
+    return Response.json({ message: 'Token y contraseña requeridos' }, { status: 400 })
+  }
+
+  let resultado: Awaited<ReturnType<typeof req.payload.resetPassword>>
+  try {
+    resultado = await req.payload.resetPassword({
+      collection: 'users',
+      data: { token: body.token, password: body.password },
+      overrideAccess: true,
+      req,
+    })
+  } catch (error) {
+    return Response.json({ message: (error as Error).message }, { status: 403 })
+  }
+
+  const usuario = resultado.user as unknown as User
+  const exp = resultado.token ? expDeJwt(resultado.token) : undefined
+  if (!resultado.token || exp === undefined) {
+    return Response.json({ message: 'No se pudo restablecer la contraseña' }, { status: 500 })
+  }
+
+  if (usuario.dosFA_habilitado && usuario.dosFA_secreto) {
+    const desafioId = crearDesafio(resultado.token, exp, usuario.dosFA_secreto)
+    return Response.json({ requiere2FA: true, desafioId })
+  }
+
+  return respuestaConSesion(req, resultado.token, exp)
 }
 
 // Solo para uno mismo — genera un secreto nuevo (queda pendiente hasta
@@ -196,6 +256,7 @@ export const Users: CollectionConfig = {
   },
   endpoints: [
     { handler: iniciarSesion, method: 'post', path: '/login' },
+    { handler: restablecerContrasena, method: 'post', path: '/reset-password' },
     { handler: generarDosFA, method: 'post', path: '/2fa/generar' },
     { handler: confirmarDosFA, method: 'post', path: '/2fa/confirmar' },
     { handler: desactivarDosFA, method: 'post', path: '/2fa/desactivar' },

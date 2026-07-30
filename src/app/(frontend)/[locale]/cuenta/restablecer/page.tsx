@@ -3,20 +3,20 @@ import { defaultLocale, type Locale } from '@/i18n'
 
 const TEXTOS = {
   es: {
-    titulo: 'Activar tu cuenta',
-    descripcion: 'Elegí una contraseña para activar tu cuenta de Forum Foundation.',
-    sinToken: 'Este enlace no es válido. Pedile al staff que te envíe uno nuevo.',
-    enviar: 'Activar cuenta',
+    titulo: 'Elegir nueva contraseña',
+    descripcion: 'Este enlace es de un solo uso y vence en 1 hora.',
+    sinToken: 'Este enlace no es válido o ya venció. Pedí uno nuevo desde "Recuperar contraseña".',
+    enviar: 'Restablecer contraseña',
   },
   en: {
-    titulo: 'Activate your account',
-    descripcion: 'Choose a password to activate your Forum Foundation account.',
-    sinToken: 'This link is not valid. Ask staff to send you a new one.',
-    enviar: 'Activate account',
+    titulo: 'Choose a new password',
+    descripcion: 'This link is single-use and expires in 1 hour.',
+    sinToken: 'This link is not valid or already expired. Request a new one from "Recover password".',
+    enviar: 'Reset password',
   },
 } satisfies Record<Locale, Record<string, string>>
 
-export default async function ActivarCuentaPage({
+export default async function RestablecerPage({
   params,
   searchParams,
 }: {
