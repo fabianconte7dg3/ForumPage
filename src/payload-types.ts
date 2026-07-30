@@ -1452,6 +1452,11 @@ export interface Nosotro {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Foto que acompaña la misión/historia
+   */
+  foto?: (number | null) | Media;
+  logo?: (number | null) | Media;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1487,6 +1492,8 @@ export interface ConfiguracionSelect<T extends boolean = true> {
 export interface NosotrosSelect<T extends boolean = true> {
   mision?: T;
   historia?: T;
+  foto?: T;
+  logo?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

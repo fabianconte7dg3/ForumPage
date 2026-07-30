@@ -204,6 +204,14 @@ async function main() {
     console.log('Global Nosotros cargado (es + en).')
   }
 
+  const actual = await payload.findGlobal({ slug: 'nosotros', overrideAccess: true })
+  if (!actual.foto || !actual.logo) {
+    const fotoId = await subirFoto(payload, 'DSC06238-scaled.jpg', 'Equipo de Forum Foundation', 'Forum Foundation team')
+    const logoId = await subirFoto(payload, 'Foundation-Logo-2-2015.png', 'Logo de Forum Foundation', 'Forum Foundation logo')
+    await payload.updateGlobal({ slug: 'nosotros', data: { foto: fotoId, logo: logoId }, overrideAccess: true })
+    console.log('Fotos de Nosotros cargadas.')
+  }
+
   const yaExisten = await payload.find({ collection: 'equipo', limit: 1, overrideAccess: true })
   if (yaExisten.docs.length > 0) {
     console.log('Ya hay miembros de Equipo cargados — no se duplica. Borralos primero si querés re-sembrar.')

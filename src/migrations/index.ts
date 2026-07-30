@@ -12,6 +12,7 @@ import * as migration_20260730_051309_agregar_fecha_reactivacion from './2026073
 import * as migration_20260730_055512_agregar_necesidades from './20260730_055512_agregar_necesidades';
 import * as migration_20260730_062005_agregar_prioridad_orden from './20260730_062005_agregar_prioridad_orden';
 import * as migration_20260730_165012_agregar_nosotros_equipo from './20260730_165012_agregar_nosotros_equipo';
+import * as migration_20260730_170617_agregar_fotos_nosotros from './20260730_170617_agregar_fotos_nosotros';
 
 export const migrations = [
   {
@@ -82,6 +83,11 @@ export const migrations = [
   {
     up: migration_20260730_165012_agregar_nosotros_equipo.up,
     down: migration_20260730_165012_agregar_nosotros_equipo.down,
-    name: '20260730_165012_agregar_nosotros_equipo'
+    name: '20260730_165012_agregar_nosotros_equipo',
+  },
+  {
+    up: migration_20260730_170617_agregar_fotos_nosotros.up,
+    down: migration_20260730_170617_agregar_fotos_nosotros.down,
+    name: '20260730_170617_agregar_fotos_nosotros'
   },
 ];

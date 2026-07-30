@@ -28,9 +28,11 @@ export default async function NosotrosPage({ params }: { params: Promise<{ local
   const payload = await getPayload({ config })
 
   const [nosotros, equipo] = await Promise.all([
-    payload.findGlobal({ slug: 'nosotros', locale, overrideAccess: true }),
+    payload.findGlobal({ slug: 'nosotros', locale, depth: 1, overrideAccess: true }),
     payload.find({ collection: 'equipo', sort: 'orden', limit: 50, locale, depth: 1, overrideAccess: true }),
   ])
+  const fotoNosotros = typeof nosotros.foto === 'object' ? (nosotros.foto as Media) : undefined
+  const logoNosotros = typeof nosotros.logo === 'object' ? (nosotros.logo as Media) : undefined
 
   return (
     <div className="mx-auto max-w-(--container-content) px-4 py-12 md:px-16 md:py-24">
@@ -38,19 +40,37 @@ export default async function NosotrosPage({ params }: { params: Promise<{ local
         <h1 className="font-display text-3xl font-bold uppercase text-montana md:text-4xl">{t.titulo}</h1>
       </header>
 
-      {nosotros.mision && (
-        <div className="mb-16 max-w-(--text-reading-width) font-lectura text-base leading-relaxed text-tinta [&>p]:mb-4">
-          <RichText data={nosotros.mision} />
-        </div>
-      )}
-
-      {nosotros.historia && (
-        <section className="mb-16">
-          <h2 className="mb-4 font-display text-sm font-bold uppercase tracking-widest text-tinta">{t.historiaTitulo}</h2>
-          <div className="max-w-(--text-reading-width) font-lectura text-base leading-relaxed text-tinta [&>p]:mb-4">
-            <RichText data={nosotros.historia} />
+      {(nosotros.mision || nosotros.historia) && (
+        <div className="mb-16 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_360px] lg:items-start">
+          <div>
+            {nosotros.mision && (
+              <div className="mb-12 max-w-(--text-reading-width) font-lectura text-base leading-relaxed text-tinta [&>p]:mb-4">
+                <RichText data={nosotros.mision} />
+              </div>
+            )}
+            {nosotros.historia && (
+              <section>
+                <h2 className="mb-4 font-display text-sm font-bold uppercase tracking-widest text-tinta">{t.historiaTitulo}</h2>
+                <div className="max-w-(--text-reading-width) font-lectura text-base leading-relaxed text-tinta [&>p]:mb-4">
+                  <RichText data={nosotros.historia} />
+                </div>
+              </section>
+            )}
           </div>
-        </section>
+
+          {(fotoNosotros?.url || logoNosotros?.url) && (
+            <div className="space-y-4 lg:sticky lg:top-24">
+              {fotoNosotros?.url && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img alt={fotoNosotros.alt ?? ''} className="aspect-4/3 w-full rounded-md object-cover" src={fotoNosotros.url} />
+              )}
+              {logoNosotros?.url && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img alt={logoNosotros.alt ?? ''} className="mx-auto w-40 object-contain" src={logoNosotros.url} />
+              )}
+            </div>
+          )}
+        </div>
       )}
 
       {equipo.docs.length > 0 && (

@@ -21,5 +21,16 @@ export const Nosotros: GlobalConfig = {
       type: 'richText',
       localized: true,
     },
+    {
+      name: 'foto',
+      type: 'upload',
+      relationTo: 'media',
+      admin: { description: 'Foto que acompaña la misión/historia' },
+    },
+    {
+      name: 'logo',
+      type: 'upload',
+      relationTo: 'media',
+    },
   ],
 }
