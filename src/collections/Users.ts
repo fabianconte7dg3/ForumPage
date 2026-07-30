@@ -1,11 +1,13 @@
 import { randomBytes } from 'crypto'
-import type {
-  CollectionAfterChangeHook,
-  CollectionAfterLoginHook,
-  CollectionBeforeLoginHook,
-  CollectionConfig,
-  PayloadHandler,
-  PayloadRequest,
+import {
+  type CollectionAfterChangeHook,
+  type CollectionAfterLoginHook,
+  type CollectionBeforeLoginHook,
+  type CollectionConfig,
+  getFieldsToSign,
+  jwtSign,
+  type PayloadHandler,
+  type PayloadRequest,
 } from 'payload'
 import QRCode from 'qrcode'
 
@@ -86,16 +88,56 @@ function respuestaConSesion(req: PayloadRequest, token: string, exp: number): Re
   return Response.json({ token, exp }, { headers: { 'Set-Cookie': cookie } })
 }
 
-// payload.resetPassword() no devuelve `exp` (solo login() lo hace) — se lee
-// del propio JWT, que ya lo trae como claim (jwtSign lo firma con setExpirationTime).
-function expDeJwt(token: string): number | undefined {
+// Lee los claims de un JWT ya firmado por Payload sin volver a verificarlo —
+// solo para leer `exp`/`sid`, que jwtSign ya dejó adentro.
+function claimsDeJwt(token: string): { exp?: number; sid?: string } {
   const payload = token.split('.')[1]
-  if (!payload) return undefined
+  if (!payload) return {}
   try {
-    return (JSON.parse(Buffer.from(payload, 'base64url').toString('utf-8')) as { exp?: number }).exp
+    return JSON.parse(Buffer.from(payload, 'base64url').toString('utf-8')) as { exp?: number; sid?: string }
   } catch {
-    return undefined
+    return {}
   }
+}
+
+// Duración de sesión diferenciada por rol (01-documento-de-proyecto.md
+// §Operación: "corta para staff y directiva, larga para becarios"). Payload
+// solo soporta un `tokenExpiration` fijo por colección — acá se vuelve a
+// firmar el JWT que ya devolvió login()/resetPassword() con la duración
+// correcta según el rol, reusando los mismos `getFieldsToSign`/`jwtSign` que
+// usa Payload internamente (exportados desde 'payload').
+const DURACION_CORTA_SEGUNDOS = 60 * 60 * 2 // 2h — staff/directiva/admin, mismo valor que el default de Payload
+const DURACION_LARGA_SEGUNDOS = 60 * 60 * 24 * 30 // 30 días — becarios, portal de uso esporádico
+
+async function reemitirTokenConDuracionPorRol(
+  req: PayloadRequest,
+  usuario: User,
+  tokenOriginal: string,
+): Promise<{ exp: number; token: string }> {
+  const segundos = usuario.rol === 'becario' ? DURACION_LARGA_SEGUNDOS : DURACION_CORTA_SEGUNDOS
+  const { sid } = claimsDeJwt(tokenOriginal)
+  const collectionConfig = req.payload.collections.users.config
+
+  const fieldsToSign = getFieldsToSign({ collectionConfig, email: usuario.email, sid, user: usuario })
+  const { exp, token } = await jwtSign({ fieldsToSign, secret: req.payload.secret, tokenExpiration: segundos })
+
+  // La sesión ya quedó registrada en `sessions[]` por login()/resetPassword()
+  // con el vencimiento por defecto (2h) — hay que corregirla también, o un
+  // login posterior desde otro dispositivo podaría esta sesión como
+  // "vencida" antes de tiempo y cerraría esta pestaña de golpe.
+  if (sid && usuario.sessions?.some((s) => s.id === sid)) {
+    await req.payload.update({
+      collection: 'users',
+      id: usuario.id,
+      data: {
+        sessions: usuario.sessions.map((s) => (s.id === sid ? { ...s, expiresAt: new Date(exp * 1000).toISOString() } : s)),
+      },
+      overrideAccess: true,
+      req,
+    })
+  }
+
+  return { exp, token }
 }
 
 // Reemplaza el /login por defecto de Payload (un endpoint propio con el mismo
@@ -134,12 +176,14 @@ const iniciarSesion: PayloadHandler = async (req) => {
     return Response.json({ message: 'No se pudo iniciar sesión' }, { status: 500 })
   }
 
+  const { exp, token } = await reemitirTokenConDuracionPorRol(req, usuario, resultado.token)
+
   if (usuario.dosFA_habilitado && usuario.dosFA_secreto) {
-    const desafioId = crearDesafio(resultado.token, resultado.exp, usuario.dosFA_secreto)
+    const desafioId = crearDesafio(token, exp, usuario.dosFA_secreto)
     return Response.json({ requiere2FA: true, desafioId })
   }
 
-  return respuestaConSesion(req, resultado.token, resultado.exp)
+  return respuestaConSesion(req, token, exp)
 }
 
 // Reemplaza el /reset-password por defecto de Payload — el de por defecto
@@ -177,17 +221,18 @@ const restablecerContrasena: PayloadHandler = async (req) => {
   }
 
   const usuario = resultado.user as unknown as User
-  const exp = resultado.token ? expDeJwt(resultado.token) : undefined
-  if (!resultado.token || exp === undefined) {
+  if (!resultado.token) {
     return Response.json({ message: 'No se pudo restablecer la contraseña' }, { status: 500 })
   }
 
+  const { exp, token } = await reemitirTokenConDuracionPorRol(req, usuario, resultado.token)
+
   if (usuario.dosFA_habilitado && usuario.dosFA_secreto) {
-    const desafioId = crearDesafio(resultado.token, exp, usuario.dosFA_secreto)
+    const desafioId = crearDesafio(token, exp, usuario.dosFA_secreto)
     return Response.json({ requiere2FA: true, desafioId })
   }
 
-  return respuestaConSesion(req, resultado.token, exp)
+  return respuestaConSesion(req, token, exp)
 }
 
 // Solo para uno mismo — genera un secreto nuevo (queda pendiente hasta

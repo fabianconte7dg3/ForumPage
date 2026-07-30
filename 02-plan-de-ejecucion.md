@@ -219,7 +219,7 @@ Ningún módulo se da por terminado sin cumplir estos seis puntos. Aplica a las 
 - [x] 2FA TOTP disponible para todos los roles, opcional para todos (decisión del fundador, no forzado)
 - [x] Matriz de permisos implementada colección por colección (Becarios, RegistrosAcademicos, Recuperaciones, HorasLaborSocial, Desembolsos)
 - [x] Reglas a nivel de campo: `motivo_suspension` vs `nota_interna_evaluacion`
-- [ ] Duración de sesión diferenciada por rol
+- [x] Duración de sesión diferenciada por rol (2h staff/directiva/admin, 30 días becarios) — ver `docs/plan.md` Fase 3 Paso K
 - [x] Desactivación de cuentas sin borrado (campo `activo`, bloqueado en login)
 
 ### 3.2 Expediente académico
