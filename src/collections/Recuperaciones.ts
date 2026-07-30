@@ -1,6 +1,7 @@
 import type { Access, CollectionAfterChangeHook, CollectionBeforeChangeHook, CollectionConfig, Where } from 'payload'
 
 import { esStaffOSuperior, esStaffOSuperiorFieldAccess, idDeRelacion } from '@/access'
+import { registrarAuditoria } from '@/lib/auditoria'
 import { materiasPendientes } from '@/lib/materias-pendientes'
 import type { Recuperacion, RegistrosAcademico, User } from '@/payload-types'
 
@@ -65,6 +66,15 @@ const reactivarSiYaNoDebeNada: CollectionAfterChangeHook<Recuperacion> = async (
   const becarioId = idDeRelacion(doc.becario)
   if (!becarioId) return
 
+  // "Auditoría activa sobre... verificaciones" (3.5): se registra siempre que
+  // se verifica una recuperación, no solo cuando termina reactivando.
+  await registrarAuditoria(req, {
+    accion: 'verificacion_recuperacion',
+    coleccion: 'recuperaciones',
+    documentoId: doc.id,
+    valorNuevo: { materia: doc.materia, periodo: doc.periodo },
+  })
+
   const becario = await req.payload.findByID({ collection: 'becarios', id: becarioId, overrideAccess: true, req })
   if (becario.estado !== 'suspendido') return
 
@@ -102,21 +112,12 @@ const reactivarSiYaNoDebeNada: CollectionAfterChangeHook<Recuperacion> = async (
     req,
   })
 
-  if (req.user) {
-    await req.payload.create({
-      collection: 'auditoria',
-      data: {
-        actor: req.user.id,
-        accion: 'reactivacion_automatica',
-        coleccion: 'becarios',
-        documento_id: String(becarioId),
-        valor_nuevo: { estado: 'activo' },
-        fecha: new Date().toISOString(),
-      },
-      overrideAccess: true,
-      req,
-    })
-  }
+  await registrarAuditoria(req, {
+    accion: 'reactivacion_automatica',
+    coleccion: 'becarios',
+    documentoId: becarioId,
+    valorNuevo: { estado: 'activo' },
+  })
 }
 
 export const Recuperaciones: CollectionConfig = {

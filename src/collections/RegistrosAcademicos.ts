@@ -1,6 +1,7 @@
 import type { Access, CollectionAfterChangeHook, CollectionBeforeChangeHook, CollectionConfig, Where } from 'payload'
 
 import { esStaffOSuperior, esStaffOSuperiorFieldAccess, idDeRelacion } from '@/access'
+import { registrarAuditoria } from '@/lib/auditoria'
 import type { RegistrosAcademico, User } from '@/payload-types'
 
 const rolDe = (user: User | null) => user?.rol
@@ -68,10 +69,23 @@ const suspenderPorReprobacion: CollectionAfterChangeHook<RegistrosAcademico> = a
 }) => {
   const seAcabaDeVerificar =
     doc.estado_verificacion === 'verificado' && (operation === 'create' || previousDoc?.estado_verificacion !== 'verificado')
-  const materiasReprobadas = doc.materias_reprobadas ?? []
-  if (!seAcabaDeVerificar || materiasReprobadas.length === 0) return
+  if (!seAcabaDeVerificar) return
 
   const becarioId = typeof doc.becario === 'object' ? doc.becario.id : doc.becario
+
+  // "Auditoría activa sobre... verificaciones" (3.5 del plan de ejecución) —
+  // se registra la verificación en sí, exista o no materia reprobada, no solo
+  // cuando dispara la suspensión.
+  await registrarAuditoria(req, {
+    accion: 'verificacion_registro_academico',
+    coleccion: 'registros-academicos',
+    documentoId: doc.id,
+    valorNuevo: { periodo: doc.periodo, materias_reprobadas: doc.materias_reprobadas },
+  })
+
+  const materiasReprobadas = doc.materias_reprobadas ?? []
+  if (materiasReprobadas.length === 0) return
+
   const motivo = `Materia(s) reprobada(s): ${materiasReprobadas.map((m) => m.nombre).join(', ')}`
 
   await req.payload.update({
@@ -90,21 +104,12 @@ const suspenderPorReprobacion: CollectionAfterChangeHook<RegistrosAcademico> = a
     req,
   })
 
-  if (req.user) {
-    await req.payload.create({
-      collection: 'auditoria',
-      data: {
-        actor: req.user.id,
-        accion: 'suspension_automatica',
-        coleccion: 'becarios',
-        documento_id: String(becarioId),
-        valor_nuevo: { estado: 'suspendido', motivo_suspension: motivo },
-        fecha: new Date().toISOString(),
-      },
-      overrideAccess: true,
-      req,
-    })
-  }
+  await registrarAuditoria(req, {
+    accion: 'suspension_automatica',
+    coleccion: 'becarios',
+    documentoId: becarioId,
+    valorNuevo: { estado: 'suspendido', motivo_suspension: motivo },
+  })
 }
 
 export const RegistrosAcademicos: CollectionConfig = {

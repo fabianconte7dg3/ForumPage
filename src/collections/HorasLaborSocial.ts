@@ -1,7 +1,8 @@
-import type { Access, CollectionBeforeChangeHook, CollectionConfig, Where } from 'payload'
+import type { Access, CollectionAfterChangeHook, CollectionBeforeChangeHook, CollectionConfig, Where } from 'payload'
 
 import { esStaffOSuperior, esStaffOSuperiorFieldAccess, idDeRelacion } from '@/access'
-import type { User } from '@/payload-types'
+import { registrarAuditoria } from '@/lib/auditoria'
+import type { HoraLaborSocial, User } from '@/payload-types'
 
 const rolDe = (user: User | null) => user?.rol
 
@@ -51,6 +52,19 @@ const autocompletarAprobador: CollectionBeforeChangeHook = ({ data, req, origina
   return data
 }
 
+// "Auditoría activa sobre... horas" (3.5 del plan de ejecución).
+const registrarAprobacion: CollectionAfterChangeHook<HoraLaborSocial> = async ({ doc, previousDoc, operation, req }) => {
+  const seEstaResolviendo = (doc.estado === 'aprobada' || doc.estado === 'rechazada') && (operation === 'create' || doc.estado !== previousDoc?.estado)
+  if (!seEstaResolviendo) return
+
+  await registrarAuditoria(req, {
+    accion: doc.estado === 'aprobada' ? 'aprobacion_horas' : 'rechazo_horas',
+    coleccion: 'horas-labor-social',
+    documentoId: doc.id,
+    valorNuevo: { estado: doc.estado, horas: doc.horas },
+  })
+}
+
 export const HorasLaborSocial: CollectionConfig = {
   slug: 'horas-labor-social',
   typescript: { interface: 'HoraLaborSocial' },
@@ -66,6 +80,7 @@ export const HorasLaborSocial: CollectionConfig = {
   },
   hooks: {
     beforeChange: [forzarPropioBecario, autocompletarAprobador],
+    afterChange: [registrarAprobacion],
   },
   fields: [
     {

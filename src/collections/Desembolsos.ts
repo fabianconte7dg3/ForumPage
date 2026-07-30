@@ -1,7 +1,8 @@
-import type { Access, CollectionConfig, Where } from 'payload'
+import type { Access, CollectionAfterChangeHook, CollectionConfig, Where } from 'payload'
 
 import { esStaffOSuperior, idDeRelacion } from '@/access'
-import type { User } from '@/payload-types'
+import { registrarAuditoria } from '@/lib/auditoria'
+import type { Desembolso, User } from '@/payload-types'
 
 const rolDe = (user: User | null) => user?.rol
 
@@ -16,6 +17,23 @@ const lecturaDesembolsos: Access = ({ req }) => {
     return becarioId ? ({ becario: { equals: becarioId } } as Where) : false
   }
   return false
+}
+
+// "Auditoría activa sobre... desembolsos" (3.5 del plan de ejecución) — toda
+// transición de estado, sea manual (staff marca pagado/cancelado) o en
+// cascada (el automatismo de suspensión/reactivación retiene o libera varios
+// a la vez con un `where`, y cada uno pasa por este mismo hook igual).
+const registrarCambioEstado: CollectionAfterChangeHook<Desembolso> = async ({ doc, previousDoc, operation, req }) => {
+  const cambioEstado = operation === 'update' && !!previousDoc && doc.estado !== previousDoc.estado
+  if (!cambioEstado) return
+
+  await registrarAuditoria(req, {
+    accion: 'cambio_estado_desembolso',
+    coleccion: 'desembolsos',
+    documentoId: doc.id,
+    valorAnterior: { estado: previousDoc.estado },
+    valorNuevo: { estado: doc.estado },
+  })
 }
 
 export const Desembolsos: CollectionConfig = {
@@ -34,6 +52,9 @@ export const Desembolsos: CollectionConfig = {
     // siempre (01-documento-de-proyecto.md §9: "los desembolsos nunca se
     // eliminan al suspender"). Es dinero real: el historial es el punto.
     delete: () => false,
+  },
+  hooks: {
+    afterChange: [registrarCambioEstado],
   },
   fields: [
     {

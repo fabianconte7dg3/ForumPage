@@ -12,6 +12,7 @@ import {
 import QRCode from 'qrcode'
 
 import { esAdmin, esAdminFieldAccess, esStaffOSuperior, esStaffOSuperiorFieldAccess } from '@/access'
+import { registrarAuditoria } from '@/lib/auditoria'
 import { crearDesafio, verificarYConsumirDesafio } from '@/lib/dos-fa-desafios'
 import { generarSecreto, otpauthUri, verificarCodigo } from '@/lib/totp'
 import type { User } from '@/payload-types'
@@ -74,6 +75,20 @@ const generarInvitacionAlCrear: CollectionAfterChangeHook<User> = async ({ doc, 
     data: { enlace_invitacion: `${origen}/es/cuenta/activar?token=${token}` },
     overrideAccess: true,
     req,
+  })
+}
+
+// "Auditoría activa sobre... roles" (3.5 del plan de ejecución). Nunca en la
+// creación (el rol inicial no es un "cambio"), solo en transiciones reales.
+const registrarCambioRol: CollectionAfterChangeHook<User> = async ({ doc, previousDoc, operation, req }) => {
+  if (operation !== 'update' || !previousDoc || doc.rol === previousDoc.rol) return
+
+  await registrarAuditoria(req, {
+    accion: 'cambio_de_rol',
+    coleccion: 'users',
+    documentoId: doc.id,
+    valorAnterior: { rol: previousDoc.rol },
+    valorNuevo: { rol: doc.rol },
   })
 }
 
@@ -297,7 +312,7 @@ export const Users: CollectionConfig = {
   hooks: {
     beforeLogin: [bloquearInactivos],
     afterLogin: [registrarUltimoAcceso],
-    afterChange: [generarInvitacionAlCrear],
+    afterChange: [generarInvitacionAlCrear, registrarCambioRol],
   },
   endpoints: [
     { handler: iniciarSesion, method: 'post', path: '/login' },

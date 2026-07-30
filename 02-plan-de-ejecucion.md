@@ -255,8 +255,8 @@ Ningún módulo se da por terminado sin cumplir estos seis puntos. Aplica a las 
 - [x] Colección **Necesidades** con su flujo de estados — ver `docs/plan.md` Fase 3 Paso O
 - [x] Formulario público de solicitud — ver `docs/plan.md` Fase 3 Paso P
 - [x] Cola priorizada para la directiva — ver `docs/plan.md` Fase 3 Paso Q
-- [ ] Vista de directiva de solo lectura sobre todo el sistema
-- [ ] Auditoría activa sobre estados, verificaciones, horas, desembolsos y roles
+- [x] Vista de directiva de solo lectura sobre todo el sistema — verificado por API real contra las 20 colecciones + Configuracion, no solo revisado en el código. Ver `docs/plan.md` Fase 3 Paso R.
+- [x] Auditoría activa sobre estados, verificaciones, horas, desembolsos y roles — ver `docs/plan.md` Fase 3 Paso R. **Con esto, Fase 3 — Portal del Becario queda completa.**
 
 ### Criterios de aceptación — Fase 3
 
