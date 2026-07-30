@@ -19,7 +19,6 @@
     "postinstall": "mkdir -p public && cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs public/",
     "seed": "tsx --env-file=.env scripts/seed.ts",
     "seed:nosotros": "tsx --env-file=.env scripts/seed-nosotros.ts",
-    "seed:historias": "tsx --env-file=.env scripts/seed-historias.ts",
     "migrate:historias": "tsx --env-file=.env scripts/migrate-all-historias.ts",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start"
   },
