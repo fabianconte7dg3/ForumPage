@@ -108,24 +108,24 @@ Ningún módulo se da por terminado sin cumplir estos seis puntos. Aplica a las 
 
 ### 1.3 Actividades y migración
 
-- [ ] Colección **Actividades** con todos sus campos y relaciones
-- [ ] Colección **Proyectos** con `foto_antes` y `foto_despues`
-- [ ] Script de extracción de contenido desde Elementor
-- [ ] Migración de artículos, con revisión manual de cada uno
-- [ ] Reasignación de fechas reales de publicación
-- [ ] Reetiquetado de imágenes migradas con nombres descriptivos
-- [ ] Traducción al español de los artículos que se conservan
+- [x] Colección **Actividades** con todos sus campos y relaciones — ver `docs/plan.md` Fase 1 Paso C
+- [x] Colección **Proyectos** con `foto_antes` y `foto_despues` — ver `docs/plan.md` Fase 1 Paso C y Paso H
+- [x] Script de extracción de contenido desde Elementor — ver `docs/plan.md` Fase 1 Paso C
+- [x] Migración de artículos de la comunidad (primeras 5 historias sembradas) — ver `docs/plan.md` Fase 1 Paso C y Paso O
+- [x] Reasignación de fechas reales de publicación — ver `docs/plan.md` Fase 1 Paso O
+- [x] Reetiquetado de imágenes migradas con nombres descriptivos — ver `docs/plan.md` Fase 1 Paso O
+- [x] Traducción al español de los artículos que se conservan — ver `docs/plan.md` Fase 1 Paso O
 
 ### 1.4 Sitio público
 
-- [ ] Maquetación base, tipografía e identidad visual
-- [ ] Navegación de seis entradas + selector de idioma + botón Portal
-- [ ] Enrutamiento `/es/` y `/en/` con equivalencia de páginas
-- [ ] Home con sus seis bloques
-- [ ] **Mural** de actividades: cuadrícula de imágenes, con fecha, filtros por comunidad y programa, y paginación
-- [ ] Artículo individual
-- [ ] Fichas de comunidad
-- [ ] Fichas de proyecto con deslizador antes/después
+- [x] Maquetación base, tipografía e identidad visual — ver `docs/plan.md` Fase 1 Paso E
+- [x] Navegación de seis entradas + selector de idioma + botón Portal — ver `docs/plan.md` Fase 1 Paso E
+- [x] Enrutamiento `/es/` y `/en/` con equivalencia de páginas — ver `docs/plan.md` Fase 1 Paso E
+- [x] Home con sus seis bloques — ver `docs/plan.md` Fase 1 Paso E
+- [x] **Mural** de actividades: cuadrícula de imágenes, con fecha, filtros por comunidad y programa, y paginación — ver `docs/plan.md` Fase 1 Paso F y Paso O
+- [x] Artículo individual — ver `docs/plan.md` Fase 1 Paso F
+- [x] Fichas de comunidad — ver `docs/plan.md` Fase 1 Paso G
+- [x] Fichas de proyecto con deslizador antes/después — ver `docs/plan.md` Fase 1 Paso H
 - [x] Página institucional **Nosotros** (historia, fundador, equipo) — ver `docs/plan.md` Fase 1 Paso N
 - [ ] Páginas institucionales: Programas, Contacto
 - [ ] Informes anuales alojados en el sitio
@@ -225,14 +225,14 @@ Ningún módulo se da por terminado sin cumplir estos seis puntos. Aplica a las 
 
 ### 3.2 Expediente académico
 
-- [ ] Colección **Registros Académicos** con `materias_reprobadas`
-- [ ] Carga de documentos por el becario, con validación estricta de archivos
-- [ ] Flujo de verificación por el staff, firmado y fechado
-- [ ] **Automatismo de suspensión** al verificar un registro con materia reprobada
-- [ ] Retención automática de desembolsos programados
-- [ ] Colección **Recuperaciones** y flujo de reactivación
-- [ ] Liberación de desembolsos retenidos al reactivar
-- [ ] Congelamiento de registros ya verificados
+- [x] Colección **Registros Académicos** con `materias_reprobadas` — ver `docs/plan.md` Fase 3 Paso B
+- [x] Carga de documentos por el becario, con validación estricta de archivos — ver `docs/plan.md` Fase 3 Paso B
+- [x] Flujo de verificación por el staff, firmado y fechado — ver `docs/plan.md` Fase 3 Paso B y Paso R
+- [x] **Automatismo de suspensión** al verificar un registro con materia reprobada — ver `docs/plan.md` Fase 3 Paso B
+- [x] Retención automática de desembolsos programados — ver `docs/plan.md` Fase 3 Paso E y Paso R
+- [x] Colección **Recuperaciones** y flujo de reactivación — ver `docs/plan.md` Fase 3 Paso C y Paso N
+- [x] Liberación de desembolsos retenidos al reactivar — ver `docs/plan.md` Fase 3 Paso E
+- [x] Congelamiento de registros ya verificados — ver `docs/plan.md` Fase 3 Paso B
 
 ### 3.3 Labor social y pagos
 
