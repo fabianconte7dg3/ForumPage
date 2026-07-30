@@ -56,14 +56,18 @@ export default async function ArticuloPage({
       {/* Portada full-width, con tope de altura — muchas de las fotos migradas
           son retratos verticales de celular; sin el tope, una vertical a
           ancho completo queda con una altura absurda (~1700px en pantallas
-          normales). object-top prioriza la parte de arriba del recorte,
-          donde suele estar la cara en un retrato. */}
+          normales). El punto de recorte usa el "Focal Point" que Payload ya
+          trae integrado en el editor de imágenes (botón "Edit Image" en el
+          documento de Media) — el staff lo arrastra sobre la cara o lo que
+          importe de la foto, sin tocar código; por defecto es el centro
+          (50/50), no siempre perfecto pero razonable para la mayoría. */}
       {portada?.url && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           alt={portada.alt ?? ''}
-          className="block h-auto max-h-[520px] w-full object-cover object-top"
+          className="block h-auto max-h-[520px] w-full object-cover"
           src={portada.url}
+          style={{ objectPosition: `${portada.focalX ?? 50}% ${portada.focalY ?? 50}%` }}
         />
       )}
 
@@ -90,7 +94,13 @@ export default async function ArticuloPage({
           <div className="mt-8 grid grid-cols-2 gap-2 md:grid-cols-3">
             {galeria.map((media) => (
               // eslint-disable-next-line @next/next/no-img-element
-              <img alt={media.alt ?? ''} className="aspect-4/3 w-full object-cover" key={media.id} src={media.url ?? ''} />
+              <img
+                alt={media.alt ?? ''}
+                className="aspect-4/3 w-full object-cover"
+                key={media.id}
+                src={media.url ?? ''}
+                style={{ objectPosition: `${media.focalX ?? 50}% ${media.focalY ?? 50}%` }}
+              />
             ))}
           </div>
         )}
