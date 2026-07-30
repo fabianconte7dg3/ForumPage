@@ -163,9 +163,31 @@ async function reemitirTokenConDuracionPorRol(
 // cookie real (el token de la contraseña ya estaba listo desde el paso 1,
 // solo se retiene hasta confirmar el segundo factor).
 const iniciarSesion: PayloadHandler = async (req) => {
-  const body = (await req.json?.()) as
-    | { codigo?: string; desafioId?: string; email?: string; password?: string }
-    | undefined
+  const contentType = req.headers.get('content-type') || '';
+  let body: any;
+  try {
+    const rawText = await req.text();
+    if (contentType.includes('multipart/form-data')) {
+      // El panel admin de Payload envía los datos como multipart/form-data
+      // con un campo llamado "_payload" que contiene el JSON como string.
+      const boundaryMatch = contentType.match(/boundary=([^\s;]+)/);
+      if (boundaryMatch) {
+        const boundary = boundaryMatch[1];
+        // Buscar el campo _payload en el cuerpo del form
+        const payloadFieldMatch = rawText.match(/name="_payload"\r?\n\r?\n([\s\S]*?)(?:\r?\n)?--/);
+        if (payloadFieldMatch) {
+          body = JSON.parse(payloadFieldMatch[1].trim());
+        }
+      }
+    } else if (contentType.includes('application/x-www-form-urlencoded')) {
+      body = Object.fromEntries(new URLSearchParams(rawText));
+    } else {
+      // application/json (llamadas directas al API, curl, etc.)
+      body = rawText ? JSON.parse(rawText) : undefined;
+    }
+  } catch (e) {
+    // Ignorar error de parsing
+  }
 
   if (body?.desafioId) {
     const resultado = body.codigo ? verificarYConsumirDesafio(body.desafioId, body.codigo) : undefined

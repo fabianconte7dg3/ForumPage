@@ -1,14 +1,16 @@
 import Link from 'next/link'
 import { getPayload } from 'payload'
+import { redirect } from 'next/navigation'
 
 import { BotonCerrarSesion } from '@/components/BotonCerrarSesion'
+import { BotonReportarHoras } from '@/components/BotonReportarHoras'
 import { FormularioLogin } from '@/components/FormularioLogin'
 import { defaultLocale, type Locale } from '@/i18n'
 import { dentroDeVentana, formatearFecha } from '@/lib/format'
 import { sesionActual } from '@/lib/auth'
 import { materiasPendientes } from '@/lib/materias-pendientes'
 import config from '@/payload.config'
-import type { Becario, Configuracion, Desembolso, Recuperacion, RegistrosAcademico } from '@/payload-types'
+import type { Becario, Configuracion, Desembolso, HoraLaborSocial, Recuperacion, RegistrosAcademico } from '@/payload-types'
 
 // El progreso de horas y el aviso de suspensión dependen de datos que
 // cambian todo el tiempo (aprobaciones del staff, reactivaciones) — nunca
@@ -35,6 +37,11 @@ const TEXTOS = {
     estadoProgramado: 'Programado',
     estadoRetenido: 'Retenido',
     estadoPagado: 'Pagado',
+    registroHorasTitulo: 'Tus reportes de labor social',
+    registroHorasVacio: 'Todavía no has reportado ninguna hora. Usá el botón para registrar tu actividad.',
+    horaEstadoPendiente: 'Pendiente',
+    horaEstadoAprobada: 'Aprobada',
+    horaEstadoRechazada: 'Rechazada',
     estadoCancelado: 'Cancelado',
   },
   en: {
@@ -57,6 +64,11 @@ const TEXTOS = {
     estadoRetenido: 'Withheld',
     estadoPagado: 'Paid',
     estadoCancelado: 'Cancelled',
+    registroHorasTitulo: 'Your service hour reports',
+    registroHorasVacio: 'You haven\'t reported any hours yet. Use the button to log your activity.',
+    horaEstadoPendiente: 'Pending',
+    horaEstadoAprobada: 'Approved',
+    horaEstadoRechazada: 'Rejected',
   },
 } satisfies Record<Locale, Record<string, string>>
 
@@ -85,14 +97,8 @@ export default async function PortalPage({ params }: { params: Promise<{ locale:
   }
 
   if (usuario.rol !== 'becario') {
-    return (
-      <div className="mx-auto max-w-(--container-content) px-4 py-12 md:px-16 md:py-24">
-        <p className="font-lectura text-sm text-tinta">{t.soloBecarios}</p>
-        <Link className="mt-4 inline-block rounded-sm bg-montana px-6 py-2 font-dato text-xs uppercase tracking-widest text-white" href="/admin">
-          {t.irAlPanel}
-        </Link>
-      </div>
-    )
+    // Staff, admin y directiva van a su portal dedicado
+    redirect(`/${locale}/staff`)
   }
 
   const payload = await getPayload({ config })
@@ -130,16 +136,18 @@ export default async function PortalPage({ params }: { params: Promise<{ locale:
     becario?.estado === 'activo' && !!becario.fecha_reactivacion && dentroDeVentana(becario.fecha_reactivacion, SIETE_DIAS_MS)
 
   const meta = becario?.meta_horas_personalizada ?? configuracion.meta_horas_labor_social
-  const horasAprobadas = becario
+  const todasLasHoras = becario
     ? (
         await payload.find({
           collection: 'horas-labor-social',
-          where: { becario: { equals: becario.id }, estado: { equals: 'aprobada' } },
+          where: { becario: { equals: becario.id } },
+          sort: '-fecha',
           limit: 1000,
           overrideAccess: true,
         })
-      ).docs.reduce((acc, h) => acc + h.horas, 0)
-    : 0
+      ).docs as HoraLaborSocial[]
+    : []
+  const horasAprobadas = todasLasHoras.filter((h) => h.estado === 'aprobada').reduce((acc, h) => acc + h.horas, 0)
   const progreso = meta > 0 ? Math.min(100, Math.round((horasAprobadas / meta) * 100)) : 0
 
   const desembolsos = becario
@@ -190,13 +198,58 @@ export default async function PortalPage({ params }: { params: Promise<{ locale:
       )}
 
       <section className="mb-8">
-        <h2 className="font-display text-sm font-bold uppercase tracking-widest text-tinta">{t.horasTitulo}</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-sm font-bold uppercase tracking-widest text-tinta">{t.horasTitulo}</h2>
+          <BotonReportarHoras locale={locale} />
+        </div>
         <p className="mt-1 font-dato text-xs text-tinta/70">
           {horasAprobadas} {t.horasDetalle} {meta} {t.horasAprobadas}
         </p>
         <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-piedra/15">
           <div className="h-full bg-montana transition-[width]" style={{ width: `${progreso}%` }} />
         </div>
+
+        {/* Lista de reportes del becario */}
+        <h3 className="mt-6 font-display text-xs font-bold uppercase tracking-widest text-tinta">{t.registroHorasTitulo}</h3>
+        {todasLasHoras.length === 0 ? (
+          <p className="mt-2 font-lectura text-sm text-tinta/70">{t.registroHorasVacio}</p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {todasLasHoras.map((h) => {
+              const ESTADO_HORA_LABEL: Record<HoraLaborSocial['estado'], string> = {
+                aprobada: t.horaEstadoAprobada,
+                pendiente: t.horaEstadoPendiente,
+                rechazada: t.horaEstadoRechazada,
+              }
+              const ESTADO_HORA_ESTILO: Record<HoraLaborSocial['estado'], string> = {
+                aprobada: 'border-montana/40 bg-montana/10 text-montana',
+                pendiente: 'border-piedra/25 text-tinta',
+                rechazada: 'border-cosecha bg-cosecha/10 text-cosecha',
+              }
+              return (
+                <li className="rounded-md border border-piedra/25 bg-white px-4 py-3" key={h.id}>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <p className="font-dato text-xs text-tinta/70">{formatearFecha(h.fecha, locale)}</p>
+                      {h.descripcion && <p className="font-lectura text-sm text-tinta">{h.descripcion}</p>}
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="font-display text-sm font-bold text-tinta">{h.horas}h</span>
+                      <span className={`rounded-sm border px-2 py-0.5 font-dato text-xs uppercase tracking-widest ${ESTADO_HORA_ESTILO[h.estado]}`}>
+                        {ESTADO_HORA_LABEL[h.estado]}
+                      </span>
+                    </div>
+                  </div>
+                  {h.comentario && (
+                    <p className="mt-2 border-t border-piedra/15 pt-2 font-lectura text-xs text-tinta/70">
+                      {h.comentario}
+                    </p>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        )}
       </section>
 
       <section>
