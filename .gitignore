@@ -11,6 +11,10 @@ dist/
 # Payload
 media/
 
+# Volcado del WordPress viejo, solo de referencia para migrar contenido —
+# no es parte de la app, no se versiona (son varios cientos de MB de imágenes).
+ForumOldPageInfo/
+
 # Copiado por postinstall desde node_modules/maplibre-gl (ver package.json)
 public/maplibre-gl-worker.mjs
 public/maplibre-gl-shared.mjs

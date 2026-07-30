@@ -126,7 +126,8 @@ Ningún módulo se da por terminado sin cumplir estos seis puntos. Aplica a las 
 - [ ] Artículo individual
 - [ ] Fichas de comunidad
 - [ ] Fichas de proyecto con deslizador antes/después
-- [ ] Páginas institucionales: Nosotros, Programas, Contacto
+- [x] Página institucional **Nosotros** (historia, fundador, equipo) — ver `docs/plan.md` Fase 1 Paso N
+- [ ] Páginas institucionales: Programas, Contacto
 - [ ] Informes anuales alojados en el sitio
 - [ ] Línea de tiempo
 

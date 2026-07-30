@@ -25,7 +25,9 @@ import { RegistrosAcademicos } from './collections/RegistrosAcademicos'
 import { Recuperaciones } from './collections/Recuperaciones'
 import { HorasLaborSocial } from './collections/HorasLaborSocial'
 import { Desembolsos } from './collections/Desembolsos'
+import { Equipo } from './collections/Equipo'
 import { Configuracion } from './globals/Configuracion'
+import { Nosotros } from './globals/Nosotros'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -58,8 +60,9 @@ export default buildConfig({
     Recuperaciones,
     HorasLaborSocial,
     Desembolsos,
+    Equipo,
   ],
-  globals: [Configuracion],
+  globals: [Configuracion, Nosotros],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

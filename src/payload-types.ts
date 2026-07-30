@@ -87,6 +87,7 @@ export interface Config {
     recuperaciones: Recuperacion;
     'horas-labor-social': HoraLaborSocial;
     desembolsos: Desembolso;
+    equipo: Equipo;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -114,6 +115,7 @@ export interface Config {
     recuperaciones: RecuperacionesSelect<false> | RecuperacionesSelect<true>;
     'horas-labor-social': HorasLaborSocialSelect<false> | HorasLaborSocialSelect<true>;
     desembolsos: DesembolsosSelect<false> | DesembolsosSelect<true>;
+    equipo: EquipoSelect<false> | EquipoSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -125,9 +127,11 @@ export interface Config {
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('es' | 'en') | ('es' | 'en')[];
   globals: {
     configuracion: Configuracion;
+    nosotros: Nosotro;
   };
   globalsSelect: {
     configuracion: ConfiguracionSelect<false> | ConfiguracionSelect<true>;
+    nosotros: NosotrosSelect<false> | NosotrosSelect<true>;
   };
   locale: 'es' | 'en';
   widgets: {
@@ -726,6 +730,27 @@ export interface Desembolso {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "equipo".
+ */
+export interface Equipo {
+  id: number;
+  nombre: string;
+  cargo: string;
+  bio?: string | null;
+  foto?: (number | null) | Media;
+  /**
+   * Tarjeta más grande en la grilla — para el fundador
+   */
+  destacado?: boolean | null;
+  /**
+   * Orden de aparición, menor primero
+   */
+  orden?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -827,6 +852,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'desembolsos';
         value: number | Desembolso;
+      } | null)
+    | ({
+        relationTo: 'equipo';
+        value: number | Equipo;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1300,6 +1329,20 @@ export interface DesembolsosSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "equipo_select".
+ */
+export interface EquipoSelect<T extends boolean = true> {
+  nombre?: T;
+  cargo?: T;
+  bio?: T;
+  foto?: T;
+  destacado?: T;
+  orden?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -1375,6 +1418,45 @@ export interface Configuracion {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "nosotros".
+ */
+export interface Nosotro {
+  id: number;
+  mision?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  historia?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "configuracion_select".
  */
 export interface ConfiguracionSelect<T extends boolean = true> {
@@ -1394,6 +1476,17 @@ export interface ConfiguracionSelect<T extends boolean = true> {
         direccion?: T;
       };
   fecha_actualizacion_impacto?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "nosotros_select".
+ */
+export interface NosotrosSelect<T extends boolean = true> {
+  mision?: T;
+  historia?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
