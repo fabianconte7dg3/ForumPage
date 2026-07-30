@@ -6,6 +6,7 @@ import * as migration_20260729_204239_agregar_horas_labor_social from './2026072
 import * as migration_20260729_210041_agregar_desembolsos from './20260729_210041_agregar_desembolsos';
 import * as migration_20260729_210606_agregar_campos_privacidad from './20260729_210606_agregar_campos_privacidad';
 import * as migration_20260729_234324_agregar_activo_login from './20260729_234324_agregar_activo_login';
+import * as migration_20260730_000008_agregar_dos_fa from './20260730_000008_agregar_dos_fa';
 
 export const migrations = [
   {
@@ -46,6 +47,11 @@ export const migrations = [
   {
     up: migration_20260729_234324_agregar_activo_login.up,
     down: migration_20260729_234324_agregar_activo_login.down,
-    name: '20260729_234324_agregar_activo_login'
+    name: '20260729_234324_agregar_activo_login',
+  },
+  {
+    up: migration_20260730_000008_agregar_dos_fa.up,
+    down: migration_20260730_000008_agregar_dos_fa.down,
+    name: '20260730_000008_agregar_dos_fa'
   },
 ];

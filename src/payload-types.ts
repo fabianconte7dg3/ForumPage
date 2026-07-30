@@ -168,6 +168,11 @@ export interface User {
    */
   ultimo_acceso?: string | null;
   /**
+   * 2FA activo — se configura desde /api/users/2fa/generar + /2fa/confirmar; un admin puede forzar la desactivación
+   */
+  dosFA_habilitado?: boolean | null;
+  dosFA_secreto?: string | null;
+  /**
    * El registro de becario vinculado a esta cuenta
    */
   becario?: (number | null) | Becario;
@@ -828,6 +833,8 @@ export interface UsersSelect<T extends boolean = true> {
   rol?: T;
   activo?: T;
   ultimo_acceso?: T;
+  dosFA_habilitado?: T;
+  dosFA_secreto?: T;
   becario?: T;
   updatedAt?: T;
   createdAt?: T;
