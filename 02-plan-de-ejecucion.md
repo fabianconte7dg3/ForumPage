@@ -111,7 +111,7 @@ Ningún módulo se da por terminado sin cumplir estos seis puntos. Aplica a las 
 - [x] Colección **Actividades** con todos sus campos y relaciones — ver `docs/plan.md` Fase 1 Paso C
 - [x] Colección **Proyectos** con `foto_antes` y `foto_despues` — ver `docs/plan.md` Fase 1 Paso C y Paso H
 - [x] Script de extracción de contenido desde Elementor — ver `docs/plan.md` Fase 1 Paso C
-- [x] Migración de artículos de la comunidad (primeras 5 historias sembradas) — ver `docs/plan.md` Fase 1 Paso C y Paso O
+- [x] Migración de artículos de la comunidad (70 historias completas migradas con fechas reales) — ver `docs/plan.md` Fase 1 Paso C y Paso O
 - [x] Reasignación de fechas reales de publicación — ver `docs/plan.md` Fase 1 Paso O
 - [x] Reetiquetado de imágenes migradas con nombres descriptivos — ver `docs/plan.md` Fase 1 Paso O
 - [x] Traducción al español de los artículos que se conservan — ver `docs/plan.md` Fase 1 Paso O

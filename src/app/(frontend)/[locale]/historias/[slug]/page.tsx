@@ -52,50 +52,58 @@ export default async function ArticuloPage({
   const galeria = (actividad.galeria ?? []).filter((m): m is Media => typeof m === 'object')
 
   return (
-    <article className="mx-auto max-w-(--text-reading-width) px-4 py-12 md:px-0 md:py-24">
-      <header className="mb-8">
-        <div className="mb-4 flex flex-wrap items-center gap-3 font-dato text-xs uppercase text-tinta/60">
-          <span>{formatearFecha(actividad.fecha_publicacion, locale)}</span>
-          {comunidad && <span className="rounded-sm border border-piedra/25 px-2 py-0.5">{comunidad.nombre}</span>}
-          {programa && <span className="rounded-sm border border-piedra/25 px-2 py-0.5">{programa.nombre}</span>}
-        </div>
-        <h1 className="font-display text-2xl font-bold uppercase leading-tight text-montana md:text-4xl">
-          {actividad.titulo}
-        </h1>
-      </header>
-
+    <main>
+      {/* Portada full-width — sin recorte, imagen natural */}
       {portada?.url && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img alt={portada.alt ?? ''} className="mb-8 aspect-16/9 w-full object-cover" src={portada.url} />
+        <img
+          alt={portada.alt ?? ''}
+          className="block w-full"
+          src={portada.url}
+        />
       )}
 
-      {actividad.contenido && (
-        <div className="font-lectura text-base leading-relaxed text-tinta [&>p]:mb-4">
-          <RichText data={actividad.contenido} />
-        </div>
-      )}
+      {/* Contenido — contenedor más amplio que el ancho de lectura puro */}
+      <article className="mx-auto w-full max-w-5xl px-4 py-12 md:px-8 md:py-16">
+        <header className="mb-8">
+          <div className="mb-4 flex flex-wrap items-center gap-3 font-dato text-xs uppercase text-tinta/60">
+            <span>{formatearFecha(actividad.fecha_publicacion, locale)}</span>
+            {comunidad && <span className="rounded-sm border border-piedra/25 px-2 py-0.5">{comunidad.nombre}</span>}
+            {programa && <span className="rounded-sm border border-piedra/25 px-2 py-0.5">{programa.nombre}</span>}
+          </div>
+          <h1 className="font-display text-2xl font-bold uppercase leading-tight text-montana md:text-4xl">
+            {actividad.titulo}
+          </h1>
+        </header>
 
-      {galeria.length > 0 && (
-        <div className="mt-8 grid grid-cols-2 gap-2 md:grid-cols-3">
-          {galeria.map((media) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img alt={media.alt ?? ''} className="aspect-4/3 w-full object-cover" key={media.id} src={media.url ?? ''} />
-          ))}
-        </div>
-      )}
-
-      <footer className="mt-12 flex flex-wrap gap-4 border-t border-piedra/25 pt-6 font-dato text-xs uppercase tracking-wider">
-        {comunidad && (
-          <Link className="text-rio hover:underline" href={`/${locale}/impacto/comunidades/${comunidad.slug}`}>
-            {t.verComunidad} →
-          </Link>
+        {actividad.contenido && (
+          <div className="font-lectura text-base leading-relaxed text-tinta [&>p]:mb-4">
+            <RichText data={actividad.contenido} />
+          </div>
         )}
-        {proyecto && (
-          <Link className="text-rio hover:underline" href={`/${locale}/impacto/proyectos/${proyecto.slug}`}>
-            {t.verProyecto} →
-          </Link>
+
+        {galeria.length > 0 && (
+          <div className="mt-8 grid grid-cols-2 gap-2 md:grid-cols-3">
+            {galeria.map((media) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img alt={media.alt ?? ''} className="aspect-4/3 w-full object-cover" key={media.id} src={media.url ?? ''} />
+            ))}
+          </div>
         )}
-      </footer>
-    </article>
+
+        <footer className="mt-12 flex flex-wrap gap-4 border-t border-piedra/25 pt-6 font-dato text-xs uppercase tracking-wider">
+          {comunidad && (
+            <Link className="text-rio hover:underline" href={`/${locale}/impacto/comunidades/${comunidad.slug}`}>
+              {t.verComunidad} →
+            </Link>
+          )}
+          {proyecto && (
+            <Link className="text-rio hover:underline" href={`/${locale}/impacto/proyectos/${proyecto.slug}`}>
+              {t.verProyecto} →
+            </Link>
+          )}
+        </footer>
+      </article>
+    </main>
   )
 }

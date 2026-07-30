@@ -84,14 +84,13 @@ Criterio de aceptación clave: staff publica una actividad con 3 fotos desde el 
   **Ajuste tras feedback visual del usuario:** la columna de texto (limitada a `--text-reading-width` para legibilidad) dejaba todo el lado derecho vacío en pantallas anchas. Se agregaron dos campos más al global (`foto`, `logo` — las dos imágenes que sobraban del volcado viejo, `DSC06238-scaled.jpg` y `Foundation-Logo-2-2015.png`, ambas staff-editables como el resto) y se pasó la sección de misión/historia a una grilla de dos columnas: texto a la izquierda, foto+logo en una columna `sticky` a la derecha (se queda a la vista mientras se lee la historia larga, en vez de desaparecer scroll abajo). En mobile colapsa a una sola columna, con la foto/logo aterrizando naturalmente después de la historia y antes del equipo — verificado en ambos anchos.
   Verificado con el servidor corriendo en ambos locales: `/es/nosotros` y `/en/nosotros` muestran la misión, la historia completa, la foto+logo ya no dejan el lado derecho vacío, y los 7 miembros del equipo con sus fotos reales; la tarjeta de John Keffer aparece más grande (`destacado`), confirmado en el DOM; sin errores de consola en desktop ni mobile. `tsc`/lint/build/`check:budget` limpios (162.2 KB / 500 KB). Migraciones generadas y verificadas contra un Postgres vacío (15 acumuladas).
   **Pendiente de "1.4 Sitio público":** páginas institucionales de Programas y Contacto (siguiente en la lista del usuario: Historias, que ya tiene su propia carpeta de referencia en `ForumOldPageInfo/historias/`).
-- [x] **Paso O — Carga de las primeras 5 historias comunitarias de `ForumOldPageInfo/historias/`.** Se creó el script de sembrado idempotente `scripts/seed-historias.ts` (ejecutable vía `pnpm seed:historias`), el cual procesa los volcados extraídos de WordPress en `ForumOldPageInfo/historias/`.
-  **Historias cargadas:**
-  1. *Graduada con Honores 2022: Yazmilka Soto* (ID: 7, destacada)
-  2. *Amor por el Idioma y el Aprendizaje: Ailin Pérez* (ID: 8)
-  3. *El Acceso a Recursos Digitales Abre Paso al Cambio Sostenible: Jair Rodríguez* (ID: 9)
-  4. *Superación y Pasión Gastronómica: Alexandra Martínez* (ID: 10)
-  5. *De Estudiante a Líder Comunitario: Bryner Joel Saldaña* (ID: 11)
-  Cada historia incluye la conversión del texto a Lexical RichText localizado (`es`/`en`), la subida automática de su imagen principal a la colección `Media` y la vinculación con las colecciones `Comunidades` y `Programas`. Verificado con `pnpm seed:historias` e inspección en `/es/historias` y `/en/historias`. `tsc --noEmit` limpio (0 errores).
+- [x] **Paso O — Migración completa de las 70 historias comunitarias de `ForumOldPageInfo/historias/`.** Se creó y ejecutó el script de migración masiva `scripts/migrate-all-historias.ts` (ejecutable vía `pnpm migrate:historias`), el cual procesó automáticamente las 70 carpetas de artículos extraídos del WordPress anterior.
+  **Logros clave:**
+  1. **Preservación de Fechas Reales de Publicación:** Se extrajo la fecha original del metadato (`- **Fecha:** ...`) de cada `articulo.md` (ej. 2020, 2021, 2022, 2023) asignándola a `fecha_publicacion` en formato ISO, en lugar de usar la fecha actual del sistema.
+  2. **Traducción y Bilingüismo (es/en):** Se configuraron los campos localizados de `titulo`, `extracto` y `contenido` (en RichText Lexical) para ambos locales (`es`/`en`).
+  3. **Procesamiento de Medios:** Subida de portadas e imágenes de galería a la colección `Media`, reutilizando archivos existentes vía caché en memoria para optimizar el rendimiento.
+  4. **Resolución Inteligente de Comunidad:** Asociación automática de cada historia con su comunidad correspondiente en Coclé Norte (Túrega, Caimito, Machuca, Río Indio, etc.) mediante coincidencia de palabras clave.
+  Verificado con `pnpm migrate:historias` (70/70 procesadas) y `tsc --noEmit` limpio (0 errores).
 - [ ] Resto del checklist de infraestructura, colecciones, frontend y mapa: ver [03-runbook-tecnico.md](../03-runbook-tecnico.md)
 
 > Nota de entorno: en esta máquina el dev server de Next.js con **Turbopack** produce un panic intermitente compilando el CSS del panel admin de Payload (`@payloadcms/ui`). Se fijó `next dev --webpack` en `package.json` como mitigación — ver commit correspondiente.
