@@ -37,3 +37,9 @@ export const idDeRelacion = (valor: number | { id: number } | null | undefined):
 // si el resto de la colección no lo está. Ver CLAUDE.md, "control de acceso".
 export const esStaffOSuperiorFieldAccess: FieldAccess = ({ req }) =>
   ['staff', 'admin'].includes(rolDe(req.user as User | null) ?? '')
+
+// Para campos que el público/becario nunca deben ver aunque el resto del
+// documento sí sea de lectura pública (ej. `solicitante` en Necesidades) —
+// directiva sí lo ve, porque su rol ya es de lectura total sobre el sistema.
+export const esStaffDirectivaOAdminFieldAccess: FieldAccess = ({ req }) =>
+  ['staff', 'directiva', 'admin'].includes(rolDe(req.user as User | null) ?? '')

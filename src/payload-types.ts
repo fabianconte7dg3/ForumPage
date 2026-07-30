@@ -76,6 +76,7 @@ export interface Config {
     'centros-educativos': CentroEducativo;
     programas: Programa;
     proyectos: Proyecto;
+    necesidades: Necesidade;
     actividades: Actividad;
     niveles: Nivel;
     materias: Materia;
@@ -102,6 +103,7 @@ export interface Config {
     'centros-educativos': CentrosEducativosSelect<false> | CentrosEducativosSelect<true>;
     programas: ProgramasSelect<false> | ProgramasSelect<true>;
     proyectos: ProyectosSelect<false> | ProyectosSelect<true>;
+    necesidades: NecesidadesSelect<false> | NecesidadesSelect<true>;
     actividades: ActividadesSelect<false> | ActividadesSelect<true>;
     niveles: NivelesSelect<false> | NivelesSelect<true>;
     materias: MateriasSelect<false> | MateriasSelect<true>;
@@ -451,6 +453,36 @@ export interface Proyecto {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "necesidades".
+ */
+export interface Necesidade {
+  id: number;
+  titulo: string;
+  comunidad: number | Comunidad;
+  /**
+   * Quién reportó la necesidad — nunca visible públicamente
+   */
+  solicitante?: string | null;
+  descripcion?: string | null;
+  prioridad: 'baja' | 'media' | 'alta';
+  costo_estimado?: number | null;
+  /**
+   * La barra de progreso pública mide esto — estado del caso, no dinero recaudado
+   */
+  estado: 'recibida' | 'en_evaluacion' | 'aprobada' | 'en_ejecucion' | 'completada';
+  /**
+   * Se vincula una vez que se ejecuta y se documenta como Proyecto
+   */
+  proyecto_resultante?: (number | null) | Proyecto;
+  /**
+   * El staff decide cuándo mostrarla en la cola pública — recién recibida, probablemente no todavía
+   */
+  visible_publicamente?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "actividades".
  */
 export interface Actividad {
@@ -750,6 +782,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'proyectos';
         value: number | Proyecto;
+      } | null)
+    | ({
+        relationTo: 'necesidades';
+        value: number | Necesidade;
       } | null)
     | ({
         relationTo: 'actividades';
@@ -1067,6 +1103,23 @@ export interface ProyectosSelect<T extends boolean = true> {
   avance?: T;
   foto_antes?: T;
   foto_despues?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "necesidades_select".
+ */
+export interface NecesidadesSelect<T extends boolean = true> {
+  titulo?: T;
+  comunidad?: T;
+  solicitante?: T;
+  descripcion?: T;
+  prioridad?: T;
+  costo_estimado?: T;
+  estado?: T;
+  proyecto_resultante?: T;
+  visible_publicamente?: T;
   updatedAt?: T;
   createdAt?: T;
 }

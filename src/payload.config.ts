@@ -14,6 +14,7 @@ import { Sedes } from './collections/Sedes'
 import { CentrosEducativos } from './collections/CentrosEducativos'
 import { Programas } from './collections/Programas'
 import { Proyectos } from './collections/Proyectos'
+import { Necesidades } from './collections/Necesidades'
 import { Actividades } from './collections/Actividades'
 import { Niveles } from './collections/Niveles'
 import { Materias } from './collections/Materias'
@@ -46,6 +47,7 @@ export default buildConfig({
     CentrosEducativos,
     Programas,
     Proyectos,
+    Necesidades,
     Actividades,
     Niveles,
     Materias,

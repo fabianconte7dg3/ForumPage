@@ -252,7 +252,7 @@ Ningún módulo se da por terminado sin cumplir estos seis puntos. Aplica a las 
 
 ### 3.5 Necesidades y cierre
 
-- [ ] Colección **Necesidades** con su flujo de estados
+- [x] Colección **Necesidades** con su flujo de estados — ver `docs/plan.md` Fase 3 Paso O
 - [ ] Formulario público de solicitud
 - [ ] Cola priorizada para la directiva
 - [ ] Vista de directiva de solo lectura sobre todo el sistema
