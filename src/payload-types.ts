@@ -173,6 +173,10 @@ export interface User {
   dosFA_habilitado?: boolean | null;
   dosFA_secreto?: string | null;
   /**
+   * Copiá y enviá este enlace a la persona invitada — vence en 1 hora y es de un solo uso. Se genera solo al crear la cuenta.
+   */
+  enlace_invitacion?: string | null;
+  /**
    * El registro de becario vinculado a esta cuenta
    */
   becario?: (number | null) | Becario;
@@ -835,6 +839,7 @@ export interface UsersSelect<T extends boolean = true> {
   ultimo_acceso?: T;
   dosFA_habilitado?: T;
   dosFA_secreto?: T;
+  enlace_invitacion?: T;
   becario?: T;
   updatedAt?: T;
   createdAt?: T;

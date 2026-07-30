@@ -1,7 +1,15 @@
-import type { CollectionAfterLoginHook, CollectionBeforeLoginHook, CollectionConfig, PayloadHandler, PayloadRequest } from 'payload'
+import { randomBytes } from 'crypto'
+import type {
+  CollectionAfterChangeHook,
+  CollectionAfterLoginHook,
+  CollectionBeforeLoginHook,
+  CollectionConfig,
+  PayloadHandler,
+  PayloadRequest,
+} from 'payload'
 import QRCode from 'qrcode'
 
-import { esAdmin, esAdminFieldAccess } from '@/access'
+import { esAdmin, esAdminFieldAccess, esStaffOSuperior, esStaffOSuperiorFieldAccess } from '@/access'
 import { crearDesafio, verificarYConsumirDesafio } from '@/lib/dos-fa-desafios'
 import { generarSecreto, otpauthUri, verificarCodigo } from '@/lib/totp'
 import type { User } from '@/payload-types'
@@ -20,6 +28,48 @@ const registrarUltimoAcceso: CollectionAfterLoginHook = async ({ user, req }) =>
     collection: 'users',
     id: user.id,
     data: { ultimo_acceso: new Date().toISOString() },
+    overrideAccess: true,
+    req,
+  })
+}
+
+// Alta por invitación (01-documento-de-proyecto.md §Operación): el staff crea
+// la cuenta desde el formulario estándar del panel (con cualquier contraseña
+// de relleno, Payload la exige), y esta función, al vuelo, 1) invalida esa
+// contraseña de relleno con una aleatoria que nadie conoce, y 2) genera un
+// enlace de activación de un solo uso (mismo mecanismo de "olvidé mi
+// contraseña" que ya trae Payload) y lo deja en `enlace_invitacion` para que
+// el staff lo copie y lo mande — así nadie entra a la cuenta antes que la
+// persona invitada.
+const generarInvitacionAlCrear: CollectionAfterChangeHook<User> = async ({ doc, operation, req }) => {
+  // Solo becarios — 01-documento-de-proyecto.md lo pide específicamente para
+  // ellos ("ser becario es una condición otorgada tras evaluación, no
+  // solicitada"). Staff/directiva/admin se siguen dando de alta con una
+  // contraseña real puesta directamente por quien los crea (igual que el
+  // primer usuario admin, que tampoco pasa por invitación).
+  if (operation !== 'create' || doc.rol !== 'becario') return
+
+  await req.payload.update({
+    collection: 'users',
+    id: doc.id,
+    data: { password: randomBytes(32).toString('hex') },
+    overrideAccess: true,
+    req,
+  })
+
+  const token = await req.payload.forgotPassword({
+    collection: 'users',
+    data: { email: doc.email },
+    disableEmail: true,
+    overrideAccess: true,
+    req,
+  })
+
+  const origen = process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3000'
+  await req.payload.update({
+    collection: 'users',
+    id: doc.id,
+    data: { enlace_invitacion: `${origen}/es/cuenta/activar?token=${token}` },
     overrideAccess: true,
     req,
   })
@@ -142,6 +192,7 @@ export const Users: CollectionConfig = {
   hooks: {
     beforeLogin: [bloquearInactivos],
     afterLogin: [registrarUltimoAcceso],
+    afterChange: [generarInvitacionAlCrear],
   },
   endpoints: [
     { handler: iniciarSesion, method: 'post', path: '/login' },
@@ -150,7 +201,10 @@ export const Users: CollectionConfig = {
     { handler: desactivarDosFA, method: 'post', path: '/2fa/desactivar' },
   ],
   access: {
-    create: esAdmin,
+    // Staff invita becarios/directiva; escalar a admin queda bloqueado en el
+    // validate del campo `rol`, no acá — bloquear todo el `create` para
+    // no-admin dejaría al staff sin poder invitar a nadie.
+    create: esStaffOSuperior,
     read: ({ req }) => {
       if ((req.user as { rol?: string } | null)?.rol === 'admin') return true
       return req.user ? { id: { equals: req.user.id } } : false
@@ -176,6 +230,20 @@ export const Users: CollectionConfig = {
       // Un usuario no-admin no puede escalar su propio rol.
       access: {
         update: esAdminFieldAccess,
+      },
+      // access.update ya bloquea que alguien cambie SU rol a admin, pero eso
+      // no cubre la creación (field access de `create` es independiente y por
+      // defecto abierto) — ahora que staff también puede invitar cuentas
+      // (`create: esStaffOSuperior` arriba), staff podría intentar invitar
+      // directo con rol admin si no se valida acá también.
+      // Solo bloquea cuando hay un actor autenticado de verdad tratando de
+      // escalar — un script interno u overrideAccess (seed, primer usuario)
+      // no trae req.user y no debe quedar atrapado por esta regla.
+      validate: (value: string | null | undefined, { req }: { req: PayloadRequest }) => {
+        if (value === 'admin' && req.user && (req.user as User).rol !== 'admin') {
+          return 'Solo un admin puede asignar el rol admin'
+        }
+        return true
       },
     },
     {
@@ -208,6 +276,15 @@ export const Users: CollectionConfig = {
       // equivalente a una contraseña. Solo se toca con overrideAccess desde
       // los endpoints /2fa/*.
       access: { create: () => false, read: () => false, update: () => false },
+    },
+    {
+      name: 'enlace_invitacion',
+      type: 'text',
+      admin: {
+        readOnly: true,
+        description: 'Copiá y enviá este enlace a la persona invitada — vence en 1 hora y es de un solo uso. Se genera solo al crear la cuenta.',
+      },
+      access: { create: () => false, read: esStaffOSuperiorFieldAccess, update: () => false },
     },
     {
       name: 'becario',

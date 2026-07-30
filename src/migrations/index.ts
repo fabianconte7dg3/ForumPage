@@ -7,6 +7,7 @@ import * as migration_20260729_210041_agregar_desembolsos from './20260729_21004
 import * as migration_20260729_210606_agregar_campos_privacidad from './20260729_210606_agregar_campos_privacidad';
 import * as migration_20260729_234324_agregar_activo_login from './20260729_234324_agregar_activo_login';
 import * as migration_20260730_000008_agregar_dos_fa from './20260730_000008_agregar_dos_fa';
+import * as migration_20260730_002624_agregar_invitacion from './20260730_002624_agregar_invitacion';
 
 export const migrations = [
   {
@@ -52,6 +53,11 @@ export const migrations = [
   {
     up: migration_20260730_000008_agregar_dos_fa.up,
     down: migration_20260730_000008_agregar_dos_fa.down,
-    name: '20260730_000008_agregar_dos_fa'
+    name: '20260730_000008_agregar_dos_fa',
+  },
+  {
+    up: migration_20260730_002624_agregar_invitacion.up,
+    down: migration_20260730_002624_agregar_invitacion.down,
+    name: '20260730_002624_agregar_invitacion'
   },
 ];
