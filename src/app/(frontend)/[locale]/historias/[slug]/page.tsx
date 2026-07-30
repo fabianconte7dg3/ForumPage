@@ -53,12 +53,16 @@ export default async function ArticuloPage({
 
   return (
     <main>
-      {/* Portada full-width — sin recorte, imagen natural */}
+      {/* Portada full-width, con tope de altura — muchas de las fotos migradas
+          son retratos verticales de celular; sin el tope, una vertical a
+          ancho completo queda con una altura absurda (~1700px en pantallas
+          normales). object-top prioriza la parte de arriba del recorte,
+          donde suele estar la cara en un retrato. */}
       {portada?.url && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           alt={portada.alt ?? ''}
-          className="block w-full"
+          className="block h-auto max-h-[520px] w-full object-cover object-top"
           src={portada.url}
         />
       )}

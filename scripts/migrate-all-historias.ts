@@ -4,6 +4,7 @@
 //
 // Uso: pnpm tsx --env-file=.env scripts/migrate-all-historias.ts
 
+import crypto from 'crypto'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -34,23 +35,27 @@ function parrafosLexical(lineas: string[]) {
   }
 }
 
-const mediaCache = new Map<string, number>()
+// WordPress reexporta la misma foto varias veces bajo nombres distintos
+// (Foo.jpeg, Foo_2.jpeg, Foo_3.jpeg — bytes idénticos). Cachear por nombre de
+// archivo no detecta eso; el hash del contenido sí, y de paso evita subir el
+// mismo archivo dos veces aunque aparezca en carpetas de artículos distintos.
+const mediaCache = new Map<string, number>() // hash md5 -> media id
 
-async function subirImagen(
+async function subirImagenPorContenido(
   payload: Awaited<ReturnType<typeof getPayload>>,
   folderPath: string,
   filename: string,
   altText: string
-): Promise<number | undefined> {
+): Promise<{ hash: string; id: number } | undefined> {
   const ruta = path.join(folderPath, filename)
   if (!fs.existsSync(ruta)) return undefined
 
-  // Verificar caché
-  if (mediaCache.has(filename)) {
-    return mediaCache.get(filename)
-  }
-
   const buffer = fs.readFileSync(ruta)
+  const hash = crypto.createHash('md5').update(buffer).digest('hex')
+
+  const idCacheado = mediaCache.get(hash)
+  if (idCacheado) return { hash, id: idCacheado }
+
   const ext = path.extname(filename).toLowerCase()
   const mimetype =
     ext === '.png'
@@ -68,23 +73,20 @@ async function subirImagen(
       file: { data: buffer, mimetype, name: filename, size: buffer.length },
       overrideAccess: true,
     })
-    mediaCache.set(filename, doc.id as number)
-    return doc.id as number
+    mediaCache.set(hash, doc.id as number)
+    return { hash, id: doc.id as number }
   } catch (e) {
     console.warn(`No se pudo subir la imagen ${filename}:`, (e as Error).message)
     return undefined
   }
 }
 
-// Mapeo básico de palabras clave a nombres de comunidades
-const COMUNIDAD_KEYWORDS: Record<string, string[]> = {
-  caimito: ['caimito', 'el caimito', 'villa unida'],
-  machuca: ['machuca'],
-  turega: ['turega', 'túrega'],
-  'rio indio': ['rio indio', 'río indio', 'alto riecito'],
-  chiguiri: ['chiguiri', 'chiguirí', 'chiguiri arriba'],
-  penonome: ['penonome', 'penonomé', 'candelario ovalle', 'angel maria herrera'],
-  'san miguel': ['san miguel', 'san miguel centro'],
+// Sin tildes ni mayúsculas, para comparar contra el texto del artículo.
+function normalizar(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
 }
 
 async function main() {
@@ -97,11 +99,8 @@ async function main() {
     console.error('No hay comunidades en la base de datos. Corre pnpm seed primero.')
     process.exit(1)
   }
-  const defaultComunidadId = comunidades[0].id
-
-  // Obtener programas
-  const programasResult = await payload.find({ collection: 'programas', limit: 10, overrideAccess: true })
-  const programaId = programasResult.docs.length > 0 ? programasResult.docs[0].id : undefined
+  const sinClasificar = comunidades.find((c) => c.nombre === 'Sin clasificar')
+  const defaultComunidadId = sinClasificar ? sinClasificar.id : comunidades[0].id
 
   console.log(`Cargadas ${comunidades.length} comunidades para resolución de relaciones.`)
 
@@ -204,35 +203,39 @@ async function main() {
       imagenesFilenames.push(...imgsEnCarpeta)
     }
 
-    // Subir portada e imágenes de galería
+    // Subir portada e imágenes de galería — deduplicadas por contenido, no por
+    // nombre de archivo (ver comentario de subirImagenPorContenido).
     let portadaId: number | undefined = undefined
     const galeriaIds: number[] = []
+    const hashesUsadosEnEsteArticulo = new Set<string>()
 
     for (let i = 0; i < imagenesFilenames.length; i++) {
       const imgFile = imagenesFilenames[i]
-      const mediaId = await subirImagen(payload, folderPath, imgFile, `${titulo} - Imagen ${i + 1}`)
-      if (mediaId) {
-        if (i === 0) {
-          portadaId = mediaId
-        } else {
-          galeriaIds.push(mediaId)
-        }
+      const resultado = await subirImagenPorContenido(payload, folderPath, imgFile, `${titulo} - Imagen ${i + 1}`)
+      if (!resultado || hashesUsadosEnEsteArticulo.has(resultado.hash)) continue
+      hashesUsadosEnEsteArticulo.add(resultado.hash)
+
+      if (portadaId === undefined) {
+        portadaId = resultado.id
+      } else {
+        galeriaIds.push(resultado.id)
       }
     }
 
-    // 6. Matchear comunidad por palabras clave
+    // 6. Matchear comunidad real por nombre mencionado en el texto — antes era
+    // una lista de palabras clave a mano, incompleta (le faltaban Coclesito, El
+    // Harino, La Pintada y Tulú) y con entradas que no correspondían a ninguna
+    // comunidad real ("penonome", "san miguel" son distrito/centro educativo,
+    // no comunidades). Ahora compara directo contra los nombres que ya existen
+    // en la base — cualquier comunidad nueva se detecta sola, sin mantenimiento.
     let comunidadId = defaultComunidadId
-    const textoBúsqueda = (titulo + ' ' + rawMarkdown).toLowerCase()
+    const textoNorm = normalizar(titulo + ' ' + rawMarkdown)
 
-    for (const [kwGroup, keywords] of Object.entries(COMUNIDAD_KEYWORDS)) {
-      if (keywords.some((kw) => textoBúsqueda.includes(kw))) {
-        const encontrada = comunidades.find(
-          (c) => c.nombre.toLowerCase().includes(kwGroup) || (c.slug ?? '').toLowerCase().includes(kwGroup)
-        )
-        if (encontrada) {
-          comunidadId = encontrada.id
-          break
-        }
+    for (const c of comunidades) {
+      if (c.nombre === 'Sin clasificar') continue
+      if (textoNorm.includes(normalizar(c.nombre))) {
+        comunidadId = c.id
+        break
       }
     }
 
@@ -251,9 +254,18 @@ async function main() {
       contenido: parrafosLexical(contenidoLineas),
       fecha_publicacion: fechaISO,
       comunidad: comunidadId,
-      programa: programaId,
-      portada: portadaId,
-      galeria: galeriaIds.length > 0 ? galeriaIds : undefined,
+      // Sin heurística confiable de programa a partir del texto (a diferencia
+      // de comunidad, no hay un nombre literal que buscar) — se deja en null
+      // en vez de forzar el primero de la lista a los 70 artículos (`null`
+      // explícito, no `undefined`, para que también borre el valor incorrecto
+      // que dejó la corrida anterior al reprocesar). El staff lo asigna al
+      // revisar, igual que la comunidad "Sin clasificar".
+      programa: null,
+      portada: portadaId ?? null,
+      // Array vacío explícito, no `undefined` — en un `update` de Payload,
+      // `undefined` significa "no tocar este campo", así que una galería que
+      // quedó vacía tras deduplicar nunca borraría lo que había antes.
+      galeria: galeriaIds,
     }
 
     if (existentes.docs.length > 0) {
