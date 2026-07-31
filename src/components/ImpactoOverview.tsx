@@ -72,7 +72,7 @@ export function ImpactoOverview({
   destinos: DestinoEstudio[]
   paisesCount: number
   textos: ImpactoOverviewTextos
-  onClickAbrirMapa: () => void
+  onClickAbrirMapa?: () => void
 }) {
   return (
     <div className="flex flex-col gap-6">

@@ -3,14 +3,16 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
+import { ImpactoOverview } from './ImpactoOverview'
+
 export function ImpactoTabs({
   mapaComponent,
-  overviewComponent,
+  overviewProps,
   textos,
   locale,
 }: {
   mapaComponent: React.ReactNode
-  overviewComponent: (abrirMapa: () => void) => React.ReactNode
+  overviewProps: Omit<React.ComponentProps<typeof ImpactoOverview>, 'onClickAbrirMapa'>
   textos: { map: string; overview: string; teamPortal: string }
   locale: string
 }) {
@@ -19,9 +21,7 @@ export function ImpactoTabs({
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
-        <div>
-          {/* We assume the site layout already has the logo, so we just put the page title here or leave it empty if the layout handles it. The design has "FF Forum Foundation..." but we can just use the tabs on the right. */}
-        </div>
+        <div></div>
         <div className="flex items-center gap-2 rounded-full bg-piedra/10 p-1">
           <button
             onClick={() => setActiveTab('map')}
@@ -49,7 +49,7 @@ export function ImpactoTabs({
       </div>
 
       <div>
-        {activeTab === 'map' ? mapaComponent : overviewComponent(() => setActiveTab('map'))}
+        {activeTab === 'map' ? mapaComponent : <ImpactoOverview {...overviewProps} onClickAbrirMapa={() => setActiveTab('map')} />}
       </div>
     </div>
   )

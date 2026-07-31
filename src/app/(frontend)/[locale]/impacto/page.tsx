@@ -340,47 +340,44 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
             />
           </>
         }
-        overviewComponent={(abrirMapa) => (
-          <ImpactoOverview
-            becario={becarioDestacado}
-            stats={{
-              scholarsSupported: becariosTotalesRes.totalDocs,
-              activeScholarships: becariosDocsActivos.length,
-              projectsCocle: proyectosActivosList.length + proyectosCompletadosList.length,
-              studyingPanama: studyingPanama,
-              studyingAbroad: studyingAbroad,
-            }}
-            proyectos={proyectosActivosList.slice(0, 5)}
-            destinos={destinos}
-            paisesCount={paisesUnicos.size}
-            onClickAbrirMapa={abrirMapa}
-            textos={{
-              scholarOfTheTerm: t.scholarOfTheTerm,
-              classOf: t.classOf,
-              openHerStory: t.openHerStory,
-              scholarsSupported: t.scholarsSupported,
-              allFromCocle: t.allFromCocle,
-              activeScholarships: t.activeScholarships,
-              thisAcademicYear: t.thisAcademicYear,
-              projectsInCocle: t.projectsInCocle,
-              currentlyTracked: t.currentlyTracked,
-              studyingInPanama: t.studyingInPanama,
-              outsideCocle: t.outsideCocle,
-              studyingAbroad: t.studyingAbroad,
-              inXCountries: t.inXCountries,
-              projectsInFlight: t.projectsInFlight,
-              project: t.project,
-              community: t.community,
-              progress: t.progress,
-              whereScholarsStudy: t.whereScholarsStudy,
-              place: t.place,
-              institutions: t.institutions,
-              scholars: t.scholars,
-              abroad: t.abroad,
-              atHome: t.atHome,
-            }}
-          />
-        )}
+        overviewProps={{
+          becario: becarioDestacado,
+          stats: {
+            scholarsSupported: becariosTotalesRes.totalDocs,
+            activeScholarships: becariosDocsActivos.length,
+            projectsCocle: proyectosActivosList.length + proyectosCompletadosList.length,
+            studyingPanama: studyingPanama,
+            studyingAbroad: studyingAbroad,
+          },
+          proyectos: proyectosActivosList.slice(0, 5),
+          destinos: destinos,
+          paisesCount: paisesUnicos.size,
+          textos: {
+            scholarOfTheTerm: t.scholarOfTheTerm,
+            classOf: t.classOf,
+            openHerStory: t.openHerStory,
+            scholarsSupported: t.scholarsSupported,
+            allFromCocle: t.allFromCocle,
+            activeScholarships: t.activeScholarships,
+            thisAcademicYear: t.thisAcademicYear,
+            projectsInCocle: t.projectsInCocle,
+            currentlyTracked: t.currentlyTracked,
+            studyingInPanama: t.studyingInPanama,
+            outsideCocle: t.outsideCocle,
+            studyingAbroad: t.studyingAbroad,
+            inXCountries: t.inXCountries,
+            projectsInFlight: t.projectsInFlight,
+            project: t.project,
+            community: t.community,
+            progress: t.progress,
+            whereScholarsStudy: t.whereScholarsStudy,
+            place: t.place,
+            institutions: t.institutions,
+            scholars: t.scholars,
+            abroad: t.abroad,
+            atHome: t.atHome,
+          }
+        }}
       />
     </div>
   )

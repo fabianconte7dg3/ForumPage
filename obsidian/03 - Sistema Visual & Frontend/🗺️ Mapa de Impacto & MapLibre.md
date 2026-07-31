@@ -52,7 +52,9 @@ sequenceDiagram
 
 ## 🎛️ Componentes de Interfaz del Mapa
 
-- **Sidebar de Métricas Reales**: Muestra 6 contadores (Comunidades, Sedes, Proyectos Activos, Obras Completadas, Becarios Activos, Países alcanzados).
+- **ImpactoTabs (Selector de vistas)**: Alternador superior entre "Mapa", "Resumen" y "Portal de equipo".
+- **ImpactoOverview (Panel de Resumen)**: Panel estadístico implementado desde la vista `/impacto` que muestra métricas globales (estudiantes, proyectos), un becario destacado ("Scholar of the term") y dos tablas para monitorear proyectos en ejecución y destinos de estudio.
+- **Sidebar de Métricas Reales**: En el mapa, muestra 6 contadores (Comunidades, Sedes, Proyectos Activos, Obras Completadas, Becarios Activos, Países alcanzados).
 - **Lista de Comunidades**: Navegación lateral que ejecuta `flyTo` al hacer clic en una comunidad.
 - **Panel Lateral de Detalle**: Reemplaza el popup genérico con la ficha completa de la comunidad y sus proyectos en ejecución.
 
