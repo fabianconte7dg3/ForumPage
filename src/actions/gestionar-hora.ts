@@ -15,6 +15,7 @@ export async function gestionarHora(
   horaId: number,
   estado: 'aprobada' | 'rechazada',
   comentario?: string,
+  horasAprobadas?: number
 ): Promise<ResultadoGestion> {
   const usuario = await sesionActual()
   if (!usuario || (usuario.rol !== 'staff' && usuario.rol !== 'admin')) {
@@ -48,6 +49,7 @@ export async function gestionarHora(
     data: {
       estado,
       ...(comentario?.trim() ? { comentario: comentario.trim() } : {}),
+      ...(horasAprobadas !== undefined ? { horas: horasAprobadas } : {}),
     } as any, // eslint-disable-line @typescript-eslint/no-explicit-any -- Payload draft typing quirk
     overrideAccess: true,
     // Pasar el usuario real para que autocompletarAprobador funcione

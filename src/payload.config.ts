@@ -38,6 +38,12 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    components: {
+      graphics: {
+        Logo: './components/admin/Logo.tsx#Logo',
+        Icon: './components/admin/Logo.tsx#Logo',
+      },
+    },
   },
   collections: [
     Users,

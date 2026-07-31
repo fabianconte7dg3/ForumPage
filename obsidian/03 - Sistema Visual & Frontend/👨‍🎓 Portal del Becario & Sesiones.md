@@ -56,9 +56,12 @@ graph TD
   - `pagado`: Indicador verde de depósito realizado.
   - `cancelado`: Estilo tachado/deshabilitado.
 
-### 4. Experiencia del Becario Suspendido (Paso N)
-- Si `estado === 'suspendido'`, despliega el aviso institucional (`Configuracion.texto_aviso_suspension`).
-- **Lista Dinámica en Vivo**: Muestra las materias reprobadas pendientes de recuperar calculadas dinámicamente mediante `materiasPendientes()` ([src/lib/materias-pendientes.ts](file:///home/fabianc/Documentos/ForumPage/src/lib/materias-pendientes.ts)), actualizándose automáticamente conforme se verifican recuperaciones parciales.
+### 5. Portal del Staff (`/staff`)
+- **Sistema de Pestañas**: Navegación dividida entre `Becarios` y `Publicaciones`.
+- **Buscador Dinámico**: Filtro instantáneo por nombre en el cliente para la gestión acelerada de expedientes (>100 becarios).
+- **Verificación de Expedientes y Evidencias**: Vista previa de créditos universitarios e informes/evidencias de labor social.
+- **Registro Directo de Desembolsos**: Flujo simplificado "Registrar Pago Realizado" con estado `pagado` y fecha efectiva automática.
+- **Publicaciones & Payload Admin**: Historial de 10 elementos con paginación (`?tab=publicaciones&p=1`) y enlace a creación en Payload Admin con branding corporativo inyectado (`admin.scss`).
 
 ---
 
