@@ -109,6 +109,41 @@ export function ImpactoMap({
     mapaRef.current = mapa
 
     mapa.on('load', () => {
+      // Capa base de distritos (Coclé)
+      mapa.addSource('distritos', {
+        type: 'geojson',
+        data: '/cocle-distritos.geojson',
+      })
+      mapa.addLayer({
+        id: 'distritos-fill-layer',
+        type: 'fill',
+        source: 'distritos',
+        paint: {
+          'fill-color': [
+            'match',
+            ['get', 'name'],
+            'La Pintada', '#e2cbe8',
+            'Penonomé', '#fef1ad',
+            'Olá', '#dcecb1',
+            'Natá', '#f8d49a',
+            'Aguadulce', '#fffcb3',
+            'Antón', '#f5c1c8',
+            /* default */ '#eeeeee',
+          ],
+          'fill-opacity': 0.7,
+        },
+      })
+      mapa.addLayer({
+        id: 'distritos-line-layer',
+        type: 'line',
+        source: 'distritos',
+        paint: {
+          'line-color': '#78716c',
+          'line-width': 1,
+          'line-dasharray': [2, 2],
+        },
+      })
+
       mapa.addSource('comunidades', {
         type: 'geojson',
         data: { type: 'FeatureCollection', features: comunidades },
