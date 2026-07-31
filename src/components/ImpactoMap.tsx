@@ -3,6 +3,7 @@
 import { Map as MapLibreMap, NavigationControl, setWorkerUrl, type MapLayerMouseEvent } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import Link from 'next/link'
+import { greatCircle } from '@turf/great-circle'
 import { useEffect, useRef, useState } from 'react'
 
 // maplibre-gl calcula la URL de su worker con `import.meta.url`, que bajo el
@@ -48,6 +49,19 @@ export type SedeFeature = {
   }
 }
 
+export type BecarioFeature = {
+  id: number
+  nombre: string
+  carrera: string
+  universidad: string
+  pais_estudio: string
+  ciudad_estudio: string
+  comunidad_nombre: string
+  origen: [number, number]
+  destino: [number, number]
+}
+
+
 export type Textos = {
   todos: string
   verFicha: string
@@ -67,9 +81,10 @@ export type Textos = {
   cerrar: string
 }
 
-type Seleccion = { tipo: 'comunidad'; data: ComunidadFeature['properties'] } | { tipo: 'sede'; data: SedeFeature['properties'] }
+type Seleccion = { tipo: 'comunidad'; data: ComunidadFeature['properties'] } | { tipo: 'sede'; data: SedeFeature['properties'] } | { tipo: 'becario'; data: Omit<BecarioFeature, 'origen' | 'destino'> }
 
 export function ImpactoMap({
+  becarios,
   comunidades,
   sedes,
   programas,
@@ -78,18 +93,19 @@ export function ImpactoMap({
   stats,
   textos: t,
 }: {
+  becarios: BecarioFeature[]
   comunidades: ComunidadFeature[]
   sedes: SedeFeature[]
   programas: { id: number; nombre: string; color: string }[]
   maptilerKey?: string
   locale: string
-  stats: { comunidades: number; sedes: number; proyectosActivos: number; obrasCompletadas: number }
+  stats: { comunidades: number; sedes: number; proyectosActivos: number; obrasCompletadas: number; becariosActivos: number }
   textos: Textos
 }) {
   const contenedorRef = useRef<HTMLDivElement>(null)
   const mapaRef = useRef<MapLibreMap | null>(null)
   const [filtroPrograma, setFiltroPrograma] = useState<number | null>(null)
-  const [capasVisibles, setCapasVisibles] = useState({ comunidades: true, sedes: true })
+  const [capasVisibles, setCapasVisibles] = useState({ comunidades: true, sedes: true, becarios: true })
   const [seleccion, setSeleccion] = useState<Seleccion | null>(null)
 
   useEffect(() => {
@@ -199,6 +215,62 @@ export function ImpactoMap({
         if (!feature) return
         setSeleccion({ tipo: 'sede', data: feature.properties })
       })
+
+      // Líneas de becarios (arcos)
+      const becariosLineas = becarios.map((b) => {
+        const line = greatCircle(b.origen, b.destino, { npoints: 50 })
+        line.properties = { ...b }
+        return line
+      })
+      mapa.addSource('becarios-lineas', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: becariosLineas },
+      })
+      mapa.addLayer({
+        id: 'becarios-lineas-layer',
+        type: 'line',
+        source: 'becarios-lineas',
+        paint: {
+          'line-color': COLOR_COSECHA,
+          'line-width': 2,
+          'line-opacity': 0.5,
+          'line-dasharray': [2, 2],
+        },
+      })
+
+      // Destinos de becarios (puntos)
+      const becariosDestinos = becarios.map((b) => ({
+        type: 'Feature' as const,
+        geometry: { type: 'Point' as const, coordinates: b.destino },
+        properties: { ...b },
+      }))
+      mapa.addSource('becarios-destinos', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: becariosDestinos },
+      })
+      mapa.addLayer({
+        id: 'becarios-destinos-layer',
+        type: 'circle',
+        source: 'becarios-destinos',
+        paint: {
+          'circle-radius': 6,
+          'circle-color': COLOR_COSECHA,
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#f2f4f1',
+        },
+      })
+      
+      mapa.on('mouseenter', 'becarios-destinos-layer', () => {
+        mapa.getCanvas().style.cursor = 'pointer'
+      })
+      mapa.on('mouseleave', 'becarios-destinos-layer', () => {
+        mapa.getCanvas().style.cursor = ''
+      })
+      mapa.on('click', 'becarios-destinos-layer', (e: MapLayerMouseEvent) => {
+        const feature = e.features?.[0] as any
+        if (!feature) return
+        setSeleccion({ tipo: 'becario', data: feature.properties })
+      })
     })
 
     return () => mapa.remove()
@@ -220,6 +292,10 @@ export function ImpactoMap({
     if (!mapa || !mapa.getLayer('comunidades-layer') || !mapa.getLayer('sedes-layer')) return
     mapa.setLayoutProperty('comunidades-layer', 'visibility', capasVisibles.comunidades ? 'visible' : 'none')
     mapa.setLayoutProperty('sedes-layer', 'visibility', capasVisibles.sedes ? 'visible' : 'none')
+    if (mapa.getLayer('becarios-lineas-layer')) {
+      mapa.setLayoutProperty('becarios-lineas-layer', 'visibility', capasVisibles.becarios ? 'visible' : 'none')
+      mapa.setLayoutProperty('becarios-destinos-layer', 'visibility', capasVisibles.becarios ? 'visible' : 'none')
+    }
   }, [capasVisibles])
 
   const seleccionarComunidad = (comunidad: ComunidadFeature) => {
@@ -233,7 +309,7 @@ export function ImpactoMap({
         <div className="grid grid-cols-3 gap-2">
           <StatCard label={t.statComunidades} value={stats.comunidades} />
           <StatCard label={t.statObrasCompletadas} value={stats.obrasCompletadas} />
-          <StatCard label={t.statBecariosActivos} value="—" />
+          <StatCard label={t.statBecariosActivos} value={stats.becariosActivos} />
           <StatCard label={t.statSedes} value={stats.sedes} />
           <StatCard label={t.statProyectosActivos} value={stats.proyectosActivos} />
           <StatCard label={t.statPaises} value="—" />
@@ -260,6 +336,16 @@ export function ImpactoMap({
             />
             {t.capaSedes}
             <span className="ml-auto font-dato text-xs text-piedra">{stats.sedes}</span>
+          </label>
+          <label className="flex items-center gap-2 py-1 font-lectura text-sm text-tinta">
+            <input
+              checked={capasVisibles.becarios}
+              className="h-4 w-4 accent-cosecha"
+              onChange={(e) => setCapasVisibles((v) => ({ ...v, becarios: e.target.checked }))}
+              type="checkbox"
+            />
+            Becarios Internacionales
+            <span className="ml-auto font-dato text-xs text-piedra">{becarios.length}</span>
           </label>
         </div>
 
@@ -337,8 +423,10 @@ export function ImpactoMap({
 
             {seleccion.tipo === 'comunidad' ? (
               <PanelComunidad data={seleccion.data} locale={locale} t={t} />
-            ) : (
+            ) : seleccion.tipo === 'sede' ? (
               <PanelSede data={seleccion.data} locale={locale} t={t} />
+            ) : (
+              <PanelBecario data={seleccion.data} />
             )}
           </div>
         )}
@@ -424,3 +512,22 @@ function PanelSede({ data, locale, t }: { data: SedeFeature['properties']; local
     </div>
   )
 }
+
+function PanelBecario({ data }: { data: Omit<BecarioFeature, 'origen' | 'destino'> }) {
+  return (
+    <div>
+      <p className="mb-1 font-dato text-xs uppercase tracking-widest text-piedra">
+        De {data.comunidad_nombre} al Mundo
+      </p>
+      <h3 className="mb-2 pr-6 font-display text-xl font-bold text-montana">{data.nombre}</h3>
+      <div className="mb-4">
+        <p className="font-lectura text-sm text-tinta font-medium">{data.carrera}</p>
+        <p className="font-lectura text-sm text-tinta/70">{data.universidad}</p>
+        <p className="font-dato text-xs text-piedra mt-2">
+          {data.ciudad_estudio}, {data.pais_estudio}
+        </p>
+      </div>
+    </div>
+  )
+}
+

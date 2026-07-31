@@ -1,6 +1,8 @@
 import { getPayload } from 'payload'
 
 import { ImpactoMapLoader } from '@/components/ImpactoMapLoader'
+import { ImpactoTabs } from '@/components/ImpactoTabs'
+import { ImpactoOverview, type ProyectoActivo, type DestinoEstudio, type BecarioDestacado } from '@/components/ImpactoOverview'
 import type { ComunidadFeature, SedeFeature } from '@/components/ImpactoMap'
 import { defaultLocale, type Locale } from '@/i18n'
 import config from '@/payload.config'
@@ -42,6 +44,32 @@ const TEXTOS = {
     actividadesEnComunidad: (n: number) => `${n} actividad${n === 1 ? '' : 'es'}`,
     avance: 'Avance',
     cerrar: 'Cerrar',
+    tabMap: 'Mapa',
+    tabOverview: 'Resumen',
+    tabTeamPortal: 'Portal de equipo',
+    scholarOfTheTerm: 'Becario Destacado',
+    classOf: 'Clase de',
+    openHerStory: 'Abrir su historia en el mapa',
+    scholarsSupported: 'Becarios Apoyados',
+    allFromCocle: 'Todos de Coclé',
+    activeScholarships: 'Becas Activas',
+    thisAcademicYear: 'Este año académico',
+    projectsInCocle: 'Proyectos en Coclé',
+    currentlyTracked: 'En seguimiento actual',
+    studyingInPanama: 'Estudiando en Panamá',
+    outsideCocle: 'Fuera de Coclé',
+    studyingAbroad: 'Estudiando en el Extranjero',
+    inXCountries: (n: number) => `En ${n} país${n === 1 ? '' : 'es'}`,
+    projectsInFlight: 'Proyectos en ejecución — Coclé',
+    project: 'Proyecto',
+    community: 'Comunidad',
+    progress: 'Progreso',
+    whereScholarsStudy: 'Dónde estudian los becarios de Coclé',
+    place: 'Lugar',
+    institutions: 'Instituciones',
+    scholars: 'Becarios',
+    abroad: 'Extranjero',
+    atHome: 'Panamá',
   },
   en: {
     titulo: 'Impact Map',
@@ -63,6 +91,32 @@ const TEXTOS = {
     actividadesEnComunidad: (n: number) => `${n} activit${n === 1 ? 'y' : 'ies'}`,
     avance: 'Progress',
     cerrar: 'Close',
+    tabMap: 'Map',
+    tabOverview: 'Overview',
+    tabTeamPortal: 'Team portal',
+    scholarOfTheTerm: 'Scholar of the Term',
+    classOf: 'Class of',
+    openHerStory: 'Open her story on the map',
+    scholarsSupported: 'Scholars Supported',
+    allFromCocle: 'All from Coclé',
+    activeScholarships: 'Active Scholarships',
+    thisAcademicYear: 'This academic year',
+    projectsInCocle: 'Projects in Coclé',
+    currentlyTracked: 'Currently tracked',
+    studyingInPanama: 'Studying in Panama',
+    outsideCocle: 'Outside Coclé',
+    studyingAbroad: 'Studying Abroad',
+    inXCountries: (n: number) => `In ${n} countr${n === 1 ? 'y' : 'ies'}`,
+    projectsInFlight: 'Projects in flight — Coclé',
+    project: 'Project',
+    community: 'Community',
+    progress: 'Progress',
+    whereScholarsStudy: 'Where Coclé scholars study',
+    place: 'Place',
+    institutions: 'Institutions',
+    scholars: 'Scholars',
+    abroad: 'Abroad',
+    atHome: 'Panama',
   },
 } satisfies Record<Locale, Record<string, unknown>>
 
@@ -73,12 +127,20 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
   const tiposSede = TIPOS_SEDE[locale] ?? TIPOS_SEDE[defaultLocale]
   const payload = await getPayload({ config })
 
-  const [comunidades, sedes, proyectos, actividades, programas] = await Promise.all([
+  const [comunidades, sedes, proyectos, actividades, programas, becariosActivosTodos, becariosTotalesRes] = await Promise.all([
     payload.find({ collection: 'comunidades', limit: 200, locale, overrideAccess: true }),
     payload.find({ collection: 'sedes', limit: 200, depth: 1, locale, overrideAccess: true }),
     payload.find({ collection: 'proyectos', limit: 500, depth: 0, locale, overrideAccess: true }),
     payload.find({ collection: 'actividades', limit: 500, depth: 0, overrideAccess: true }),
     payload.find({ collection: 'programas', where: { activo: { equals: true } }, limit: 100, locale, overrideAccess: true }),
+    payload.find({
+      collection: 'becarios',
+      where: { estado: { equals: 'activo' } },
+      limit: 500,
+      depth: 1,
+      overrideAccess: true,
+    }),
+    payload.count({ collection: 'becarios', overrideAccess: true }),
   ])
 
   const programasPorComunidad = new Map<number, Set<number>>()
@@ -160,43 +222,165 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
   ).length
   const obrasCompletadas = (proyectos.docs as Proyecto[]).filter((p) => p.estado === 'completado').length
 
+  const becariosDocsActivos = becariosActivosTodos.docs as any[]
+  
+  const becariosMapDocs = becariosDocsActivos.filter(b => b.mostrar_en_mapa && b.tipo_estudio === 'internacional')
+  
+  const becariosFeatures = becariosMapDocs
+    .filter((b) => b.coordenadas_estudio?.lat && b.coordenadas_estudio?.lng && typeof b.comunidad === 'object' && b.comunidad?.coordenadas)
+    .map((b) => {
+      const comCoord = b.comunidad.coordenadas
+      const estCoord = b.coordenadas_estudio
+      return {
+        id: b.id,
+        nombre: b.nombre,
+        carrera: b.carrera,
+        universidad: b.universidad,
+        pais_estudio: b.pais_estudio,
+        ciudad_estudio: b.ciudad_estudio,
+        comunidad_nombre: b.comunidad.nombre,
+        origen: [comCoord.lng, comCoord.lat] as [number, number],
+        destino: [estCoord.lng, estCoord.lat] as [number, number],
+      }
+    })
+
+  const becarioDestacadoRaw = becariosDocsActivos.find((b) => b.cita && typeof b.foto === 'object' && b.foto?.url)
+  const becarioDestacado: BecarioDestacado | null = becarioDestacadoRaw ? {
+    id: becarioDestacadoRaw.id,
+    nombre: becarioDestacadoRaw.nombre,
+    carrera: becarioDestacadoRaw.carrera ?? '',
+    universidad: becarioDestacadoRaw.universidad ?? '',
+    clase: (becarioDestacadoRaw.anio_inicio ? becarioDestacadoRaw.anio_inicio + 4 : new Date().getFullYear() + 2).toString(),
+    cita: becarioDestacadoRaw.cita,
+    fotoUrl: typeof becarioDestacadoRaw.foto === 'object' ? becarioDestacadoRaw.foto?.url : null,
+    comunidad: typeof becarioDestacadoRaw.comunidad === 'object' ? becarioDestacadoRaw.comunidad.nombre : '',
+    destino: becarioDestacadoRaw.tipo_estudio === 'internacional' ? becarioDestacadoRaw.pais_estudio : 'Panamá',
+  } : null
+
+  const proyectosActivosList: ProyectoActivo[] = []
+  const proyectosCompletadosList: ProyectoActivo[] = []
+  
+  for (const p of proyectos.docs as Proyecto[]) {
+    const comName = typeof p.comunidad === 'object' ? p.comunidad.nombre : ''
+    const act = { id: p.id, titulo: p.titulo, comunidad: comName, avance: p.avance ?? 0 }
+    if (p.estado === 'en_ejecucion' || p.estado === 'aprobado') {
+      proyectosActivosList.push(act)
+    } else if (p.estado === 'completado') {
+      proyectosCompletadosList.push(act)
+    }
+  }
+
+  const studyingPanama = becariosDocsActivos.filter(b => b.tipo_estudio === 'nacional').length
+  const studyingAbroad = becariosDocsActivos.filter(b => b.tipo_estudio === 'internacional').length
+  
+  const paisesUnicos = new Set(becariosDocsActivos.filter(b => b.tipo_estudio === 'internacional' && b.pais_estudio).map(b => b.pais_estudio))
+
+  const destinosMap = new Map<string, { instituciones: Set<string>, cantidad: number }>()
+  for (const b of becariosDocsActivos) {
+    let lugar = t.atHome
+    if (b.tipo_estudio === 'internacional' && b.pais_estudio) {
+      lugar = b.pais_estudio
+    }
+    const uni = b.universidad || 'Universidad'
+    const entry = destinosMap.get(lugar) ?? { instituciones: new Set(), cantidad: 0 }
+    entry.instituciones.add(uni)
+    entry.cantidad += 1
+    destinosMap.set(lugar, entry)
+  }
+
+  const destinos: DestinoEstudio[] = Array.from(destinosMap.entries()).map(([lugar, data]) => ({
+    lugar,
+    instituciones: Array.from(data.instituciones).slice(0, 3).join(', ') + (data.instituciones.size > 3 ? ', ...' : ''),
+    cantidad: data.cantidad
+  })).sort((a, b) => b.cantidad - a.cantidad)
+
   return (
     <div className="mx-auto max-w-(--container-content) px-4 py-12 md:px-16 md:py-24">
-      <header className="mb-8 border-b border-piedra/25 pb-8">
-        <h1 className="font-display text-3xl font-bold uppercase text-montana md:text-4xl">{t.titulo}</h1>
-        <p className="mt-2 font-lectura text-lg text-tinta/70">{t.subtitulo}</p>
-      </header>
-
-      <ImpactoMapLoader
-        comunidades={comunidadesFeatures}
+      <ImpactoTabs 
         locale={locale}
-        maptilerKey={process.env.MAPTILER_KEY}
-        programas={(programas.docs as Programa[]).map((p) => ({ id: p.id, nombre: p.nombre, color: p.color }))}
-        sedes={sedesFeatures}
-        stats={{
-          comunidades: comunidadesFeatures.length,
-          sedes: sedesFeatures.length,
-          proyectosActivos,
-          obrasCompletadas,
-        }}
-        textos={{
-          todos: t.todos,
-          verFicha: t.verFicha,
-          statComunidades: t.statComunidades,
-          statSedes: t.statSedes,
-          statProyectosActivos: t.statProyectosActivos,
-          statObrasCompletadas: t.statObrasCompletadas,
-          statBecariosActivos: t.statBecariosActivos,
-          statPaises: t.statPaises,
-          capas: t.capas,
-          capaComunidades: t.capaComunidades,
-          capaSedes: t.capaSedes,
-          lugares: t.lugares,
-          sinProyectos: t.sinProyectos,
-          proyectosEnComunidad: t.proyectosEnComunidad,
-          avance: t.avance,
-          cerrar: t.cerrar,
-        }}
+        textos={{ map: t.tabMap, overview: t.tabOverview, teamPortal: t.tabTeamPortal }}
+        mapaComponent={
+          <>
+            <header className="mb-8 border-b border-piedra/25 pb-8">
+              <h1 className="font-display text-3xl font-bold uppercase text-montana md:text-4xl">{t.titulo}</h1>
+              <p className="mt-2 font-lectura text-lg text-tinta/70">{t.subtitulo}</p>
+            </header>
+            <ImpactoMapLoader
+              becarios={becariosFeatures}
+              comunidades={comunidadesFeatures}
+              locale={locale}
+              maptilerKey={process.env.MAPTILER_KEY}
+              programas={(programas.docs as Programa[]).map((p) => ({ id: p.id, nombre: p.nombre, color: p.color }))}
+              sedes={sedesFeatures}
+              stats={{
+                comunidades: comunidadesFeatures.length,
+                sedes: sedesFeatures.length,
+                proyectosActivos: proyectosActivosList.length,
+                obrasCompletadas: proyectosCompletadosList.length,
+                becariosActivos: becariosDocsActivos.length,
+              }}
+              textos={{
+                todos: t.todos,
+                verFicha: t.verFicha,
+                statComunidades: t.statComunidades,
+                statSedes: t.statSedes,
+                statProyectosActivos: t.statProyectosActivos,
+                statObrasCompletadas: t.statObrasCompletadas,
+                statBecariosActivos: t.statBecariosActivos,
+                statPaises: t.statPaises,
+                capas: t.capas,
+                capaComunidades: t.capaComunidades,
+                capaSedes: t.capaSedes,
+                lugares: t.lugares,
+                sinProyectos: t.sinProyectos,
+                proyectosEnComunidad: t.proyectosEnComunidad,
+                avance: t.avance,
+                cerrar: t.cerrar,
+              }}
+            />
+          </>
+        }
+        overviewComponent={(abrirMapa) => (
+          <ImpactoOverview
+            becario={becarioDestacado}
+            stats={{
+              scholarsSupported: becariosTotalesRes.totalDocs,
+              activeScholarships: becariosDocsActivos.length,
+              projectsCocle: proyectosActivosList.length + proyectosCompletadosList.length,
+              studyingPanama: studyingPanama,
+              studyingAbroad: studyingAbroad,
+            }}
+            proyectos={proyectosActivosList.slice(0, 5)}
+            destinos={destinos}
+            paisesCount={paisesUnicos.size}
+            onClickAbrirMapa={abrirMapa}
+            textos={{
+              scholarOfTheTerm: t.scholarOfTheTerm,
+              classOf: t.classOf,
+              openHerStory: t.openHerStory,
+              scholarsSupported: t.scholarsSupported,
+              allFromCocle: t.allFromCocle,
+              activeScholarships: t.activeScholarships,
+              thisAcademicYear: t.thisAcademicYear,
+              projectsInCocle: t.projectsInCocle,
+              currentlyTracked: t.currentlyTracked,
+              studyingInPanama: t.studyingInPanama,
+              outsideCocle: t.outsideCocle,
+              studyingAbroad: t.studyingAbroad,
+              inXCountries: t.inXCountries,
+              projectsInFlight: t.projectsInFlight,
+              project: t.project,
+              community: t.community,
+              progress: t.progress,
+              whereScholarsStudy: t.whereScholarsStudy,
+              place: t.place,
+              institutions: t.institutions,
+              scholars: t.scholars,
+              abroad: t.abroad,
+              atHome: t.atHome,
+            }}
+          />
+        )}
       />
     </div>
   )

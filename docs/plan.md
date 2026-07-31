@@ -247,3 +247,6 @@ Detalle completo de cada fase (checklists exhaustivos): [02-plan-de-ejecucion.md
 3. Descargas/visitas del Centro de Aprendizaje por nivel
 4. Asistencia a tutorías anunciadas
 5. % de becarios con expediente al día
+- **Paso actual**: Implementada la pestaña "Resumen" en la página de Impacto.
+- **Detalles**: Se agregaron los componentes `ImpactoTabs` y `ImpactoOverview`. Se añadieron métricas como total de becarios apoyados, becas activas, proyectos en Coclé, estudiantes en Panamá y el extranjero. Se implementaron tablas para proyectos en ejecución y destinos de becarios. La interfaz permite cambiar entre el mapa y el resumen estadístico de impacto.
+- **Pendientes**: Ninguno inmediato para esta característica.

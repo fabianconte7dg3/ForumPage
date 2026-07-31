@@ -10,12 +10,13 @@ const ImpactoMap = dynamic(() => import('@/components/ImpactoMap').then((m) => m
 })
 
 export function ImpactoMapLoader(props: {
+  becarios: any[]
   comunidades: ComunidadFeature[]
   sedes: SedeFeature[]
   programas: { id: number; nombre: string; color: string }[]
   maptilerKey?: string
   locale: string
-  stats: { comunidades: number; sedes: number; proyectosActivos: number; obrasCompletadas: number }
+  stats: { comunidades: number; sedes: number; proyectosActivos: number; obrasCompletadas: number; becariosActivos: number }
   textos: Textos
 }) {
   return <ImpactoMap {...props} />
