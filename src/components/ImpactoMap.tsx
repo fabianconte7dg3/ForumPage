@@ -57,6 +57,10 @@ export type BecarioFeature = {
   pais_estudio: string
   ciudad_estudio: string
   comunidad_nombre: string
+  comunidad_slug?: string
+  foto_url?: string
+  cita?: string
+  anio?: number
   origen: [number, number]
   destino: [number, number]
 }
@@ -426,7 +430,7 @@ export function ImpactoMap({
             ) : seleccion.tipo === 'sede' ? (
               <PanelSede data={seleccion.data} locale={locale} t={t} />
             ) : (
-              <PanelBecario data={seleccion.data} />
+              <PanelBecario data={seleccion.data} locale={locale} />
             )}
           </div>
         )}
@@ -513,20 +517,83 @@ function PanelSede({ data, locale, t }: { data: SedeFeature['properties']; local
   )
 }
 
-function PanelBecario({ data }: { data: Omit<BecarioFeature, 'origen' | 'destino'> }) {
+function PanelBecario({ data, locale }: { data: Omit<BecarioFeature, 'origen' | 'destino'>; locale: string }) {
+  const fotoUrl = data.foto_url
+  const isEn = locale === 'en'
+
   return (
-    <div>
-      <p className="mb-1 font-dato text-xs uppercase tracking-widest text-piedra">
-        De {data.comunidad_nombre} al Mundo
-      </p>
-      <h3 className="mb-2 pr-6 font-display text-xl font-bold text-montana">{data.nombre}</h3>
-      <div className="mb-4">
-        <p className="font-lectura text-sm text-tinta font-medium">{data.carrera}</p>
-        <p className="font-lectura text-sm text-tinta/70">{data.universidad}</p>
-        <p className="font-dato text-xs text-piedra mt-2">
-          {data.ciudad_estudio}, {data.pais_estudio}
-        </p>
+    <div className="space-y-4">
+      {/* Encabezado de Trayectoria */}
+      <div className="flex items-center justify-between border-b border-piedra/25 pb-2">
+        <span className="font-dato text-[10px] font-bold uppercase tracking-widest text-montana">
+          {isEn ? 'International Trajectory' : 'Trayectoria Internacional'}
+        </span>
+        {data.anio && (
+          <span className="rounded-2px bg-montana/10 px-2 py-0.5 font-dato text-[10px] font-bold text-montana">
+            {isEn ? `Year ${data.anio}` : `${data.anio}° AÑO`}
+          </span>
+        )}
       </div>
+
+      {/* Foto de perfil + Nombre */}
+      <div className="flex items-start gap-3">
+        {fotoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            alt={data.nombre}
+            className="h-14 w-14 rounded-sm object-cover border border-piedra/25 shrink-0"
+            src={fotoUrl}
+          />
+        ) : (
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-sm border border-piedra/25 bg-montana/10 font-display text-lg font-bold text-montana">
+            {data.nombre.charAt(0)}
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <h3 className="font-display text-lg font-bold uppercase leading-tight text-montana">
+            {data.nombre}
+          </h3>
+          <p className="mt-1 font-lectura text-xs font-semibold text-tinta">
+            {data.carrera}
+          </p>
+          <p className="font-lectura text-xs text-tinta/70">
+            {data.universidad}
+          </p>
+        </div>
+      </div>
+
+      {/* Ruta: Origen -> Destino */}
+      <div className="rounded-sm border border-piedra/15 bg-white p-3 space-y-2">
+        <div className="flex items-center gap-2 font-dato text-xs">
+          <span className="text-montana font-bold">{isEn ? '📍 ORIGIN:' : '📍 ORIGEN:'}</span>
+          <span className="font-semibold text-tinta">{data.comunidad_nombre}</span>
+        </div>
+        <div className="flex items-center gap-2 font-dato text-xs">
+          <span className="text-cosecha font-bold">{isEn ? '✈ DESTINATION:' : '✈ DESTINO:'}</span>
+          <span className="font-semibold text-tinta">
+            {data.ciudad_estudio}, {data.pais_estudio}
+          </span>
+        </div>
+      </div>
+
+      {/* Cita inspiradora */}
+      {data.cita && (
+        <blockquote className="border-l-2 border-cosecha pl-3 py-1 font-lectura text-xs italic text-tinta/80 bg-cosecha/5 rounded-r-sm">
+          «{data.cita}»
+        </blockquote>
+      )}
+
+      {/* Enlace opcional a la comunidad */}
+      {data.comunidad_slug && (
+        <div className="pt-2 border-t border-piedra/25">
+          <Link
+            className="inline-block font-dato text-xs uppercase tracking-wider text-rio hover:underline"
+            href={`/${locale}/impacto/comunidades/${data.comunidad_slug}`}
+          >
+            {isEn ? `View community ${data.comunidad_nombre} →` : `Ver comunidad ${data.comunidad_nombre} →`}
+          </Link>
+        </div>
+      )}
     </div>
   )
 }

@@ -227,6 +227,7 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
     const comunidad = typeof b.comunidad === 'object' ? b.comunidad : undefined
     const est = b.coordenadas_estudio
     if (!comunidad?.coordenadas || !est?.lat || !est?.lng) return []
+    const foto = typeof b.foto === 'object' ? b.foto : undefined
     return [
       {
         id: b.id,
@@ -236,6 +237,10 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
         pais_estudio: b.pais_estudio ?? '',
         ciudad_estudio: b.ciudad_estudio ?? '',
         comunidad_nombre: comunidad.nombre,
+        comunidad_slug: comunidad.slug ?? undefined,
+        foto_url: foto?.url ?? undefined,
+        cita: b.cita ?? undefined,
+        anio: b.anio ?? undefined,
         origen: [comunidad.coordenadas.lng, comunidad.coordenadas.lat] as [number, number],
         destino: [est.lng, est.lat] as [number, number],
       },
