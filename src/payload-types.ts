@@ -706,7 +706,7 @@ export interface Recuperacion {
    */
   materia: string;
   periodo?: string | null;
-  evidencia?: (number | null) | Media;
+  evidencia?: (number | null) | DocumentosPrivado;
   estado: 'pendiente' | 'verificado';
   /**
    * Se completa solo al verificar

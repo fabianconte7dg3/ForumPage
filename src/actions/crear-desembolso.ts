@@ -33,7 +33,7 @@ export async function crearDesembolso(
         fecha_efectiva: fecha,
         concepto,
         estado: 'pagado'
-      } as any,
+      },
       overrideAccess: false,
       user: usuario,
     })

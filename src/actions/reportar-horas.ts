@@ -55,7 +55,8 @@ export async function reportarHoras(formData: FormData): Promise<ResultadoReport
 
   const payload = await getPayload({ config })
 
-  // Subir evidencia a Media si se adjuntó un archivo
+  // Subir evidencia a documentos-privados — nunca a `media`, que es de lectura
+  // pública. El campo `evidencia` de HorasLaborSocial apunta a esta colección.
   let evidenciaId: number | undefined
   if (evidenciaArchivo && evidenciaArchivo.size > 0) {
     const MAX_SIZE = 10 * 1024 * 1024 // 10 MB
@@ -69,8 +70,11 @@ export async function reportarHoras(formData: FormData): Promise<ResultadoReport
     }
 
     const buffer = Buffer.from(await evidenciaArchivo.arrayBuffer())
-    const mediaDoc = await payload.create({
-      collection: 'media',
+    // `create` en documentos-privados es solo-staff a propósito: la única vía
+    // por la que un becario sube algo es esta acción, que ya validó tamaño y
+    // tipo. `user` va igual para que el hook registre quién lo subió.
+    const evidenciaDoc = await payload.create({
+      collection: 'documentos-privados',
       data: {
         alt: `Evidencia labor social — ${actividad.slice(0, 60)}`,
       },
@@ -80,23 +84,27 @@ export async function reportarHoras(formData: FormData): Promise<ResultadoReport
         name: evidenciaArchivo.name,
         size: evidenciaArchivo.size,
       },
+      user: usuario,
       overrideAccess: true,
     })
-    evidenciaId = mediaDoc.id
+    evidenciaId = evidenciaDoc.id
   }
 
   // Crear el registro de horas — con la sesión real del usuario, no
   // overrideAccess. El hook forzarPropioBecario asigna `becario` al id
-  // correcto, y el defaultValue de `estado` lo pone en `pendiente`.
+  // correcto. `estado` va explícito porque Payload lo tipa como requerido
+  // aunque tenga defaultValue; ponerlo evita el `as any` que antes tapaba
+  // cualquier error de tipos en esta llamada.
   await payload.create({
     collection: 'horas-labor-social',
     data: {
       becario: becarioId,
       descripcion: actividad,
+      estado: 'pendiente',
       evidencia: evidenciaId ?? null,
       fecha: fechaDate.toISOString(),
       horas,
-    } as any,
+    },
     user: usuario,
   })
 

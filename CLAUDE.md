@@ -25,6 +25,10 @@ El sitio anterior murió porque publicar era difícil, no por falta de tecnolog�
 - **Editar con parches, no reescribir archivos enteros.** Cambiar 5 líneas de un archivo de 800 no justifica regenerarlo completo — consume miles de tokens de salida innecesarios. Usar siempre reemplazo selectivo del bloque exacto afectado.
 - **Tareas atómicas de 1 a 10 archivos.** Nada de "construye todo el módulo X de una sola vez" (base de datos + backend + frontend + facturación junto). Dividir en pasos chicos y verificables, marcados en `docs/plan.md`, cada uno con su propia comprobación antes de seguir (ej. Paso A: schema + migración → Paso B: controller/service + `tsc --noEmit` → Paso C: UI + `tsc --noEmit`). Perder el contexto a mitad de una tarea gigante obliga a rehacer todo.
 
+## Errores ya cometidos en este repo — no repetirlos
+
+**Leer [.agents/AGENTS.md](.agents/AGENTS.md) §Errores ya cometidos antes de tocar código.** Son nueve reglas, cada una sacada de un defecto real que llegó a `main` y hubo que corregir después: campos cambiados sin seguir a quién los escribe, casts que callan a `tsc` en vez de arreglar el tipo, carpetas de uploads sin regla en `.gitignore`, scripts de borrado que eran no-op por construcción, migraciones generadas con el `down()` roto y nunca ejecutado. Viven en ese archivo, no acá, para que haya una sola copia y valga para cualquier agente que trabaje el repo.
+
 ## Cuándo usar qué skill de `.agents/skills/`
 
 - `frontend-design`, `design-guide`, `web-design-guidelines` → sitio público, componentes, panel de Payload
@@ -32,4 +36,4 @@ El sitio anterior murió porque publicar era difícil, no por falta de tecnolog�
 
 ## Estado
 
-Ver [docs/plan.md](docs/plan.md) — a la fecha de este commit, el proyecto está en Fase 0 (preparación), sin código de aplicación todavía.
+Ver [docs/plan.md](docs/plan.md) — Fases 0 a 2 cerradas, Fase 3 (Portal del Becario) en curso.

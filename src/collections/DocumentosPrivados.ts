@@ -1,8 +1,11 @@
 import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
 
-import { esStaffOSuperior, soloPropioOStaff } from '@/access'
+import { esStaffOSuperior } from '@/access'
 
-// Asigna automáticamente el creador del documento si hay usuario autenticado.
+// Solo auditoría: deja registrado quién subió el archivo. NO se usa para
+// control de acceso — la propiedad real del documento la define el becario del
+// registro que lo referencia, no quién apretó el botón (el staff sube
+// documentación en nombre del becario todo el tiempo).
 const autocompletarPropietario: CollectionBeforeChangeHook = ({ data, req, operation }) => {
   if (operation === 'create' && req.user && !data.uploadedBy) {
     data.uploadedBy = req.user.id
@@ -13,9 +16,13 @@ const autocompletarPropietario: CollectionBeforeChangeHook = ({ data, req, opera
 export const DocumentosPrivados: CollectionConfig = {
   slug: 'documentos-privados',
   access: {
-    // El staff/admin puede ver todo; el becario solo lo que él mismo subió.
-    read: soloPropioOStaff,
-    create: soloPropioOStaff,
+    // Solo-staff en las cuatro operaciones. Ningún vista del becario renderiza
+    // estos archivos (BotonVerDocumento solo se usa en components/staff/), así
+    // que darle lectura sería ampliar el alcance sin que nadie lo necesite.
+    // El becario sube evidencia por la server action, que corre con
+    // overrideAccess tras validar tamaño y tipo.
+    read: esStaffOSuperior,
+    create: esStaffOSuperior,
     update: esStaffOSuperior,
     delete: esStaffOSuperior,
   },

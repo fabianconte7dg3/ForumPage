@@ -80,6 +80,14 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI || '',
     },
+    // Sin auto-push: en dev, Payload por defecto empuja los cambios de esquema
+    // directo a la base y no deja rastro en `payload_migrations`. Así la base
+    // de dev quedó meses divergida — el esquema al día pero ninguna migración
+    // corrida nunca, y por lo tanto la cadena entera sin probar (tenía el
+    // `down()` roto en 8 migraciones y nadie se enteró). Con `push: false` un
+    // cambio de esquema obliga a `pnpm payload migrate:create` + `migrate`,
+    // que es el mismo camino que producción.
+    push: false,
   }),
   sharp,
   // Localización a nivel de campo desde el día uno — ver 03-runbook-tecnico.md §4.2.

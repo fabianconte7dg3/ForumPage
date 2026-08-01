@@ -56,7 +56,6 @@ export function ImpactoOverview({
   stats,
   proyectos,
   destinos,
-  paisesCount,
   textos: t,
   onClickAbrirMapa,
 }: {
@@ -70,7 +69,6 @@ export function ImpactoOverview({
   }
   proyectos: ProyectoActivo[]
   destinos: DestinoEstudio[]
-  paisesCount: number
   textos: ImpactoOverviewTextos
   onClickAbrirMapa?: () => void
 }) {

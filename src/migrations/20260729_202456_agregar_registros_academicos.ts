@@ -60,9 +60,9 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "registros_academicos_materias_aprobadas" CASCADE;
   DROP TABLE "registros_academicos_materias_reprobadas" CASCADE;
   DROP TABLE "registros_academicos" CASCADE;
-  ALTER TABLE "payload_locked_documents_rels" DROP CONSTRAINT "payload_locked_documents_rels_registros_academicos_fk";
+  ALTER TABLE "payload_locked_documents_rels" DROP CONSTRAINT IF EXISTS "payload_locked_documents_rels_registros_academicos_fk";
   
-  DROP INDEX "payload_locked_documents_rels_registros_academicos_id_idx";
+  DROP INDEX IF EXISTS "payload_locked_documents_rels_registros_academicos_id_idx";
   ALTER TABLE "payload_locked_documents_rels" DROP COLUMN "registros_academicos_id";
   DROP TYPE "public"."enum_registros_academicos_estado_verificacion";`)
 }

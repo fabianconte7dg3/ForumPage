@@ -8,8 +8,14 @@ out/
 build/
 dist/
 
-# Payload
+# Payload — archivos subidos, nunca se versionan.
 media/
+# `documentos-privados/` con más razón que `media/`: son documentos de becarios
+# (socioeconómicos, académicos, evidencia de labor social que puede contener
+# menores). Meterlos en git los vuelve legibles para cualquiera con acceso al
+# repo y los deja en el historial para siempre, que es justo lo que la
+# colección DocumentosPrivados existe para impedir.
+documentos-privados/
 
 # Volcado del WordPress viejo, solo de referencia para migrar contenido —
 # no es parte de la app, no se versiona (son varios cientos de MB de imágenes).
