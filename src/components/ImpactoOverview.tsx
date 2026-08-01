@@ -38,7 +38,7 @@ export type ImpactoOverviewTextos = {
   studyingInPanama: string
   outsideCocle: string
   studyingAbroad: string
-  inXCountries: (n: number) => string
+  inXCountries: string
   projectsInFlight: string
   project: string
   community: string
@@ -121,7 +121,7 @@ export function ImpactoOverview({
         <StatCard title={t.activeScholarships} value={stats.activeScholarships} subtitle={t.thisAcademicYear} />
         <StatCard title={t.projectsInCocle} value={stats.projectsCocle} subtitle={t.currentlyTracked} />
         <StatCard title={t.studyingInPanama} value={stats.studyingPanama} subtitle={t.outsideCocle} />
-        <StatCard title={t.studyingAbroad} value={stats.studyingAbroad} subtitle={t.inXCountries(paisesCount)} />
+        <StatCard title={t.studyingAbroad} value={stats.studyingAbroad} subtitle={t.inXCountries} />
       </section>
 
       {/* Tables Row */}

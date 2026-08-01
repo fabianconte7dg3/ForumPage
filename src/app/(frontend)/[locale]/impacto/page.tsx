@@ -363,7 +363,7 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
             studyingInPanama: t.studyingInPanama,
             outsideCocle: t.outsideCocle,
             studyingAbroad: t.studyingAbroad,
-            inXCountries: t.inXCountries,
+            inXCountries: t.inXCountries(paisesUnicos.size),
             projectsInFlight: t.projectsInFlight,
             project: t.project,
             community: t.community,
