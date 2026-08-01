@@ -38,8 +38,11 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "horas_labor_social" DROP CONSTRAINT "horas_labor_social_evidencia_id_media_id_fk";
   
   -- COPIA DE DATOS MIGRACIÓN (añadido manualmente)
+  -- El id se preserva a propósito: es lo que mantiene válidas las FK de
+  -- becarios/registros_academicos/horas_labor_social sin remapear nada.
+  -- La url se reescribe porque la copiada apunta a la ruta pública de media.
   INSERT INTO "documentos_privados" (id, url, filename, mime_type, filesize, created_at, updated_at)
-  SELECT m.id, m.url, m.filename, m.mime_type, m.filesize, m.created_at, m.updated_at
+  SELECT m.id, REPLACE(m.url, '/media/', '/documentos-privados/'), m.filename, m.mime_type, m.filesize, m.created_at, m.updated_at
   FROM "media" m
   WHERE m.id IN (
     SELECT documento_id FROM registros_academicos WHERE documento_id IS NOT NULL

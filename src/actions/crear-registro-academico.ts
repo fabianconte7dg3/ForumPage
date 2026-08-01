@@ -26,7 +26,7 @@ export async function crearRegistroAcademico(
         periodo,
         documento: documentoId,
         estado_verificacion: 'pendiente'
-      } as any,
+      },
       overrideAccess: false,
       user: usuario,
     })

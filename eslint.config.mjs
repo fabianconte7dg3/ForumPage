@@ -2,7 +2,9 @@ import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
 import nextTypescript from 'eslint-config-next/typescript';
 
 const config = [
-  { ignores: ['.next/**', 'src/payload-types.ts', 'src/migrations/**', 'public/**'] },
+  // `.claude/**` incluye worktrees de agentes anidados en el repo: copias
+  // viejas del código que hacían fallar el lint con errores ya corregidos acá.
+  { ignores: ['.next/**', 'src/payload-types.ts', 'src/migrations/**', 'public/**', '.claude/**'] },
   ...nextCoreWebVitals,
   ...nextTypescript,
   {

@@ -155,6 +155,8 @@ async function reemitirTokenConDuracionPorRol(
   return { exp, token }
 }
 
+const comoTexto = (v: unknown): string | undefined => (typeof v === 'string' ? v : undefined)
+
 // Reemplaza el /login por defecto de Payload (un endpoint propio con el mismo
 // path+method gana — Payload hace `.find()` y los endpoints del usuario van
 // primero en el arreglo). Login en dos pasos cuando el usuario tiene 2FA
@@ -164,7 +166,7 @@ async function reemitirTokenConDuracionPorRol(
 // solo se retiene hasta confirmar el segundo factor).
 const iniciarSesion: PayloadHandler = async (req) => {
   const contentType = req.headers.get('content-type') || ''
-  let body: any
+  let body: Record<string, unknown> | undefined
   try {
     if (contentType.includes('multipart/form-data')) {
       // El panel admin de Payload envía multipart con un campo "_payload"
@@ -185,21 +187,28 @@ const iniciarSesion: PayloadHandler = async (req) => {
     // Ignorar error de parsing
   }
 
-  if (body?.desafioId) {
-    const resultado = body.codigo ? verificarYConsumirDesafio(body.desafioId, body.codigo) : undefined
+  // El cuerpo viene de la red: cada campo se acepta solo si llegó como string.
+  // Sin esto, un `{"email": {"$ne": null}}` entraba tal cual a payload.login.
+  const desafioId = comoTexto(body?.desafioId)
+  const codigo = comoTexto(body?.codigo)
+  const email = comoTexto(body?.email)
+  const password = comoTexto(body?.password)
+
+  if (desafioId) {
+    const resultado = codigo ? verificarYConsumirDesafio(desafioId, codigo) : undefined
     if (!resultado) {
       return Response.json({ message: 'Código inválido o expirado' }, { status: 401 })
     }
     return respuestaConSesion(req, resultado.token, resultado.exp)
   }
 
-  if (!body?.email || !body?.password) {
+  if (!email || !password) {
     return Response.json({ message: 'Correo y contraseña requeridos' }, { status: 400 })
   }
 
   let resultado: Awaited<ReturnType<typeof req.payload.login>>
   try {
-    resultado = await req.payload.login({ collection: 'users', data: { email: body.email, password: body.password }, req })
+    resultado = await req.payload.login({ collection: 'users', data: { email, password }, req })
   } catch (error) {
     return Response.json({ message: (error as Error).message }, { status: 401 })
   }

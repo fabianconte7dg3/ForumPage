@@ -41,6 +41,8 @@ La **Comunidad** es el eje: todo apunta a ella y por eso el mapa se alimenta sol
 
 **Contenido:** `Actividades` (mural + blog unificados, un solo tipo de contenido), `Proyectos` (`foto_antes`/`foto_despues`), `Necesidades` (pipeline de necesidades, no crowdfunding), `Media` (`consentimiento_verificado`, `contiene_menores`)
 
+**Archivos — dos colecciones, nunca una:** `Media` es `read: () => true` (imágenes del sitio público). `DocumentosPrivados` es solo-staff en las cuatro operaciones y guarda lo que nunca puede filtrarse: `Becarios.documentacion_socioeconomica`, `RegistrosAcademicos.documento`, `HorasLaborSocial.evidencia` (que puede contener menores) y `Recuperaciones.evidencia` (que delata que el becario estuvo suspendido — estado que nunca se hace público, ni agregado). Nada sensible se sube a `Media` — si un `payload.create` de un documento apunta a `media`, es un bug de privacidad, no un detalle. El becario sube evidencia por `src/actions/reportar-horas.ts`, que valida tamaño y tipo y luego crea con `overrideAccess`; no hay ruta directa por la API.
+
 **Aprendizaje (sin cuenta, sin datos personales):** `Recursos` (`fuente_y_licencia` obligatorio), `Practicas` (3 modalidades), `Tutorias`, `Niveles`, `Materias`. Progreso guardado en el dispositivo del estudiante, no en el servidor.
 
 **Portal del Becario (autenticado, solo mayores de edad):**
@@ -101,7 +103,7 @@ Detalle completo: [01-documento-de-proyecto.md §8](../01-documento-de-proyecto.
 
 ## Seguridad — los 5 riesgos que más importan
 
-1. **Documentos de becarios en bucket público** → 3 buckets separados con credenciales distintas (`forum-media` público+CDN, `forum-docs` privado con URL firmada de 5–15 min, `forum-backups` privado sin permiso de borrado)
+1. **Documentos de becarios en bucket público** → 3 buckets separados con credenciales distintas (`forum-media` público+CDN, `forum-docs` privado con URL firmada de 5–15 min, `forum-backups` privado sin permiso de borrado). **Hecho a nivel de colección** (`DocumentosPrivados`, solo-staff); **pendiente a nivel de almacenamiento**: hoy no hay adaptador S3, los archivos van a disco local y el control de acceso lo aplica Payload en la ruta del archivo. Al mover a S3 hay que separar los buckets de verdad y firmar las URL — la separación de colecciones deja eso a un cambio de adaptador, no a una migración de datos.
 2. **Control de acceso incompleto en la API** → probar siempre contra `/api/`, nunca solo contra la interfaz
 3. **Respaldos borrables con la misma credencial comprometida** → credenciales de escritura sin borrado, versionado activo
 4. **GeoJSON con campos de más** → el filtro de consentimiento se aplica en el generador, nunca en el frontend; prueba de regresión en CI

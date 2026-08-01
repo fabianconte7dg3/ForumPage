@@ -1,6 +1,6 @@
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import type { Becario, RegistrosAcademico, Recuperacion, Media } from '@/payload-types'
+import type { Becario, RegistrosAcademico, Recuperacion } from '@/payload-types'
 import { defaultLocale, type Locale } from '@/i18n'
 import { formatearFecha } from '@/lib/format'
 import { BotonVerDocumento } from '@/components/staff/BotonVerDocumento'
@@ -75,7 +75,7 @@ export async function TabAcademico({ becario, locale }: { becario: Becario; loca
           <ul className="space-y-4">
             {registros.map((reg) => {
               const reprobadas = reg.materias_reprobadas ?? []
-              const docUrl = reg.documento && typeof reg.documento === 'object' ? (reg.documento as Media).url : null
+              const docUrl = reg.documento && typeof reg.documento === 'object' ? reg.documento.url : null
               const isPendiente = reg.estado_verificacion === 'pendiente'
 
               return (
@@ -135,7 +135,7 @@ export async function TabAcademico({ becario, locale }: { becario: Becario; loca
         ) : (
           <ul className="space-y-4">
             {recuperaciones.map((rec) => {
-              const docUrl = rec.evidencia && typeof rec.evidencia === 'object' ? (rec.evidencia as Media).url : null
+              const docUrl = rec.evidencia && typeof rec.evidencia === 'object' ? rec.evidencia.url : null
               const isPendiente = rec.estado === 'pendiente'
 
               return (

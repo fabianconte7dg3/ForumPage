@@ -349,7 +349,6 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
           },
           proyectos: proyectosActivosList.slice(0, 5),
           destinos: destinos,
-          paisesCount: paisesUnicos.size,
           textos: {
             scholarOfTheTerm: t.scholarOfTheTerm,
             classOf: t.classOf,

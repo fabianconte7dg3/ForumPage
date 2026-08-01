@@ -158,7 +158,10 @@ export const Recuperaciones: CollectionConfig = {
     {
       name: 'evidencia',
       type: 'upload',
-      relationTo: 'media',
+      // Nunca 'media' (read: () => true): una recuperación implica que el
+      // becario estuvo suspendido, y ese estado no se hace público ni de
+      // forma agregada.
+      relationTo: 'documentos-privados',
     },
     {
       name: 'estado',
