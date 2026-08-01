@@ -26,8 +26,6 @@ export async function verificarAcademico(
   try {
     // Forzamos un req mock con el usuario para que pasen los access controls y
     // los hooks que dependen de req.user (ej. autocompletarVerificacion, registrarAuditoria)
-    const reqMock = { user: usuario, payload } as any
-
     const dataUpdate: any = {
       estado_verificacion: 'verificado', // para registros-academicos
       estado: 'verificado',              // para recuperaciones
@@ -44,7 +42,7 @@ export async function verificarAcademico(
       id,
       data: dataUpdate,
       overrideAccess: false,
-      req: reqMock,
+      user: usuario,
     })
 
     // Revalidar la página del becario

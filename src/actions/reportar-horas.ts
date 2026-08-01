@@ -97,7 +97,7 @@ export async function reportarHoras(formData: FormData): Promise<ResultadoReport
       fecha: fechaDate.toISOString(),
       horas,
     } as any,
-    overrideAccess: true,
+    user: usuario,
   })
 
   return { ok: true }

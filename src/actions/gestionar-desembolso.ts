@@ -19,14 +19,12 @@ export async function gestionarDesembolso(
   const payload = await getPayload({ config })
 
   try {
-    const reqMock = { user: usuario, payload } as any
-
     await payload.update({
       collection: 'desembolsos',
       id,
       data: { estado: nuevoEstado },
       overrideAccess: false,
-      req: reqMock,
+      user: usuario,
     })
 
     revalidatePath(`/${locale}/staff/${becarioId}`)

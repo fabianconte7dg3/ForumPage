@@ -19,8 +19,6 @@ export async function crearRegistroAcademico(
   const payload = await getPayload({ config })
 
   try {
-    const reqMock = { user: usuario, payload } as any
-
     await payload.create({
       collection: 'registros-academicos',
       data: { 
@@ -30,7 +28,7 @@ export async function crearRegistroAcademico(
         estado_verificacion: 'pendiente'
       } as any,
       overrideAccess: false,
-      req: reqMock,
+      user: usuario,
     })
 
     revalidatePath(`/${locale}/staff/${becarioId}`)

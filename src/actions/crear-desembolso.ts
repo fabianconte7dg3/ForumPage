@@ -17,11 +17,13 @@ export async function crearDesembolso(
     return { error: 'No autorizado' }
   }
 
+  if (typeof monto !== 'number' || Number.isNaN(monto) || monto <= 0 || monto > 10000) {
+    return { error: 'Monto inválido. Debe ser mayor a 0 y razonable.' }
+  }
+
   const payload = await getPayload({ config })
 
   try {
-    const reqMock = { user: usuario, payload } as any
-
     await payload.create({
       collection: 'desembolsos',
       data: { 
@@ -33,7 +35,7 @@ export async function crearDesembolso(
         estado: 'pagado'
       } as any,
       overrideAccess: false,
-      req: reqMock,
+      user: usuario,
     })
 
     revalidatePath(`/${locale}/staff/${becarioId}`)
