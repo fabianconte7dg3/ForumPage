@@ -20,6 +20,7 @@ const TEXTOS = {
   es: {
     volver: '← Volver al panel',
     subtitulo: 'Expediente del Becario',
+    comunidad: 'Origen',
     universidad: 'Universidad',
     carrera: 'Carrera',
     anio: 'Año',
@@ -27,12 +28,13 @@ const TEXTOS = {
     estadoActivo: 'Activo',
     estadoSuspendido: 'Suspendido',
     estadoGraduado: 'Graduado',
-    estadoRetornado: 'Retornado',
-    estadoRetirado: 'Retirado',
+    retornado: 'Retornado',
+    retirado: 'Retirado',
   },
   en: {
     volver: '← Back to panel',
     subtitulo: 'Becario Record',
+    comunidad: 'Origin',
     universidad: 'University',
     carrera: 'Major',
     anio: 'Year',
@@ -40,8 +42,8 @@ const TEXTOS = {
     estadoActivo: 'Active',
     estadoSuspendido: 'Suspended',
     estadoGraduado: 'Graduated',
-    estadoRetornado: 'Returned',
-    estadoRetirado: 'Withdrawn',
+    retornado: 'Returned',
+    retirado: 'Withdrawn',
   },
 } as const
 
@@ -87,9 +89,11 @@ export default async function ExpedienteBecarioPage({
     activo: t.estadoActivo,
     suspendido: t.estadoSuspendido,
     graduado: t.estadoGraduado,
-    retornado: t.estadoRetornado,
-    retirado: t.estadoRetirado,
+    retornado: t.retornado,
+    retirado: t.retirado,
   }
+
+  const comunidadNombre = typeof becario.comunidad === 'object' ? becario.comunidad?.nombre : null
 
   return (
     <div className="mx-auto max-w-(--container-content) px-4 py-12 md:px-16 md:py-24">
@@ -112,6 +116,9 @@ export default async function ExpedienteBecarioPage({
         </div>
         
         <div className="mt-4 flex flex-wrap gap-4 font-dato text-xs text-piedra">
+          {comunidadNombre && (
+            <span><span className="uppercase tracking-widest">{t.comunidad}:</span> {comunidadNombre}</span>
+          )}
           {becario.universidad && (
             <span><span className="uppercase tracking-widest">{t.universidad}:</span> {becario.universidad}</span>
           )}
