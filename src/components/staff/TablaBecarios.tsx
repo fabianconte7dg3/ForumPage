@@ -2,15 +2,18 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { FormularioNuevoBecario } from '@/components/staff/FormularioNuevoBecario'
 import type { Becario } from '@/payload-types'
 import type { Locale } from '@/i18n'
 
 type HorasData = { pendientes: number; aprobadas: number }
+type ComunidadSimple = { id: number; nombre: string }
 
 type Props = {
   locale: Locale
   becarios: Becario[]
   horasPorBecario: Record<number, HorasData>
+  comunidades?: ComunidadSimple[]
   textos: {
     buscarPlaceholder: string
     columnasBecario: string
@@ -37,7 +40,7 @@ const ESTADO_ESTILO: Record<Becario['estado'], string> = {
   suspendido: 'border-cosecha bg-cosecha/10 text-cosecha',
 }
 
-export function TablaBecarios({ locale, becarios, horasPorBecario, textos: t }: Props) {
+export function TablaBecarios({ locale, becarios, horasPorBecario, comunidades = [], textos: t }: Props) {
   const [query, setQuery] = useState('')
 
   const ESTADO_LABEL: Record<Becario['estado'], string> = {
@@ -54,7 +57,7 @@ export function TablaBecarios({ locale, becarios, horasPorBecario, textos: t }: 
 
   return (
     <div>
-      <div className="mb-6">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <input
           type="text"
           placeholder={t.buscarPlaceholder}
@@ -62,6 +65,7 @@ export function TablaBecarios({ locale, becarios, horasPorBecario, textos: t }: 
           onChange={(e) => setQuery(e.target.value)}
           className="w-full max-w-md rounded-sm border border-piedra/25 px-4 py-2 font-lectura text-sm outline-none transition-colors focus:border-montana"
         />
+        <FormularioNuevoBecario locale={locale} comunidades={comunidades} />
       </div>
 
       {becariosFiltrados.length === 0 ? (

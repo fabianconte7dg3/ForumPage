@@ -80,6 +80,17 @@ export default async function StaffDashboardPage({
 
   const payload = await getPayload({ config })
 
+  // Comunidades simples para el selector del formulario
+  const comunidadesDocs = (
+    await payload.find({
+      collection: 'comunidades',
+      limit: 200,
+      sort: 'nombre',
+      overrideAccess: true,
+    })
+  ).docs
+  const comunidades = comunidadesDocs.map((c) => ({ id: c.id, nombre: c.nombre }))
+
   // Todos los becarios
   const becarios = (
     await payload.find({
@@ -163,6 +174,7 @@ export default async function StaffDashboardPage({
             locale={locale} 
             becarios={becarios} 
             horasPorBecario={horasObj} 
+            comunidades={comunidades}
             textos={t} 
           />
         </>
