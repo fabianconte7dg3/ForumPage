@@ -40,7 +40,7 @@ export function FormularioNuevoAcademico({
         
         const uploadData = await uploadRes.json()
         documentoId = uploadData.doc.id
-      } catch (err) {
+      } catch {
         setIsUploading(false)
         setError('Error al subir el archivo. Revisa el tamaño o intenta de nuevo.')
         return

@@ -87,7 +87,7 @@ export function ImpactoOverview({
               {becario.nombre}
             </h2>
             <p className="mb-8 font-lectura text-lg text-tinta/80 max-w-xl">
-              {becario.carrera}, {becario.universidad}. {t.classOf} {becario.clase}. "{becario.cita}"
+              {becario.carrera}, {becario.universidad}. {t.classOf} {becario.clase}. &ldquo;{becario.cita}&rdquo;
             </p>
             <div>
               <button

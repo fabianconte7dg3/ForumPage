@@ -1,7 +1,10 @@
-import type { Becario, Media } from '@/payload-types'
+import { getPayload } from 'payload'
+
+import type { Becario, Media, RegistrosAcademico } from '@/payload-types'
 import { defaultLocale, type Locale } from '@/i18n'
 import { NotaInternaEditor } from '@/components/staff/NotaInternaEditor'
 import { BotonVerDocumento } from '@/components/staff/BotonVerDocumento'
+import config from '@/payload.config'
 
 const TEXTOS = {
   es: {
@@ -10,6 +13,7 @@ const TEXTOS = {
     documentosTitulo: 'Documentación Socioeconómica',
     documentosDesc: 'Respaldos adjuntos al expediente del becario (Recibos, encuestas, etc).',
     sinDocumento: 'No hay documento socioeconómico adjunto.',
+    sinRegistro: 'Este becario no tiene registros académicos. La nota interna se escribe sobre un registro académico.',
   },
   en: {
     notaTitulo: 'Internal Evaluation (Staff Only)',
@@ -17,12 +21,26 @@ const TEXTOS = {
     documentosTitulo: 'Socioeconomic Documentation',
     documentosDesc: 'Backups attached to the becario record (Receipts, surveys, etc).',
     sinDocumento: 'No socioeconomic document attached.',
+    sinRegistro: 'This becario has no academic records. The internal note is written on an academic record.',
   }
 } as const
 
 export async function TabPrivado({ becario, locale }: { becario: Becario; locale: Locale }) {
   const t = TEXTOS[locale] ?? TEXTOS[defaultLocale]
-  
+  const payload = await getPayload({ config })
+
+  // nota_interna_evaluacion vive en RegistrosAcademicos (línea 206), no en
+  // Becarios — ver 01-documento-de-proyecto.md §10 "Reglas a nivel de campo".
+  // Traemos el registro más reciente para mostrar/editar la nota.
+  const registrosRes = await payload.find({
+    collection: 'registros-academicos',
+    where: { becario: { equals: becario.id } },
+    sort: '-createdAt',
+    limit: 1,
+    overrideAccess: true,
+  })
+  const ultimoRegistro = registrosRes.docs[0] as RegistrosAcademico | undefined
+
   const docUrl = becario.documentacion_socioeconomica && typeof becario.documentacion_socioeconomica === 'object' 
     ? (becario.documentacion_socioeconomica as Media).url 
     : null
@@ -35,11 +53,15 @@ export async function TabPrivado({ becario, locale }: { becario: Becario; locale
           <p className="mt-1 font-lectura text-sm text-tinta/70">{t.notaDesc}</p>
         </div>
         
-        <NotaInternaEditor 
-          valorInicial={becario.nota_interna_evaluacion ?? ''} 
-          locale={locale} 
-          becarioId={becario.id} 
-        />
+        {ultimoRegistro ? (
+          <NotaInternaEditor 
+            valorInicial={ultimoRegistro.nota_interna_evaluacion ?? ''} 
+            locale={locale} 
+            registroId={ultimoRegistro.id} 
+          />
+        ) : (
+          <p className="font-lectura text-sm text-tinta/70">{t.sinRegistro}</p>
+        )}
       </section>
 
       <section>

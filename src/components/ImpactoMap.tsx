@@ -267,7 +267,7 @@ export function ImpactoMap({
         mapa.getCanvas().style.cursor = ''
       })
       mapa.on('click', 'becarios-destinos-layer', (e: MapLayerMouseEvent) => {
-        const feature = e.features?.[0] as any
+        const feature = e.features?.[0] as unknown as { properties: BecarioFeature } | undefined
         if (!feature) return
         setSeleccion({ tipo: 'becario', data: feature.properties })
       })

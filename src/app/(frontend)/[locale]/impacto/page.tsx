@@ -2,11 +2,11 @@ import { getPayload } from 'payload'
 
 import { ImpactoMapLoader } from '@/components/ImpactoMapLoader'
 import { ImpactoTabs } from '@/components/ImpactoTabs'
-import { ImpactoOverview, type ProyectoActivo, type DestinoEstudio, type BecarioDestacado } from '@/components/ImpactoOverview'
+import type { ProyectoActivo, DestinoEstudio, BecarioDestacado } from '@/components/ImpactoOverview'
 import type { ComunidadFeature, SedeFeature } from '@/components/ImpactoMap'
 import { defaultLocale, type Locale } from '@/i18n'
 import config from '@/payload.config'
-import type { Actividad, Comunidad, Programa, Proyecto, Sede } from '@/payload-types'
+import type { Actividad, Becario, Comunidad, Programa, Proyecto, Sede } from '@/payload-types'
 
 const ESTADOS = {
   es: { propuesto: 'Propuesto', aprobado: 'Aprobado', en_ejecucion: 'En ejecución', completado: 'Completado' },
@@ -217,32 +217,30 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
       }
     })
 
-  const proyectosActivos = (proyectos.docs as Proyecto[]).filter(
-    (p) => p.estado === 'en_ejecucion' || p.estado === 'aprobado',
-  ).length
-  const obrasCompletadas = (proyectos.docs as Proyecto[]).filter((p) => p.estado === 'completado').length
+  const becariosDocsActivos = becariosActivosTodos.docs as Becario[]
 
-  const becariosDocsActivos = becariosActivosTodos.docs as any[]
-  
-  const becariosMapDocs = becariosDocsActivos.filter(b => b.mostrar_en_mapa && b.tipo_estudio === 'internacional')
-  
-  const becariosFeatures = becariosMapDocs
-    .filter((b) => b.coordenadas_estudio?.lat && b.coordenadas_estudio?.lng && typeof b.comunidad === 'object' && b.comunidad?.coordenadas)
-    .map((b) => {
-      const comCoord = b.comunidad.coordenadas
-      const estCoord = b.coordenadas_estudio
-      return {
+  // flatMap en vez de filter().map(): el guard adentro del callback sí estrecha
+  // `comunidad` (number | Comunidad) y las coordenadas opcionales — con
+  // filter() por separado TypeScript no arrastra el narrowing al map().
+  const becariosFeatures = becariosDocsActivos.flatMap((b) => {
+    if (!b.mostrar_en_mapa || b.tipo_estudio !== 'internacional') return []
+    const comunidad = typeof b.comunidad === 'object' ? b.comunidad : undefined
+    const est = b.coordenadas_estudio
+    if (!comunidad?.coordenadas || !est?.lat || !est?.lng) return []
+    return [
+      {
         id: b.id,
         nombre: b.nombre,
-        carrera: b.carrera,
-        universidad: b.universidad,
-        pais_estudio: b.pais_estudio,
-        ciudad_estudio: b.ciudad_estudio,
-        comunidad_nombre: b.comunidad.nombre,
-        origen: [comCoord.lng, comCoord.lat] as [number, number],
-        destino: [estCoord.lng, estCoord.lat] as [number, number],
-      }
-    })
+        carrera: b.carrera ?? '',
+        universidad: b.universidad ?? '',
+        pais_estudio: b.pais_estudio ?? '',
+        ciudad_estudio: b.ciudad_estudio ?? '',
+        comunidad_nombre: comunidad.nombre,
+        origen: [comunidad.coordenadas.lng, comunidad.coordenadas.lat] as [number, number],
+        destino: [est.lng, est.lat] as [number, number],
+      },
+    ]
+  })
 
   const becarioDestacadoRaw = becariosDocsActivos.find((b) => b.cita && typeof b.foto === 'object' && b.foto?.url)
   const becarioDestacado: BecarioDestacado | null = becarioDestacadoRaw ? {
@@ -251,10 +249,10 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
     carrera: becarioDestacadoRaw.carrera ?? '',
     universidad: becarioDestacadoRaw.universidad ?? '',
     clase: (becarioDestacadoRaw.anio_inicio ? becarioDestacadoRaw.anio_inicio + 4 : new Date().getFullYear() + 2).toString(),
-    cita: becarioDestacadoRaw.cita,
-    fotoUrl: typeof becarioDestacadoRaw.foto === 'object' ? becarioDestacadoRaw.foto?.url : null,
-    comunidad: typeof becarioDestacadoRaw.comunidad === 'object' ? becarioDestacadoRaw.comunidad.nombre : '',
-    destino: becarioDestacadoRaw.tipo_estudio === 'internacional' ? becarioDestacadoRaw.pais_estudio : 'Panamá',
+    cita: becarioDestacadoRaw.cita ?? '',
+    fotoUrl: (typeof becarioDestacadoRaw.foto === 'object' ? becarioDestacadoRaw.foto?.url : null) ?? null,
+    comunidad: typeof becarioDestacadoRaw.comunidad === 'object' ? (becarioDestacadoRaw.comunidad?.nombre ?? '') : '',
+    destino: (becarioDestacadoRaw.tipo_estudio === 'internacional' ? becarioDestacadoRaw.pais_estudio : 'Panamá') ?? '',
   } : null
 
   const proyectosActivosList: ProyectoActivo[] = []

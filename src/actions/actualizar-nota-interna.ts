@@ -5,8 +5,10 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
 
+// nota_interna_evaluacion vive en RegistrosAcademicos.ts:206, no en Becarios.
+// Ver 01-documento-de-proyecto.md §10 "Reglas a nivel de campo".
 export async function actualizarNotaInterna(
-  becarioId: number,
+  registroId: number,
   nuevaNota: string,
   locale: string
 ) {
@@ -18,17 +20,15 @@ export async function actualizarNotaInterna(
   const payload = await getPayload({ config })
 
   try {
-    const reqMock = { user: usuario, payload } as any
-
     await payload.update({
-      collection: 'becarios',
-      id: becarioId,
+      collection: 'registros-academicos',
+      id: registroId,
       data: { nota_interna_evaluacion: nuevaNota },
       overrideAccess: false,
-      req: reqMock,
+      user: usuario,
     })
 
-    revalidatePath(`/${locale}/staff/${becarioId}`)
+    revalidatePath(`/${locale}/staff`)
     return { success: true }
   } catch (error) {
     console.error(`Error actualizando nota interna:`, error)

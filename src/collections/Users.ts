@@ -163,29 +163,25 @@ async function reemitirTokenConDuracionPorRol(
 // cookie real (el token de la contraseña ya estaba listo desde el paso 1,
 // solo se retiene hasta confirmar el segundo factor).
 const iniciarSesion: PayloadHandler = async (req) => {
-  const contentType = req.headers.get('content-type') || '';
-  let body: any;
+  const contentType = req.headers.get('content-type') || ''
+  let body: any
   try {
-    const rawText = await req.text();
     if (contentType.includes('multipart/form-data')) {
-      // El panel admin de Payload envía los datos como multipart/form-data
-      // con un campo llamado "_payload" que contiene el JSON como string.
-      const boundaryMatch = contentType.match(/boundary=([^\s;]+)/);
-      if (boundaryMatch) {
-        const boundary = boundaryMatch[1];
-        // Buscar el campo _payload en el cuerpo del form
-        const payloadFieldMatch = rawText.match(/name="_payload"\r?\n\r?\n([\s\S]*?)(?:\r?\n)?--/);
-        if (payloadFieldMatch) {
-          body = JSON.parse(payloadFieldMatch[1].trim());
-        }
+      // El panel admin de Payload envía multipart con un campo "_payload"
+      // que contiene el JSON como string.
+      const formData = await req.formData?.()
+      const payloadField = formData?.get('_payload')
+      if (typeof payloadField === 'string') {
+        body = JSON.parse(payloadField)
       }
     } else if (contentType.includes('application/x-www-form-urlencoded')) {
-      body = Object.fromEntries(new URLSearchParams(rawText));
+      const rawText = await req.text?.() ?? ''
+      body = Object.fromEntries(new URLSearchParams(rawText))
     } else {
       // application/json (llamadas directas al API, curl, etc.)
-      body = rawText ? JSON.parse(rawText) : undefined;
+      body = await req.json?.()
     }
-  } catch (e) {
+  } catch {
     // Ignorar error de parsing
   }
 

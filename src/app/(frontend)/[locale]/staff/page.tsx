@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 
@@ -62,20 +61,12 @@ const TEXTOS = {
   },
 } satisfies Record<Locale, Record<string, string>>
 
-const ESTADO_ESTILO: Record<Becario['estado'], string> = {
-  activo: 'border-montana/40 bg-montana/10 text-montana',
-  graduado: 'border-rio/40 bg-rio/10 text-rio',
-  retornado: 'border-piedra/25 text-piedra',
-  retirado: 'border-piedra/25 text-piedra line-through',
-  suspendido: 'border-cosecha bg-cosecha/10 text-cosecha',
-}
-
-export default async function StaffDashboardPage({ 
+export default async function StaffDashboardPage({
   params,
   searchParams 
 }: { 
   params: Promise<{ locale: Locale }>
-  searchParams: Promise<{ tab?: string }> 
+  searchParams: Promise<{ tab?: string; p?: string }> 
 }) {
   const { locale } = await params
   const { tab = 'becarios', p = '1' } = await searchParams

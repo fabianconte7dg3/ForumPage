@@ -90,7 +90,6 @@ export async function reportarHoras(formData: FormData): Promise<ResultadoReport
   // correcto, y el defaultValue de `estado` lo pone en `pendiente`.
   await payload.create({
     collection: 'horas-labor-social',
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Payload draft typing quirk
     data: {
       becario: becarioId,
       descripcion: actividad,

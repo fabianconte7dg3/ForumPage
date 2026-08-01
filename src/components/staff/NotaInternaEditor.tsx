@@ -6,11 +6,11 @@ import { actualizarNotaInterna } from '@/actions/actualizar-nota-interna'
 export function NotaInternaEditor({ 
   valorInicial,
   locale, 
-  becarioId 
+  registroId 
 }: { 
   valorInicial: string,
   locale: string, 
-  becarioId: number 
+  registroId: number 
 }) {
   const [nota, setNota] = useState(valorInicial)
   const [isPending, startTransition] = useTransition()
@@ -21,7 +21,7 @@ export function NotaInternaEditor({
 
     setMensaje(null)
     startTransition(async () => {
-      const res = await actualizarNotaInterna(becarioId, nota, locale)
+      const res = await actualizarNotaInterna(registroId, nota, locale)
       if (res.error) {
         setMensaje({ tipo: 'error', texto: res.error })
       } else {

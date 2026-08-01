@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic'
 
-import type { ComunidadFeature, SedeFeature, Textos } from '@/components/ImpactoMap'
+import type { BecarioFeature, ComunidadFeature, SedeFeature, Textos } from '@/components/ImpactoMap'
 
 const ImpactoMap = dynamic(() => import('@/components/ImpactoMap').then((m) => m.ImpactoMap), {
   ssr: false,
@@ -10,7 +10,7 @@ const ImpactoMap = dynamic(() => import('@/components/ImpactoMap').then((m) => m
 })
 
 export function ImpactoMapLoader(props: {
-  becarios: any[]
+  becarios: BecarioFeature[]
   comunidades: ComunidadFeature[]
   sedes: SedeFeature[]
   programas: { id: number; nombre: string; color: string }[]

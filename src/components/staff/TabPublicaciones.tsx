@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { Actividad, Comunidad } from '@/payload-types'
+import type { Actividad } from '@/payload-types'
 import { formatearFecha } from '@/lib/format'
 
 type Props = {
