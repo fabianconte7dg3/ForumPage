@@ -12,6 +12,7 @@ import { TabLaborSocial } from '@/components/staff/TabLaborSocial'
 import { TabAcademico } from '@/components/staff/TabAcademico'
 import { TabDesembolsos } from '@/components/staff/TabDesembolsos'
 import { TabPrivado } from '@/components/staff/TabPrivado'
+import { FormularioEditarBecario } from '@/components/staff/FormularioEditarBecario'
 
 export const dynamic = 'force-dynamic'
 
@@ -72,6 +73,16 @@ export default async function ExpedienteBecarioPage({
     notFound()
   }
 
+  const comunidadesDocs = (
+    await payload.find({
+      collection: 'comunidades',
+      limit: 200,
+      sort: 'nombre',
+      overrideAccess: true,
+    })
+  ).docs
+  const comunidades = comunidadesDocs.map((c) => ({ id: c.id, nombre: c.nombre }))
+
   const ESTADO_BECA_LABEL = {
     activo: t.estadoActivo,
     suspendido: t.estadoSuspendido,
@@ -92,10 +103,15 @@ export default async function ExpedienteBecarioPage({
 
       {/* Header Fijo */}
       <header className="mb-8 border-b border-piedra/25 pb-6">
-        <p className="font-dato text-xs uppercase tracking-widest text-piedra">{t.subtitulo}</p>
-        <h1 className="mt-1 font-display text-2xl font-bold uppercase text-tinta md:text-3xl">{becario.nombre}</h1>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-dato text-xs uppercase tracking-widest text-piedra">{t.subtitulo}</p>
+            <h1 className="mt-1 font-display text-2xl font-bold uppercase text-tinta md:text-3xl">{becario.nombre}</h1>
+          </div>
+          <FormularioEditarBecario locale={locale} becario={becario} comunidades={comunidades} />
+        </div>
         
-        <div className="mt-2 flex flex-wrap gap-4 font-dato text-xs text-piedra">
+        <div className="mt-4 flex flex-wrap gap-4 font-dato text-xs text-piedra">
           {becario.universidad && (
             <span><span className="uppercase tracking-widest">{t.universidad}:</span> {becario.universidad}</span>
           )}
@@ -107,7 +123,7 @@ export default async function ExpedienteBecarioPage({
           )}
           <span>
             <span className="uppercase tracking-widest">{t.estadoBeca}:</span>{' '}
-            <span className={becario.estado === 'activo' ? 'text-montana' : 'text-cosecha'}>
+            <span className={becario.estado === 'activo' ? 'text-montana font-bold' : 'text-cosecha font-bold'}>
               {ESTADO_BECA_LABEL[becario.estado]}
             </span>
           </span>
