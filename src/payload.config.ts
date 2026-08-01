@@ -26,6 +26,7 @@ import { Recuperaciones } from './collections/Recuperaciones'
 import { HorasLaborSocial } from './collections/HorasLaborSocial'
 import { Desembolsos } from './collections/Desembolsos'
 import { Equipo } from './collections/Equipo'
+import { DocumentosPrivados } from './collections/DocumentosPrivados'
 import { Configuracion } from './globals/Configuracion'
 import { Nosotros } from './globals/Nosotros'
 
@@ -48,6 +49,7 @@ export default buildConfig({
   collections: [
     Users,
     Media,
+    DocumentosPrivados,
     Auditoria,
     Becarios,
     Comunidades,

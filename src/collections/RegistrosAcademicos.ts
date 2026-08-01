@@ -172,7 +172,7 @@ export const RegistrosAcademicos: CollectionConfig = {
     {
       name: 'documento',
       type: 'upload',
-      relationTo: 'media',
+      relationTo: 'documentos-privados',
     },
     {
       name: 'estado_verificacion',

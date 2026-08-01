@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    'documentos-privados': DocumentosPrivado;
     auditoria: Auditoria;
     becarios: Becario;
     comunidades: Comunidad;
@@ -97,6 +98,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    'documentos-privados': DocumentosPrivadosSelect<false> | DocumentosPrivadosSelect<true>;
     auditoria: AuditoriaSelect<false> | AuditoriaSelect<true>;
     becarios: BecariosSelect<false> | BecariosSelect<true>;
     comunidades: ComunidadesSelect<false> | ComunidadesSelect<true>;
@@ -261,9 +263,9 @@ export interface Becario {
    */
   condicion_socioeconomica_verificada?: boolean | null;
   /**
-   * Acceso restringido al staff evaluador — ni la directiva ni el becario lo ven
+   * Documentación de respaldo (ej. recibos de luz, agua, constancia de ingresos)
    */
-  documentacion_socioeconomica?: (number | null) | Media;
+  documentacion_socioeconomica?: (number | null) | DocumentosPrivado;
   updatedAt: string;
   createdAt: string;
 }
@@ -338,6 +340,36 @@ export interface Media {
       filename?: string | null;
     };
     og?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documentos-privados".
+ */
+export interface DocumentosPrivado {
+  id: number;
+  alt: string;
+  uploadedBy?: (number | null) | User;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
       url?: string | null;
       width?: number | null;
       height?: number | null;
@@ -645,7 +677,7 @@ export interface RegistrosAcademico {
    * Índice académico del período
    */
   indice?: number | null;
-  documento?: (number | null) | Media;
+  documento?: (number | null) | DocumentosPrivado;
   estado_verificacion: 'pendiente' | 'verificado';
   /**
    * Se completa solo al verificar
@@ -697,7 +729,7 @@ export interface HoraLaborSocial {
   fecha: string;
   horas: number;
   descripcion?: string | null;
-  evidencia?: (number | null) | Media;
+  evidencia?: (number | null) | DocumentosPrivado;
   estado: 'pendiente' | 'aprobada' | 'rechazada';
   /**
    * Se completa solo al aprobar o rechazar
@@ -780,6 +812,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'documentos-privados';
+        value: number | DocumentosPrivado;
       } | null)
     | ({
         relationTo: 'auditoria';
@@ -981,6 +1017,39 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
         og?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documentos-privados_select".
+ */
+export interface DocumentosPrivadosSelect<T extends boolean = true> {
+  alt?: T;
+  uploadedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
           | T
           | {
               url?: T;

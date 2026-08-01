@@ -108,7 +108,7 @@ export const HorasLaborSocial: CollectionConfig = {
     {
       name: 'evidencia',
       type: 'upload',
-      relationTo: 'media',
+      relationTo: 'documentos-privados',
     },
     {
       name: 'estado',

@@ -43,3 +43,14 @@ export const esStaffOSuperiorFieldAccess: FieldAccess = ({ req }) =>
 // directiva sí lo ve, porque su rol ya es de lectura total sobre el sistema.
 export const esStaffDirectivaOAdminFieldAccess: FieldAccess = ({ req }) =>
   ['staff', 'directiva', 'admin'].includes(rolDe(req.user as User | null) ?? '')
+
+// Para documentos subidos a colecciones privadas: el staff y admin tienen acceso total.
+// Los becarios solo pueden leer los documentos que ellos mismos subieron.
+export const soloPropioOStaff: Access = ({ req }) => {
+  const rol = rolDe(req.user as User | null)
+  if (['staff', 'admin'].includes(rol ?? '')) return true
+  if (req.user) {
+    return { uploadedBy: { equals: req.user.id } }
+  }
+  return false
+}

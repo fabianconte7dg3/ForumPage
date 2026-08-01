@@ -1,6 +1,6 @@
 import type { Access, CollectionBeforeChangeHook, CollectionConfig, FieldAccess, Where } from 'payload'
 
-import { esStaffOSuperior, esStaffOSuperiorFieldAccess, idDeRelacion } from '@/access'
+import { esStaffOSuperior, esStaffOSuperiorFieldAccess, esStaffDirectivaOAdminFieldAccess, idDeRelacion } from '@/access'
 import type { Becario, User } from '@/payload-types'
 
 const rolDe = (user: User | null) => user?.rol
@@ -235,9 +235,13 @@ export const Becarios: CollectionConfig = {
     {
       name: 'documentacion_socioeconomica',
       type: 'upload',
-      relationTo: 'media',
-      admin: { description: 'Acceso restringido al staff evaluador — ni la directiva ni el becario lo ven' },
-      access: { create: esStaffOSuperiorFieldAccess, read: esStaffOSuperiorFieldAccess, update: esStaffOSuperiorFieldAccess },
+      relationTo: 'documentos-privados',
+      admin: {
+        description: 'Documentación de respaldo (ej. recibos de luz, agua, constancia de ingresos)',
+      },
+      access: {
+        read: esStaffDirectivaOAdminFieldAccess,
+      },
     },
   ],
 }

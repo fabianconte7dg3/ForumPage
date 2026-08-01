@@ -13,6 +13,7 @@ import * as migration_20260730_055512_agregar_necesidades from './20260730_05551
 import * as migration_20260730_062005_agregar_prioridad_orden from './20260730_062005_agregar_prioridad_orden';
 import * as migration_20260730_165012_agregar_nosotros_equipo from './20260730_165012_agregar_nosotros_equipo';
 import * as migration_20260730_170617_agregar_fotos_nosotros from './20260730_170617_agregar_fotos_nosotros';
+import * as migration_20260801_190433 from './20260801_190433';
 
 export const migrations = [
   {
@@ -88,6 +89,11 @@ export const migrations = [
   {
     up: migration_20260730_170617_agregar_fotos_nosotros.up,
     down: migration_20260730_170617_agregar_fotos_nosotros.down,
-    name: '20260730_170617_agregar_fotos_nosotros'
+    name: '20260730_170617_agregar_fotos_nosotros',
+  },
+  {
+    up: migration_20260801_190433.up,
+    down: migration_20260801_190433.down,
+    name: '20260801_190433'
   },
 ];
