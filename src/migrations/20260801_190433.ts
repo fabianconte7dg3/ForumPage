@@ -85,15 +85,19 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   ALTER TABLE "documentos_privados_locales" DISABLE ROW LEVEL SECURITY;
   DROP TABLE "documentos_privados" CASCADE;
   DROP TABLE "documentos_privados_locales" CASCADE;
-  ALTER TABLE "becarios" DROP CONSTRAINT "becarios_documentacion_socioeconomica_id_documentos_privados_id_fk";
-  
-  ALTER TABLE "registros_academicos" DROP CONSTRAINT "registros_academicos_documento_id_documentos_privados_id_fk";
-  
-  ALTER TABLE "horas_labor_social" DROP CONSTRAINT "horas_labor_social_evidencia_id_documentos_privados_id_fk";
-  
-  ALTER TABLE "payload_locked_documents_rels" DROP CONSTRAINT "payload_locked_documents_rels_documentos_privados_fk";
-  
-  DROP INDEX "payload_locked_documents_rels_documentos_privados_id_idx";
+  -- IF EXISTS en los DROP CONSTRAINT (añadido manualmente): el CASCADE de
+  -- arriba ya se llevó estas FK, así que el DROP explícito reventaba con
+  -- "constraint ... does not exist" y dejaba el rollback a medias. Sin esto
+  -- el down() no corre.
+  ALTER TABLE "becarios" DROP CONSTRAINT IF EXISTS "becarios_documentacion_socioeconomica_id_documentos_privados_id_fk";
+
+  ALTER TABLE "registros_academicos" DROP CONSTRAINT IF EXISTS "registros_academicos_documento_id_documentos_privados_id_fk";
+
+  ALTER TABLE "horas_labor_social" DROP CONSTRAINT IF EXISTS "horas_labor_social_evidencia_id_documentos_privados_id_fk";
+
+  ALTER TABLE "payload_locked_documents_rels" DROP CONSTRAINT IF EXISTS "payload_locked_documents_rels_documentos_privados_fk";
+
+  DROP INDEX IF EXISTS "payload_locked_documents_rels_documentos_privados_id_idx";
   ALTER TABLE "becarios" ADD CONSTRAINT "becarios_documentacion_socioeconomica_id_media_id_fk" FOREIGN KEY ("documentacion_socioeconomica_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "registros_academicos" ADD CONSTRAINT "registros_academicos_documento_id_media_id_fk" FOREIGN KEY ("documento_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "horas_labor_social" ADD CONSTRAINT "horas_labor_social_evidencia_id_media_id_fk" FOREIGN KEY ("evidencia_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
