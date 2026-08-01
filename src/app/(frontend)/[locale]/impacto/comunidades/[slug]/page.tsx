@@ -5,7 +5,7 @@ import { getPayload } from 'payload'
 import { ActividadCard } from '@/components/ActividadCard'
 import { defaultLocale, type Locale } from '@/i18n'
 import config from '@/payload.config'
-import type { Actividad, Comunidad, Proyecto } from '@/payload-types'
+import type { Actividad, Becario, Comunidad, Proyecto } from '@/payload-types'
 
 const ESTADOS = {
   es: {
@@ -68,7 +68,7 @@ export default async function ComunidadPage({
 
   const foto = typeof comunidad.foto === 'object' ? comunidad.foto : undefined
 
-  const [proyectos, actividades] = await Promise.all([
+  const [proyectos, actividades, becarios] = await Promise.all([
     payload.find({
       collection: 'proyectos',
       where: { comunidad: { equals: comunidad.id } },
@@ -84,6 +84,13 @@ export default async function ComunidadPage({
       limit: 6,
       depth: 1,
       locale,
+      overrideAccess: true,
+    }),
+    payload.find({
+      collection: 'becarios',
+      where: { comunidad: { equals: comunidad.id } },
+      sort: 'nombre',
+      limit: 20,
       overrideAccess: true,
     }),
   ])
@@ -133,6 +140,38 @@ export default async function ComunidadPage({
                   {t.avance}: {proyecto.avance ?? 0}%
                 </p>
               </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="mb-12">
+        <h2 className="mb-6 font-display text-xl font-bold uppercase text-montana">
+          {locale === 'es' ? 'Becarios de esta comunidad' : 'Scholars from this community'}
+        </h2>
+        {becarios.docs.length === 0 ? (
+          <p className="font-lectura text-sm text-tinta/70">
+            {locale === 'es'
+              ? 'Todavía no hay becarios asociados a esta comunidad.'
+              : 'No scholars recorded for this community yet.'}
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {(becarios.docs as Becario[]).map((b) => (
+              <div className="rounded-md border border-piedra/25 p-4 bg-white" key={b.id}>
+                <p className="font-display text-base font-bold text-montana">{b.nombre}</p>
+                {b.universidad && (
+                  <p className="mt-1 font-lectura text-sm text-tinta font-medium">{b.universidad}</p>
+                )}
+                {b.carrera && (
+                  <p className="font-lectura text-xs text-piedra">{b.carrera}</p>
+                )}
+                {b.tipo_estudio === 'internacional' && b.pais_estudio && (
+                  <span className="mt-2 inline-block rounded-sm bg-cosecha/10 px-2 py-0.5 font-dato text-[10px] font-bold uppercase tracking-wider text-cosecha">
+                    ✈ {b.pais_estudio}
+                  </span>
+                )}
+              </div>
             ))}
           </div>
         )}

@@ -7,10 +7,12 @@ const TABS = {
   es: [
     { id: 'becarios', label: 'Becarios' },
     { id: 'publicaciones', label: 'Publicaciones' },
+    { id: 'comunidades', label: 'Comunidades (Mapa)' },
   ],
   en: [
     { id: 'becarios', label: 'Becarios' },
     { id: 'publicaciones', label: 'Publications' },
+    { id: 'comunidades', label: 'Communities (Map)' },
   ],
 } as const
 

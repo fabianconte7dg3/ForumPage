@@ -5,10 +5,11 @@ import { BotonCerrarSesion } from '@/components/BotonCerrarSesion'
 import { TablaBecarios } from '@/components/staff/TablaBecarios'
 import { NavegacionStaff } from '@/components/staff/NavegacionStaff'
 import { TabPublicaciones } from '@/components/staff/TabPublicaciones'
+import { TabComunidades } from '@/components/staff/TabComunidades'
 import { defaultLocale, type Locale } from '@/i18n'
 import { sesionActual } from '@/lib/auth'
 import config from '@/payload.config'
-import type { Becario, HoraLaborSocial, Actividad } from '@/payload-types'
+import type { Becario, HoraLaborSocial, Actividad, Comunidad } from '@/payload-types'
 
 export const dynamic = 'force-dynamic'
 
@@ -188,6 +189,13 @@ export default async function StaffDashboardPage({
           totalPages={publicacionesResponse.totalPages}
           hasNextPage={publicacionesResponse.hasNextPage}
           hasPrevPage={publicacionesResponse.hasPrevPage}
+        />
+      )}
+
+      {tab === 'comunidades' && (
+        <TabComunidades 
+          locale={locale} 
+          comunidades={comunidadesDocs as Comunidad[]} 
         />
       )}
     </div>
