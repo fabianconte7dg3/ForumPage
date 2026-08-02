@@ -72,8 +72,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: L
   const t = TEXTOS[locale] ?? TEXTOS[defaultLocale]
   const payload = await getPayload({ config })
 
-  const [comunidades, proyectosCompletados, configuracion, actividades, proximasTutorias] = await Promise.all([
+  const [comunidades, becariosActivosRes, proyectosCompletados, configuracion, actividades, proximasTutorias, todosLosBecarios] = await Promise.all([
     payload.count({ collection: 'comunidades', overrideAccess: true }),
+    payload.count({ collection: 'becarios', where: { estado: { equals: 'activo' } }, overrideAccess: true }),
     payload.count({ collection: 'proyectos', where: { estado: { equals: 'completado' } }, overrideAccess: true }),
     payload.findGlobal({ slug: 'configuracion', overrideAccess: true }),
     payload.find({ collection: 'actividades', sort: '-fecha_publicacion', limit: 3, depth: 1, locale, overrideAccess: true }),
@@ -86,9 +87,23 @@ export default async function HomePage({ params }: { params: Promise<{ locale: L
       locale,
       overrideAccess: true,
     }),
+    payload.find({ collection: 'becarios', limit: 1000, overrideAccess: true }),
   ])
 
   const proximaTutoria = proximasTutorias.docs[0] as Tutoria | undefined
+
+  // Calcular número de países alcanzados dinámicamente
+  const paisesSet = new Set<string>()
+  paisesSet.add('Panamá')
+  for (const b of todosLosBecarios.docs) {
+    if (b.pais_estudio && b.pais_estudio.trim()) {
+      paisesSet.add(b.pais_estudio.trim())
+    }
+  }
+  const cantidadPaises = paisesSet.size
+
+  const becariosActivosCount = becariosActivosRes.totalDocs > 0 ? becariosActivosRes.totalDocs : todosLosBecarios.totalDocs
+  const fechaActualizacion = configuracion.fecha_actualizacion_impacto || new Date().toISOString()
 
   return (
     <>
@@ -105,15 +120,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: L
       {/* Cifras clave */}
       <section className="mx-auto max-w-(--container-content) px-4 py-16 md:px-16">
         <div className="grid grid-cols-2 gap-8 border-b border-piedra/25 pb-8 md:grid-cols-4">
-          <Cifra etiqueta={t.becariosActivos} valor="—" />
+          <Cifra etiqueta={t.becariosActivos} valor={String(becariosActivosCount)} />
           <Cifra etiqueta={t.comunidades} valor={String(comunidades.totalDocs)} />
-          <Cifra etiqueta={t.paises} valor="—" />
+          <Cifra etiqueta={t.paises} valor={String(cantidadPaises)} />
           <Cifra etiqueta={t.obrasCompletadas} valor={String(proyectosCompletados.totalDocs)} />
         </div>
         <p className="mt-4 font-dato text-xs text-tinta/50">
-          {configuracion.fecha_actualizacion_impacto
-            ? t.actualizado(formatearFecha(configuracion.fecha_actualizacion_impacto, locale))
-            : t.sinActualizar}
+          {t.actualizado(formatearFecha(fechaActualizacion, locale))}
         </p>
       </section>
 
