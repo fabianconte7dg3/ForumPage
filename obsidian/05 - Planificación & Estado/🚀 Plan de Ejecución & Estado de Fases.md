@@ -78,9 +78,11 @@ gantt
 
 ### Adicionales Institucionales (100% Completados)
 - [x] [[🏛️ Página Institucional Nosotros|Página /nosotros & Equipo]]: Integración de la vista `/nosotros` con el global `Nosotros` (misión e historia en RichText Lexical) y la colección `Equipo` (21ª colección, miembros del equipo y tarjeta destacada del fundador). Sembrado de datos reales vía `pnpm seed:nosotros`.
-- [x] **Herramientas de Operación del Staff en `/staff`**:
-  - Modal `+ Registrar Becario` y `✏ Edit Profil` con selector de nivel académico.
-  - Pestaña `COMUNIDADES (MAPA)` con modales `+ Nueva Comunidad` y `✏ Editar Comunidad` para administración de coordenadas GPS.
+- [x] **Herramientas de Operación Integral del Staff en `/staff` (100% Sin pasar por `/admin`)**:
+  - Pestaña `BECARIOS`: Modal `+ Registrar Becario` y `✏ Edit Profil` con selector de nivel académico y horas de labor social.
+  - Pestaña `PUBLICACIONES`: Redacción de artículos y actividades comunitarias.
+  - Pestaña `COMUNIDADES (MAPA)`: Modales `+ Nueva Comunidad` y `✏ Editar Comunidad` para administración de coordenadas GPS.
+  - Pestaña `PROYECTOS`: Modal `+ Nuevo Proyecto` y `✏ Editar / Avance` con slider (0-100%) para actualización en vivo del porcentaje de avance en el Mapa de Impacto.
   - Selector de autocompletado de **Destinos Internacionales Frecuentes** (*Bocconi, University of Florida, Navarra, Tec, Zamorano, EARTH*).
   - Tarjeta documental del becario internacional en el mapa con foto, cita inspiradora, insignias de trayectoria e i18n (`es`/`en`).
   - Integración de becarios originarios en la Ficha de la Comunidad (`/impacto/comunidades/[slug]`).

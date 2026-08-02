@@ -8,11 +8,13 @@ const TABS = {
     { id: 'becarios', label: 'Becarios' },
     { id: 'publicaciones', label: 'Publicaciones' },
     { id: 'comunidades', label: 'Comunidades (Mapa)' },
+    { id: 'proyectos', label: 'Proyectos' },
   ],
   en: [
     { id: 'becarios', label: 'Becarios' },
     { id: 'publicaciones', label: 'Publications' },
     { id: 'comunidades', label: 'Communities (Map)' },
+    { id: 'proyectos', label: 'Projects' },
   ],
 } as const
 

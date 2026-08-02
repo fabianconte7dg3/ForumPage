@@ -61,12 +61,13 @@ sequenceDiagram
 
 ---
 
-## 🛠️ Gestión Directa del Mapa por el Staff (`/staff?tab=comunidades`)
+## 🛠️ Gestión Directa del Mapa y Proyectos por el Staff (`/staff`)
 
-Para cumplir la **Regla Rector** (*"gestionar o publicar en menos de 3 minutos desde un móvil"*), el staff gestiona los puntos del mapa sin ingresar a `/admin`:
-- **Pestaña `COMUNIDADES (MAPA)`**: Lista navegable con coordenadas GPS, distritos y corregimientos.
-- **Modal `+ Nueva Comunidad`**: Permite agregar comunidades y asignar sus coordenadas Lat/Lng de inmediato.
-- **Modal `✏ Editar Comunidad`**: Permite actualizar ubicaciones GPS o descripciones en 1 solo clic.
+Para cumplir la **Regla Rector** (*"gestionar o publicar en menos de 3 minutos desde un móvil"*), el staff gestiona el 100% de la plataforma sin ingresar a `/admin`:
+- **Pestaña `BECARIOS`**: Registro y edición de expedientes, niveles, horas de labor social y verificaciones académicas.
+- **Pestaña `PUBLICACIONES`**: Redacción y publicación de noticias, historias y actividades comunitarias.
+- **Pestaña `COMUNIDADES (MAPA)`**: Lista navegable con coordenadas GPS, distritos y corregimientos con modales `+ Nueva Comunidad` y `✏ Editar Comunidad`.
+- **Pestaña `PROYECTOS`**: Creación de proyectos de infraestructura y programas (`+ Nuevo Proyecto`), selector de estado (*Propuesto, Aprobado, En ejecución, Completado*), monto ($) y **control deslizante (slider 0-100%) para actualizar el % de avance en vivo** que alimenta el Mapa de Impacto (`/impacto`).
 - **Autocompletado de Destinos Internacionales**: Selector con las coordenadas pre-cargadas de universidades frecuentes en el extranjero (*Bocconi, University of Florida, Navarra, Tec de Monterrey, Zamorano, EARTH*) para agilizar el registro de trayectorias.
 
 ---

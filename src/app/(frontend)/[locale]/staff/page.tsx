@@ -6,10 +6,11 @@ import { TablaBecarios } from '@/components/staff/TablaBecarios'
 import { NavegacionStaff } from '@/components/staff/NavegacionStaff'
 import { TabPublicaciones } from '@/components/staff/TabPublicaciones'
 import { TabComunidades } from '@/components/staff/TabComunidades'
+import { TabProyectos } from '@/components/staff/TabProyectos'
 import { defaultLocale, type Locale } from '@/i18n'
 import { sesionActual } from '@/lib/auth'
 import config from '@/payload.config'
-import type { Becario, HoraLaborSocial, Actividad, Comunidad } from '@/payload-types'
+import type { Becario, HoraLaborSocial, Actividad, Comunidad, Proyecto, Programa } from '@/payload-types'
 
 export const dynamic = 'force-dynamic'
 
@@ -197,6 +198,34 @@ export default async function StaffDashboardPage({
           locale={locale} 
           comunidades={comunidadesDocs as Comunidad[]} 
         />
+      )}
+
+      {tab === 'proyectos' && (
+        await (async () => {
+          const [proyectosRes, programasRes] = await Promise.all([
+            payload.find({
+              collection: 'proyectos',
+              limit: 500,
+              depth: 1,
+              sort: '-fecha_inicio',
+              overrideAccess: true,
+            }),
+            payload.find({
+              collection: 'programas',
+              limit: 100,
+              sort: 'nombre',
+              overrideAccess: true,
+            }),
+          ])
+          return (
+            <TabProyectos
+              comunidades={comunidadesDocs as Comunidad[]}
+              locale={locale}
+              programas={programasRes.docs as Programa[]}
+              proyectos={proyectosRes.docs as Proyecto[]}
+            />
+          )
+        })()
       )}
     </div>
   )
