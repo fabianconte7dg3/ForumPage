@@ -175,7 +175,7 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
   }
 
   const comunidadesFeatures: ComunidadFeature[] = (comunidades.docs as Comunidad[])
-    .filter((c) => c.coordenadas)
+    .filter((c) => c.coordenadas && c.nombre !== 'Sin clasificar')
     .map((c) => {
       const proyectosComunidad = proyectosPorComunidad.get(c.id) ?? []
       const avanceProm =

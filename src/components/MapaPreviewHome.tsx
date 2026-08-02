@@ -35,11 +35,13 @@ export function MapaPreviewHome({ locale, maptilerKey, comunidades }: Props) {
 
     map.addControl(new NavigationControl({ showCompass: false }), 'bottom-right')
 
+    const comunidadesReales = comunidades.filter((c) => c.nombre !== 'Sin clasificar')
+
     map.on('load', () => {
       // GeoJSON de comunidades
       const geojson: GeoJSON.FeatureCollection = {
         type: 'FeatureCollection',
-        features: comunidades.map((c) => ({
+        features: comunidadesReales.map((c) => ({
           type: 'Feature',
           geometry: { type: 'Point', coordinates: [c.lng, c.lat] },
           properties: { nombre: c.nombre },
