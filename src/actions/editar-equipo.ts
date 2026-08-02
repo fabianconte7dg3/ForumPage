@@ -12,6 +12,7 @@ export type EditarEquipoInput = {
   bio?: string
   destacado: boolean
   orden: number
+  fotoFile?: FormData
   locale: string
 }
 
@@ -32,12 +33,41 @@ export async function editarEquipo(input: EditarEquipoInput) {
   const payload = await getPayload({ config })
 
   try {
-    const dataToUpdate = {
+    let fotoId: number | undefined
+
+    if (input.fotoFile) {
+      const file = input.fotoFile.get('file') as File | null
+      if (file && file.size > 0) {
+        const arrayBuffer = await file.arrayBuffer()
+        const buffer = Buffer.from(arrayBuffer)
+        const mediaDoc = await payload.create({
+          collection: 'media',
+          data: {
+            alt: `Foto de ${input.nombre.trim()}`,
+          },
+          file: {
+            data: buffer,
+            name: file.name,
+            mimetype: file.type,
+            size: file.size,
+          },
+          overrideAccess: false,
+          user: usuario,
+        })
+        fotoId = mediaDoc.id
+      }
+    }
+
+    const dataToUpdate: Record<string, unknown> = {
       nombre: input.nombre.trim(),
       cargo: input.cargo.trim(),
       bio: input.bio?.trim() || undefined,
       destacado: Boolean(input.destacado),
       orden: Number(input.orden) || 0,
+    }
+
+    if (fotoId) {
+      dataToUpdate.foto = fotoId
     }
 
     await payload.update({

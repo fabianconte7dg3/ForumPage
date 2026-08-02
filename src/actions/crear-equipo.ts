@@ -11,6 +11,7 @@ export type CrearEquipoInput = {
   bio?: string
   destacado: boolean
   orden: number
+  fotoFile?: FormData
   locale: string
 }
 
@@ -31,12 +32,38 @@ export async function crearEquipo(input: CrearEquipoInput) {
   const payload = await getPayload({ config })
 
   try {
+    let fotoId: number | undefined
+
+    if (input.fotoFile) {
+      const file = input.fotoFile.get('file') as File | null
+      if (file && file.size > 0) {
+        const arrayBuffer = await file.arrayBuffer()
+        const buffer = Buffer.from(arrayBuffer)
+        const mediaDoc = await payload.create({
+          collection: 'media',
+          data: {
+            alt: `Foto de ${input.nombre.trim()}`,
+          },
+          file: {
+            data: buffer,
+            name: file.name,
+            mimetype: file.type,
+            size: file.size,
+          },
+          overrideAccess: false,
+          user: usuario,
+        })
+        fotoId = mediaDoc.id
+      }
+    }
+
     const dataToCreate = {
       nombre: input.nombre.trim(),
       cargo: input.cargo.trim(),
       bio: input.bio?.trim() || undefined,
       destacado: Boolean(input.destacado),
       orden: Number(input.orden) || 0,
+      foto: fotoId || undefined,
     }
 
     const nuevo = await payload.create({

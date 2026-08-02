@@ -32,12 +32,19 @@ export function FormularioEquipoModal({
   const [bio, setBio] = useState(miembro?.bio ?? '')
   const [destacado, setDestacado] = useState(miembro?.destacado ?? false)
   const [orden, setOrden] = useState<number>(miembro?.orden ?? 0)
+  const [fotoFile, setFotoFile] = useState<File | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrorMsg(null)
 
     setCargando(true)
+
+    let formData: FormData | undefined
+    if (fotoFile) {
+      formData = new FormData()
+      formData.append('file', fotoFile)
+    }
 
     let res: { success?: boolean; error?: string }
     if (esEdicion) {
@@ -48,6 +55,7 @@ export function FormularioEquipoModal({
         bio,
         destacado,
         orden,
+        fotoFile: formData,
         locale,
       })
     } else {
@@ -57,6 +65,7 @@ export function FormularioEquipoModal({
         bio,
         destacado,
         orden,
+        fotoFile: formData,
         locale,
       })
     }
@@ -145,6 +154,18 @@ export function FormularioEquipoModal({
                   onChange={(e) => setCargo(e.target.value)}
                   placeholder="Ej. Fundador & Presidente"
                   className="w-full rounded-sm border border-piedra/25 px-3 py-2 font-lectura text-sm outline-none focus:border-montana"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block font-dato text-xs uppercase tracking-widest text-tinta">
+                  Foto de Perfil (Opcional)
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setFotoFile(e.target.files?.[0] ?? null)}
+                  className="w-full rounded-sm border border-piedra/25 px-3 py-1.5 font-lectura text-sm outline-none focus:border-montana bg-white"
                 />
               </div>
 
