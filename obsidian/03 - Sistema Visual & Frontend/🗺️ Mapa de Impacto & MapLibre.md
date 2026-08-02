@@ -54,7 +54,7 @@ sequenceDiagram
 
 - **ImpactoTabs (Selector de vistas)**: Alternador superior entre "Mapa", "Resumen" y "Portal de equipo".
 - **ImpactoOverview (Panel de Resumen)**: Panel estadístico implementado desde la vista `/impacto` que muestra métricas globales (estudiantes, proyectos), un becario destacado ("Scholar of the term") y dos tablas para monitorear proyectos en ejecución y destinos de estudio.
-- **Sidebar de Métricas Reales**: En el mapa, muestra 6 contadores (Comunidades, Sedes, Proyectos Activos, Obras Completadas, Becarios Activos, Países alcanzados).
+- **Sedes Principales e Institucionales**: Marcador en el mapa para la **Administración Academia Forum** con coordenadas GPS reales (`8.6217347, -80.2414991`), fotografía de las instalaciones con la placa oficial del logo geodésico, horario de atención y badge `SEDE PRINCIPAL`.
 - **Lista de Comunidades**: Navegación lateral que ejecuta `flyTo` al hacer clic en una comunidad.
 - **Panel Lateral de Detalle de Comunidad**: Reemplaza el popup genérico con la ficha completa de la comunidad, sus proyectos en ejecución y el desglose de **becarios originarios de esa comunidad**.
 - **Mini-Mapa Interactivo en la Portada (`/`)**: Componente `MapaPreviewHome` que renderiza un visor interactivo de MapLibre en miniatura enfocado en Coclé Norte (`[-80.3621, 8.6186]`), dibujando los puntos de las 9 comunidades, el badge `📍 Coclé Norte · 9 Comunidades` y el acceso directo `EXPLORAR MAPA COMPLETO →`, reemplazando cualquier contenedor estático.
