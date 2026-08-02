@@ -32,9 +32,8 @@ Este archivo define las directivas de comportamiento y el mapeo de habilidades p
    - Localización a nivel de campo desde el esquema (`locales: ['es', 'en']`).
    - Privacidad absoluta del estado `suspendido` de becarios y notas de evaluación internas.
    - Control de acceso explícito en cada colección (probar siempre contra `/api/`).
-   - Mantenimiento sincrónico de `docs/plan.md`, `docs/spec.md` y la bóveda `obsidian/`.
-   - Ediciones por parches selectivos (evitar regenerar archivos enteros).
    - **Verificación Estricta Pre-Push**: NUNCA hacer un commit o push a la rama principal sin haber ejecutado exitosamente `pnpm typecheck` y `pnpm lint` para asegurar que no se rompa la integración continua (CI).
+   - **Confirmación Obligatoria de Obsidian y Git**: Al final de cada respuesta que involucre cambios de código o arquitectura, se DEBE incluir de forma explícita la confirmación de que las notas de la bóveda `obsidian/` fueron actualizadas y sincronizadas junto con el commit de Git (incluyendo su hash).
 
 ---
 

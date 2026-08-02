@@ -48,6 +48,7 @@ Para garantizar continuidad total y evitar pérdida de contexto:
 3. **Marcar `02-plan-de-ejecucion.md`**: Marcar el checkbox correspondiente (`[x]`) agregando la referencia al Paso.
 4. **Sincronizar Bóveda `obsidian/`**: Crear/actualizar las notas de la bóveda de Obsidian y vincularlas en el MOC.
 5. **Commit Atómico**: Realizar el commit unificando el código con su documentación sincronizada.
+6. **Confirmación en la Respuesta**: Incluir explícitamente al final de la respuesta la confirmación de la sincronización de la bóveda `obsidian/` y el hash del commit de Git.
 
 ---
 
