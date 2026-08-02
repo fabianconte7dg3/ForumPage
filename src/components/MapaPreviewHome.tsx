@@ -62,11 +62,11 @@ export function MapaPreviewHome({ locale, maptilerKey, comunidades }: Props) {
 
     map.on('load', () => {
       // GeoJSON de comunidades
-      const geojson: GeoJSON.FeatureCollection = {
-        type: 'FeatureCollection',
+      const geojson = {
+        type: 'FeatureCollection' as const,
         features: comunidadesReales.map((c) => ({
-          type: 'Feature',
-          geometry: { type: 'Point', coordinates: [c.lng, c.lat] },
+          type: 'Feature' as const,
+          geometry: { type: 'Point' as const, coordinates: [c.lng, c.lat] },
           properties: { nombre: c.nombre },
         })),
       }
