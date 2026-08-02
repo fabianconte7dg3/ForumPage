@@ -20,13 +20,36 @@ export function MapaPreviewHome({ locale, maptilerKey, comunidades }: Props) {
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
 
-    const styleUrl = maptilerKey
+    const styleConfig = maptilerKey
       ? `https://api.maptiler.com/maps/streets-v2/style.json?key=${maptilerKey}`
-      : 'https://demotiles.maplibre.org/style.json'
+      : {
+          version: 8 as const,
+          sources: {
+            'carto-voyager': {
+              type: 'raster' as const,
+              tiles: [
+                'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+                'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+                'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+              ],
+              tileSize: 256,
+              attribution: '&copy; OpenStreetMap &copy; CARTO',
+            },
+          },
+          layers: [
+            {
+              id: 'carto-voyager-layer',
+              type: 'raster' as const,
+              source: 'carto-voyager',
+              minzoom: 0,
+              maxzoom: 19,
+            },
+          ],
+        }
 
     const map = new MapLibreMap({
       container: containerRef.current,
-      style: styleUrl,
+      style: styleConfig,
       center: [-80.3621, 8.6186], // Centro de Coclé Norte
       zoom: 9.2,
       interactive: true,

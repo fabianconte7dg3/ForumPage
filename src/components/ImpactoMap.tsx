@@ -115,15 +115,38 @@ export function ImpactoMap({
   useEffect(() => {
     if (!contenedorRef.current) return
 
+    const estiloMapa = maptilerKey
+      ? `https://api.maptiler.com/maps/streets/style.json?key=${maptilerKey}`
+      : {
+          version: 8 as const,
+          sources: {
+            'carto-voyager': {
+              type: 'raster' as const,
+              tiles: [
+                'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+                'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+                'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+              ],
+              tileSize: 256,
+              attribution: '&copy; OpenStreetMap &copy; CARTO',
+            },
+          },
+          layers: [
+            {
+              id: 'carto-voyager-layer',
+              type: 'raster' as const,
+              source: 'carto-voyager',
+              minzoom: 0,
+              maxzoom: 19,
+            },
+          ],
+        }
+
     const mapa = new MapLibreMap({
       container: contenedorRef.current,
-      // ponytail: sin MAPTILER_KEY en dev, cae a las teselas demo (sin llave)
-      // de MapLibre. Con la llave en producción usa las teselas reales.
-      style: maptilerKey
-        ? `https://api.maptiler.com/maps/streets/style.json?key=${maptilerKey}`
-        : 'https://demotiles.maplibre.org/style.json',
+      style: estiloMapa,
       center: [-80.4, 8.75], // Coclé norte
-      zoom: 9,
+      zoom: 9.5,
     })
     mapa.addControl(new NavigationControl(), 'top-right')
     mapaRef.current = mapa
@@ -150,7 +173,7 @@ export function ImpactoMap({
             'Antón', '#f5c1c8',
             /* default */ '#eeeeee',
           ],
-          'fill-opacity': 0.7,
+          'fill-opacity': 0.35,
         },
       })
       mapa.addLayer({
@@ -159,7 +182,7 @@ export function ImpactoMap({
         source: 'distritos',
         paint: {
           'line-color': '#78716c',
-          'line-width': 1,
+          'line-width': 1.5,
           'line-dasharray': [2, 2],
         },
       })
@@ -176,7 +199,23 @@ export function ImpactoMap({
           'circle-radius': 8,
           'circle-color': COLOR_RIO,
           'circle-stroke-width': 2,
-          'circle-stroke-color': '#f2f4f1',
+          'circle-stroke-color': '#ffffff',
+        },
+      })
+      mapa.addLayer({
+        id: 'comunidades-labels-layer',
+        type: 'symbol',
+        source: 'comunidades',
+        layout: {
+          'text-field': ['get', 'nombre'],
+          'text-size': 11,
+          'text-offset': [0, 1.2],
+          'text-anchor': 'top',
+        },
+        paint: {
+          'text-color': '#1c1917',
+          'text-halo-color': '#ffffff',
+          'text-halo-width': 2,
         },
       })
 
@@ -192,7 +231,23 @@ export function ImpactoMap({
           'circle-radius': ['case', ['get', 'destacada'], 10, 6],
           'circle-color': ['case', ['get', 'destacada'], COLOR_COSECHA, COLOR_MONTANA],
           'circle-stroke-width': 2,
-          'circle-stroke-color': '#f2f4f1',
+          'circle-stroke-color': '#ffffff',
+        },
+      })
+      mapa.addLayer({
+        id: 'sedes-labels-layer',
+        type: 'symbol',
+        source: 'sedes',
+        layout: {
+          'text-field': ['get', 'nombre'],
+          'text-size': 11,
+          'text-offset': [0, -1.2],
+          'text-anchor': 'bottom',
+        },
+        paint: {
+          'text-color': '#17423b',
+          'text-halo-color': '#ffffff',
+          'text-halo-width': 2,
         },
       })
 
