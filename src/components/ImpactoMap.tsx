@@ -3,7 +3,6 @@
 import { Map as MapLibreMap, NavigationControl, setWorkerUrl, type MapLayerMouseEvent } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import Link from 'next/link'
-import { greatCircle } from '@turf/great-circle'
 import { useEffect, useRef, useState } from 'react'
 
 // maplibre-gl calcula la URL de su worker con `import.meta.url`, que bajo el
@@ -275,28 +274,6 @@ export function ImpactoMap({
         setSeleccion({ tipo: 'sede', data: feature.properties })
       })
 
-      // Líneas de becarios (arcos)
-      const becariosLineas = becarios.map((b) => {
-        const line = greatCircle(b.origen, b.destino, { npoints: 50 })
-        line.properties = { ...b }
-        return line
-      })
-      mapa.addSource('becarios-lineas', {
-        type: 'geojson',
-        data: { type: 'FeatureCollection', features: becariosLineas },
-      })
-      mapa.addLayer({
-        id: 'becarios-lineas-layer',
-        type: 'line',
-        source: 'becarios-lineas',
-        paint: {
-          'line-color': COLOR_COSECHA,
-          'line-width': 2,
-          'line-opacity': 0.5,
-          'line-dasharray': [2, 2],
-        },
-      })
-
       // Destinos de becarios (puntos)
       const becariosDestinos = becarios.map((b) => ({
         type: 'Feature' as const,
@@ -315,7 +292,7 @@ export function ImpactoMap({
           'circle-radius': 6,
           'circle-color': COLOR_COSECHA,
           'circle-stroke-width': 2,
-          'circle-stroke-color': '#f2f4f1',
+          'circle-stroke-color': '#ffffff',
         },
       })
       
@@ -351,8 +328,7 @@ export function ImpactoMap({
     if (!mapa || !mapa.getLayer('comunidades-layer') || !mapa.getLayer('sedes-layer')) return
     mapa.setLayoutProperty('comunidades-layer', 'visibility', capasVisibles.comunidades ? 'visible' : 'none')
     mapa.setLayoutProperty('sedes-layer', 'visibility', capasVisibles.sedes ? 'visible' : 'none')
-    if (mapa.getLayer('becarios-lineas-layer')) {
-      mapa.setLayoutProperty('becarios-lineas-layer', 'visibility', capasVisibles.becarios ? 'visible' : 'none')
+    if (mapa.getLayer('becarios-destinos-layer')) {
       mapa.setLayoutProperty('becarios-destinos-layer', 'visibility', capasVisibles.becarios ? 'visible' : 'none')
     }
   }, [capasVisibles])
