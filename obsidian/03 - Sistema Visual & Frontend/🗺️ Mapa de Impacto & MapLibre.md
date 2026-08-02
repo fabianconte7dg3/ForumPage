@@ -57,6 +57,7 @@ sequenceDiagram
 - **Sidebar de Métricas Reales**: En el mapa, muestra 6 contadores (Comunidades, Sedes, Proyectos Activos, Obras Completadas, Becarios Activos, Países alcanzados).
 - **Lista de Comunidades**: Navegación lateral que ejecuta `flyTo` al hacer clic en una comunidad.
 - **Panel Lateral de Detalle de Comunidad**: Reemplaza el popup genérico con la ficha completa de la comunidad, sus proyectos en ejecución y el desglose de **becarios originarios de esa comunidad**.
+- **Mini-Mapa Interactivo en la Portada (`/`)**: Componente `MapaPreviewHome` que renderiza un visor interactivo de MapLibre en miniatura enfocado en Coclé Norte (`[-80.3621, 8.6186]`), dibujando los puntos de las 9 comunidades, el badge `📍 Coclé Norte · 9 Comunidades` y el acceso directo `EXPLORAR MAPA COMPLETO →`, reemplazando cualquier contenedor estático.
 - **Panel Flotante de Becario Internacional**: Tarjeta documental con foto de perfil/avatar, insignia del año de estudio, ruta visual (`📍 ORIGEN` ➔ `✈ DESTINO`), cita inspiradora estilizada y enlace localizado a la comunidad de origen.
 
 ---

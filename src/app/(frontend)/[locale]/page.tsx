@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 
 import { ActividadCard } from '@/components/ActividadCard'
+import { MapaPreviewHomeLoader } from '@/components/MapaPreviewHomeLoader'
 import { defaultLocale, type Locale } from '@/i18n'
 import { formatearFecha } from '@/lib/format'
 import config from '@/payload.config'
@@ -72,7 +73,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: L
   const t = TEXTOS[locale] ?? TEXTOS[defaultLocale]
   const payload = await getPayload({ config })
 
-  const [comunidades, becariosActivosRes, proyectosCompletados, configuracion, actividades, proximasTutorias, todosLosBecarios] = await Promise.all([
+  const [comunidades, becariosActivosRes, proyectosCompletados, configuracion, actividades, proximasTutorias, todosLosBecarios, comunidadesDocs] = await Promise.all([
     payload.count({ collection: 'comunidades', overrideAccess: true }),
     payload.count({ collection: 'becarios', where: { estado: { equals: 'activo' } }, overrideAccess: true }),
     payload.count({ collection: 'proyectos', where: { estado: { equals: 'completado' } }, overrideAccess: true }),
@@ -88,9 +89,17 @@ export default async function HomePage({ params }: { params: Promise<{ locale: L
       overrideAccess: true,
     }),
     payload.find({ collection: 'becarios', limit: 1000, overrideAccess: true }),
+    payload.find({ collection: 'comunidades', limit: 100, overrideAccess: true }),
   ])
 
   const proximaTutoria = proximasTutorias.docs[0] as Tutoria | undefined
+
+  const comunidadesLista = comunidadesDocs.docs.map((c) => ({
+    id: c.id,
+    nombre: c.nombre,
+    lat: c.coordenadas?.lat ?? 8.6186,
+    lng: c.coordenadas?.lng ?? -80.3621,
+  }))
 
   // Calcular número de países alcanzados dinámicamente
   const paisesSet = new Set<string>()
@@ -143,9 +152,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: L
               {t.verMapa}
             </Link>
           </div>
-          <div className="flex h-64 items-center justify-center border border-piedra/25 bg-white md:col-span-2">
-            <span className="font-dato text-xs uppercase tracking-widest text-piedra">Mapa de Impacto</span>
-          </div>
+          <MapaPreviewHomeLoader
+            comunidades={comunidadesLista}
+            locale={locale}
+            maptilerKey={process.env.NEXT_PUBLIC_MAPTILER_KEY}
+          />
         </div>
       </section>
 
