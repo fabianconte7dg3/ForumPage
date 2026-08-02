@@ -83,6 +83,7 @@ gantt
   - Pestaña `PUBLICACIONES`: Redacción de artículos y actividades comunitarias.
   - Pestaña `COMUNIDADES (MAPA)`: Modales `+ Nueva Comunidad` y `✏ Editar Comunidad` para administración de coordenadas GPS.
   - Pestaña `PROYECTOS`: Modal `+ Nuevo Proyecto` y `✏ Editar / Avance` con slider (0-100%) para actualización en vivo del porcentaje de avance en el Mapa de Impacto.
+  - Pestaña `NOSOTROS / EQUIPO`: Modales `✏ Editar Misión e Historia` (global `/nosotros`) y `+ Agregar Miembro` / `✏ Editar Miembro` (colección `equipo` con tarjeta destacada para el fundador).
   - Selector de autocompletado de **Destinos Internacionales Frecuentes** (*Bocconi, University of Florida, Navarra, Tec, Zamorano, EARTH*).
   - Tarjeta documental del becario internacional en el mapa con foto, cita inspiradora, insignias de trayectoria e i18n (`es`/`en`).
   - Integración de becarios originarios en la Ficha de la Comunidad (`/impacto/comunidades/[slug]`).

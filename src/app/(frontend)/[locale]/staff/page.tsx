@@ -7,10 +7,11 @@ import { NavegacionStaff } from '@/components/staff/NavegacionStaff'
 import { TabPublicaciones } from '@/components/staff/TabPublicaciones'
 import { TabComunidades } from '@/components/staff/TabComunidades'
 import { TabProyectos } from '@/components/staff/TabProyectos'
+import { TabEquipo } from '@/components/staff/TabEquipo'
 import { defaultLocale, type Locale } from '@/i18n'
 import { sesionActual } from '@/lib/auth'
 import config from '@/payload.config'
-import type { Becario, HoraLaborSocial, Actividad, Comunidad, Proyecto, Programa } from '@/payload-types'
+import type { Becario, HoraLaborSocial, Actividad, Comunidad, Proyecto, Programa, Equipo } from '@/payload-types'
 
 export const dynamic = 'force-dynamic'
 
@@ -223,6 +224,49 @@ export default async function StaffDashboardPage({
               locale={locale}
               programas={programasRes.docs as Programa[]}
               proyectos={proyectosRes.docs as Proyecto[]}
+            />
+          )
+        })()
+      )}
+
+      {tab === 'equipo' && (
+        await (async () => {
+          const [equipoRes, nosotrosGlobal] = await Promise.all([
+            payload.find({
+              collection: 'equipo',
+              limit: 100,
+              sort: 'orden',
+              overrideAccess: true,
+            }),
+            payload.findGlobal({
+              slug: 'nosotros',
+              locale,
+              overrideAccess: true,
+            }),
+          ])
+
+          const extractTextFromRichText = (richTextNode: unknown): string => {
+            if (!richTextNode) return ''
+            if (typeof richTextNode === 'string') return richTextNode
+            if (Array.isArray(richTextNode)) return richTextNode.map(extractTextFromRichText).join(' ')
+            if (typeof richTextNode === 'object' && richTextNode !== null) {
+              const node = richTextNode as Record<string, unknown>
+              if (typeof node.text === 'string') return node.text
+              if (node.children) return extractTextFromRichText(node.children)
+              if (node.root) return extractTextFromRichText(node.root)
+            }
+            return ''
+          }
+
+          const misionTexto = extractTextFromRichText(nosotrosGlobal?.mision)
+          const historiaTexto = extractTextFromRichText(nosotrosGlobal?.historia)
+
+          return (
+            <TabEquipo
+              equipo={equipoRes.docs as Equipo[]}
+              historiaTexto={historiaTexto}
+              locale={locale}
+              misionTexto={misionTexto}
             />
           )
         })()
