@@ -247,7 +247,10 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
     ]
   })
 
-  const becarioDestacadoRaw = becariosDocsActivos.find((b) => b.cita && typeof b.foto === 'object' && b.foto?.url)
+  // mostrar_en_mapa también acá: es la misma colección con overrideAccess, y
+  // dos líneas arriba becariosFeatures sí lo respeta — sin el check, un
+  // becario que apagó su consentimiento podía terminar igual de "Destacado".
+  const becarioDestacadoRaw = becariosDocsActivos.find((b) => b.mostrar_en_mapa && b.cita && typeof b.foto === 'object' && b.foto?.url)
   const becarioDestacado: BecarioDestacado | null = becarioDestacadoRaw ? {
     id: becarioDestacadoRaw.id,
     nombre: becarioDestacadoRaw.nombre,

@@ -39,7 +39,7 @@ Este archivo define las directivas de comportamiento y el mapeo de habilidades p
 
 ## 🚨 Errores ya cometidos en este repo — no repetirlos
 
-Cada regla salió de un defecto real que llegó a `main` y hubo que corregir después. No son buenas prácticas genéricas: son las nueve formas concretas en que este proyecto ya se rompió.
+Cada regla salió de un defecto real que llegó a `main` y hubo que corregir después. No son buenas prácticas genéricas: son las formas concretas en que este proyecto ya se rompió.
 
 1. **Cambiar un campo obliga a cambiar todo lo que lo escribe y lo lee.** Antes de tocar un `relationTo`, un `type` o el nombre de un campo: `grep -rn "<nombre_del_campo>" src/ scripts/`. Las server actions y los scripts de seed también escriben ese campo y el compilador no los revisa. *(`reportar-horas.ts` siguió subiendo evidencia a `media` mucho después de que `HorasLaborSocial.evidencia` apuntara a `documentos-privados`: el id iba contra una FK de otra tabla y el reporte de horas reventaba.)*
 
@@ -58,6 +58,12 @@ Cada regla salió de un defecto real que llegó a `main` y hubo que corregir des
 8. **Verificar contra `/api/` con un GET sin sesión, nunca contra la interfaz.** Que el panel no muestre algo no significa que la API no lo entregue.
 
 9. **`push: false` en el adaptador de Postgres no se saca.** Cambiar el esquema exige `pnpm payload migrate:create <nombre>` + `pnpm payload migrate`. Con auto-push la base de dev diverge en silencio y ninguna migración se ejercita nunca — así fue como el `down()` roto pasó meses invisible.
+
+10. **`overrideAccess: true` en una página pública tiene que reponer a mano el filtro que el `access.read` de la colección le habría aplicado a un visitante anónimo — no es gratis.** Se usa porque la página no tiene sesión y necesita leer más de lo que un usuario anónimo podría, pero eso apaga TODO el control de acceso de la colección, no solo la parte que se quería saltear. Antes de escribir `overrideAccess: true`, mirar la función de `access.read` de esa colección y replicar en el `where` la condición que aplicaría para `req.user === null`. *(Dos páginas públicas de `/impacto` leían `becarios` con `overrideAccess: true` y listaban nombre/foto/universidad/cita sin mirar `mostrar_en_mapa` — el campo que el propio formulario del becario le ofrece para revocar su consentimiento en cualquier momento. Con los datos de dev nunca se notó porque los 6 becarios de prueba tenían el campo en `true`; el primer becario real que lo apagara habría seguido apareciendo. Peor: en el mismo archivo, la misma función, dos líneas más abajo, SÍ aplicaba el filtro correctamente para los pines del mapa — la inconsistencia estaba a la vista.)*
+
+11. **Si el staff no lo puede editar desde el panel, no hardcodear la lista — aunque sea "solo para autocompletar".** Un `<select>` con `if/else` de valores fijos en un componente es exactamente lo que el no-negociable "nada hardcodeado" de `CLAUDE.md` prohíbe, así el propósito sea una ayuda de UX y no una taxonomía de negocio. *(El selector de "universidades internacionales frecuentes" quedó como seis casos fijos, duplicados en dos formularios — si el staff necesita agregar una séptima universidad, no puede sin tocar código.)*
+
+12. **`docs/plan.md` se actualiza en el mismo commit que cierra la feature, no después.** Es la regla explícita de `CLAUDE.md` y la más fácil de saltear porque nada la hace fallar — ni `tsc`, ni `eslint`, ni el build. *(21 commits seguidos a `main` sin tocarlo ni una vez, mientras la bóveda de Obsidian sí se actualizaba a medias — quedó "por delante" del documento que en teoría la gobierna, exactamente al revés de lo que dice `CLAUDE.md`.)*
 
 ---
 

@@ -88,7 +88,11 @@ export default async function ComunidadPage({
     }),
     payload.find({
       collection: 'becarios',
-      where: { comunidad: { equals: comunidad.id } },
+      // overrideAccess: true salta el access.read de la colección — hay que
+      // repetir a mano el filtro de consentimiento que ese access aplicaría
+      // para un visitante anónimo (mostrar_en_mapa), o cualquier becario que
+      // lo haya apagado queda expuesto igual en esta ficha pública.
+      where: { and: [{ comunidad: { equals: comunidad.id } }, { mostrar_en_mapa: { equals: true } }] },
       sort: 'nombre',
       limit: 20,
       overrideAccess: true,
