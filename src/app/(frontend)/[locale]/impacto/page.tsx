@@ -46,7 +46,6 @@ const TEXTOS = {
     cerrar: 'Cerrar',
     tabMap: 'Mapa',
     tabOverview: 'Resumen',
-    tabTeamPortal: 'Portal de equipo',
     scholarOfTheTerm: 'Becario Destacado',
     classOf: 'Clase de',
     openHerStory: 'Abrir su historia en el mapa',
@@ -93,7 +92,6 @@ const TEXTOS = {
     cerrar: 'Close',
     tabMap: 'Map',
     tabOverview: 'Overview',
-    tabTeamPortal: 'Team portal',
     scholarOfTheTerm: 'Scholar of the Term',
     classOf: 'Class of',
     openHerStory: 'Open her story on the map',
@@ -302,9 +300,8 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
 
   return (
     <div className="mx-auto max-w-(--container-content) px-4 py-12 md:px-16 md:py-24">
-      <ImpactoTabs 
-        locale={locale}
-        textos={{ map: t.tabMap, overview: t.tabOverview, teamPortal: t.tabTeamPortal }}
+      <ImpactoTabs
+        textos={{ map: t.tabMap, overview: t.tabOverview }}
         mapaComponent={
           <>
             <header className="mb-8 border-b border-piedra/25 pb-8">

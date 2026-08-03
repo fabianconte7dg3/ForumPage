@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 
 import { ImpactoOverview } from './ImpactoOverview'
 
@@ -9,12 +8,10 @@ export function ImpactoTabs({
   mapaComponent,
   overviewProps,
   textos,
-  locale,
 }: {
   mapaComponent: React.ReactNode
   overviewProps: Omit<React.ComponentProps<typeof ImpactoOverview>, 'onClickAbrirMapa'>
-  textos: { map: string; overview: string; teamPortal: string }
-  locale: string
+  textos: { map: string; overview: string }
 }) {
   const [activeTab, setActiveTab] = useState<'map' | 'overview'>('overview')
 
@@ -39,12 +36,6 @@ export function ImpactoTabs({
           >
             {textos.overview}
           </button>
-          <Link
-            href={`/${locale}/portal`}
-            className="rounded-full px-4 py-1.5 font-dato text-xs uppercase tracking-wider text-tinta transition-colors hover:bg-piedra/20"
-          >
-            {textos.teamPortal}
-          </Link>
         </div>
       </div>
 
