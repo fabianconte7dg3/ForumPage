@@ -51,6 +51,8 @@ status: activo
     - Serializado vía `@payloadcms/richtext-lexical/react`. Prohibido `dangerouslySetInnerHTML`.
 14. **Inmutabilidad de Desembolsos**:
     - Permiso `delete` en [[🗄️ Modelo de Datos y Colecciones|Desembolsos]] retorna `() => false` para todos los roles.
+15. **Documentos de expediente nunca en el bucket público** (remediación 2026-08-01/03, **migración pendiente de correr en producción**):
+    - `Becarios.documentacion_socioeconomica`, `RegistrosAcademicos.documento`, `HorasLaborSocial.evidencia` y `Recuperaciones.evidencia` migraron de `Media` (pública) a [[🗄️ Modelo de Datos y Colecciones|DocumentosPrivados]] (solo-staff en las cuatro operaciones). Ver [[🚀 Plan de Ejecución & Estado de Fases]] para el estado exacto — código listo, `pnpm payload migrate` y `pnpm purgar:media-privada` aún no corrieron contra producción.
 
 ---
 
@@ -63,6 +65,9 @@ graph TD
     Router -->|Documentos de Becarios| PrivBucket["🔐 Bucket Privado (URL Firmada / Expirable)"]
     Router -->|Respaldos DB| BackupBucket["📦 Bucket de Backups (Sin permiso de borrado WORM)"]
 ```
+
+> [!warning] Estado real (no aspiracional)
+> Solo el nivel de **colección** está hecho (`Media` pública vs. `DocumentosPrivados` solo-staff). A nivel de **almacenamiento** no hay todavía adaptador S3 — los archivos siguen en disco local y el control de acceso lo aplica Payload en la ruta del archivo, no 3 buckets físicos separados. Al mover a S3 hay que separar los buckets de verdad y firmar URLs.
 
 ---
 

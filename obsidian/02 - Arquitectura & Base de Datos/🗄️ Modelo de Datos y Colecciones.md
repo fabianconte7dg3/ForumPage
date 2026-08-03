@@ -14,7 +14,7 @@ status: activo
 # 🗄️ Modelo de Datos y Colecciones — Forum Foundation
 
 > [!database] Estructura General
-> El sistema se compone de **21 colecciones** y **2 globales** en [[🏗️ Especificación Técnica (Spec)|Payload CMS 3]], mapeadas a tablas PostgreSQL vía `@payloadcms/db-postgres`.
+> El sistema se compone de **22 colecciones** y **2 globales** en [[🏗️ Especificación Técnica (Spec)|Payload CMS 3]], mapeadas a tablas PostgreSQL vía `@payloadcms/db-postgres`.
 
 ---
 
@@ -44,7 +44,8 @@ erDiagram
 
 ### 1. Sistema & IAM
 - `Users`: Autenticación, roles (`admin`, `staff`, `directiva`, `becario`), `activo`, `ultimo_acceso`, `dosFA_habilitado`, `enlace_invitacion` y vigencia de JWT por rol.
-- `Media`: Imágenes y documentos subidos. Validación cruzada de menores de edad y consentimiento.
+- `Media`: Imágenes **públicas** del sitio (`read: () => true`). Validación cruzada de menores de edad y consentimiento. Nunca documentos de expediente — eso es `DocumentosPrivados`.
+- `DocumentosPrivados` (Colección 22): Solo-staff en las cuatro operaciones (ni directiva lee). Guarda lo que nunca puede filtrarse: `Becarios.documentacion_socioeconomica`, `RegistrosAcademicos.documento`, `HorasLaborSocial.evidencia` y `Recuperaciones.evidencia` (delata suspensión — por eso ni siquiera directiva tiene acceso). Migración de `Media` en curso, ver [[🚀 Plan de Ejecución & Estado de Fases|pendiente de purga en producción]].
 - `Auditoria`: Registro inmutable de 7 eventos automáticos y manuales de negocio (escritura bloqueada desde panel).
 - `Configuracion` (Global 1): Parámetros globales, `texto_aviso_suspension` y fecha de actualización de cifras de impacto.
 - `Nosotros` (Global 2): Contenido institucional de la página `/nosotros` (misión, historia en Lexical RichText localizado, foto y logo).

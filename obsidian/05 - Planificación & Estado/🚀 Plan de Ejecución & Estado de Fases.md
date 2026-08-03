@@ -17,6 +17,7 @@ status: activo
 
 > [!flag] Estado General del Proyecto
 > Seguimiento vivo del progreso de desarrollo. Fuente original: [docs/plan.md](file:///home/fabianc/Documentos/ForumPage/docs/plan.md).
+> **Última actualización:** 2026-08-03 — auditoría del trabajo de Antigravity (21 commits) + remediación de privacidad de `DocumentosPrivados` (código listo, migración pendiente de correr en producción).
 
 ---
 
@@ -36,6 +37,7 @@ gantt
     Portal del Becario, IAM & Cierre  :done, f3, 2026-06-15, 2026-07-30
     section Adicionales
     Página Institucional Nosotros     :done, f4, 2026-07-30, 2026-07-30
+    Auditoría Antigravity & Seguridad Docs :active, f5, 2026-08-01, 2026-08-03
 ```
 
 ---
@@ -88,6 +90,15 @@ gantt
   - Tarjeta documental del becario internacional en el mapa con foto, cita inspiradora, insignias de trayectoria e i18n (`es`/`en`).
   - Integración de becarios originarios en la Ficha de la Comunidad (`/impacto/comunidades/[slug]`).
 
+### Auditoría Externa & Remediación de Seguridad (2026-08-01/03 — Parcialmente Pendiente)
+- [x] **Auditoría del trabajo de Antigravity** (21 commits directos a `main` — el usuario cambió de programador principal por límite de uso en Claude). Alcance: CRUD completo de staff para Comunidades/Proyectos/Equipo/Nosotros, 16 corregimientos de Penonomé cargados en `Comunidades`, mapa base real (CartoDB/OSM), mini-mapa en el Home, ficha de comunidad con becarios originarios, tarjeta "Becario Destacado" en `/impacto`.
+  **Encontrado y corregido:** fuga real de consentimiento — dos páginas públicas (`/impacto/comunidades/[slug]` y `/impacto`) leían becarios con `overrideAccess: true` sin reponer el filtro `mostrar_en_mapa` que la colección aplicaría normalmente, exponiendo (con datos reales) a becarios que hubieran revocado su consentimiento.
+  **Encontrado, no corregido:** los "Destinos Internacionales Frecuentes" (Bocconi, University of Florida, etc.) quedaron hardcodeados en dos formularios — viola "nada hardcodeado" en espíritu, no es urgencia de seguridad.
+  **Meta-hallazgo:** `docs/plan.md` no se tocó en ninguno de los 21 commits — regla agregada a `.agents/AGENTS.md` para que no se repita.
+- [ ] **Remediación de privacidad de documentos — código listo, migración SIN correr en producción.** `Becarios.documentacion_socioeconomica`, `RegistrosAcademicos.documento`, `HorasLaborSocial.evidencia` y `Recuperaciones.evidencia` vivían en `Media` (`read: () => true`, pública) — cualquiera con la URL podía descargar documentación socioeconómica o evidencia de labor social que puede contener menores. Nueva colección `DocumentosPrivados` (solo-staff en las cuatro operaciones — ni siquiera directiva lee, único caso así en todo el sistema, porque ninguna vista del becario ni de directiva renderiza estos archivos).
+  Migración en dos mitades: la migración SQL copia las filas de `media` a `documentos_privados` preservando el id (mantiene las FK válidas sin remapear) y reescribe la `url`; `pnpm purgar:media-privada` mueve el archivo físico y borra el original público con `payload.delete`.
+  **Postgres estuvo caído durante todo este trabajo — la migración nunca se ejecutó y el script de purga nunca corrió.** Pendiente antes de dar esto por cerrado: `pnpm payload migrate`, luego `pnpm purgar:media-privada` (dry-run, revisar salida) y `pnpm purgar:media-privada --purge`, y confirmar con un GET sin sesión contra `/api/documentos-privados` (no la interfaz) que responde 403/404.
+
 ---
 
 ## 🔗 Nodos Relacionados
@@ -98,3 +109,4 @@ gantt
 - [[🏛️ Página Institucional Nosotros]]
 - [[📋 Pipeline de Necesidades & Directiva]]
 - [[👨‍🎓 Portal del Becario & Sesiones]]
+- [[🛡️ Ciberseguridad & No-Negociables]]
