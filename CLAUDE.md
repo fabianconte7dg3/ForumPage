@@ -27,7 +27,7 @@ El sitio anterior murió porque publicar era difícil, no por falta de tecnolog�
 
 ## Errores ya cometidos en este repo — no repetirlos
 
-**Leer [.agents/AGENTS.md](.agents/AGENTS.md) §Errores ya cometidos antes de tocar código.** Son nueve reglas, cada una sacada de un defecto real que llegó a `main` y hubo que corregir después: campos cambiados sin seguir a quién los escribe, casts que callan a `tsc` en vez de arreglar el tipo, carpetas de uploads sin regla en `.gitignore`, scripts de borrado que eran no-op por construcción, migraciones generadas con el `down()` roto y nunca ejecutado. Viven en ese archivo, no acá, para que haya una sola copia y valga para cualquier agente que trabaje el repo.
+**Leer [.agents/AGENTS.md](.agents/AGENTS.md) §Errores ya cometidos antes de tocar código.** Cada regla sale de un defecto real que llegó a `main` y hubo que corregir después: campos cambiados sin seguir a quién los escribe, casts que callan a `tsc` en vez de arreglar el tipo, carpetas de uploads sin regla en `.gitignore`, scripts de borrado que eran no-op por construcción, migraciones generadas con el `down()` roto y nunca ejecutado, `overrideAccess: true` en páginas públicas que no repone el filtro de consentimiento que la colección aplicaría, listas hardcodeadas que el staff no puede editar, y `docs/plan.md` sin actualizar en el mismo commit que la feature. Viven en ese archivo, no acá, para que haya una sola copia y valga para cualquier agente que trabaje el repo.
 
 ## Cuándo usar qué skill de `.agents/skills/`
 
