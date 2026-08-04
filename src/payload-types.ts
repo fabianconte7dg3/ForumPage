@@ -539,6 +539,9 @@ export interface Necesidade {
   descripcion?: string | null;
   prioridad: 'baja' | 'media' | 'alta';
   prioridad_orden?: number | null;
+  /**
+   * Estimación interna — nunca visible públicamente, mismo criterio que solicitante
+   */
   costo_estimado?: number | null;
   /**
    * La barra de progreso pública mide esto — estado del caso, no dinero recaudado

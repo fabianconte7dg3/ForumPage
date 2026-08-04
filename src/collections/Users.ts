@@ -1,8 +1,10 @@
 import { randomBytes } from 'crypto'
 import {
+  APIError,
   type CollectionAfterChangeHook,
   type CollectionAfterLoginHook,
   type CollectionBeforeLoginHook,
+  type CollectionBeforeValidateHook,
   type CollectionConfig,
   getFieldsToSign,
   jwtSign,
@@ -24,6 +26,21 @@ const bloquearInactivos: CollectionBeforeLoginHook = ({ user }) => {
   if (!user.activo) {
     throw new Error('Esta cuenta está desactivada')
   }
+}
+
+// Payload por defecto solo exige 3 caracteres para el campo password del
+// esquema auth — mucho más débil que el mínimo de 8 que ya exige
+// `cambiar-password.ts` para el cambio de contraseña autoservicio. Sin este
+// hook, la activación de cuenta por invitación (`/api/users/reset-password`,
+// el flujo real que usan todos los becarios) quedaba con el mínimo débil de
+// Payload en vez del mismo criterio que el resto de la app. No aplica a la
+// contraseña de relleno aleatoria de 32 bytes que genera el sistema al crear
+// un becario — esa siempre pasa de sobra los 8 caracteres.
+const exigirPasswordFuerte: CollectionBeforeValidateHook = ({ data }) => {
+  if (typeof data?.password === 'string' && data.password.length > 0 && data.password.length < 8) {
+    throw new APIError('La contraseña debe tener al menos 8 caracteres.', 400)
+  }
+  return data
 }
 
 const registrarUltimoAcceso: CollectionAfterLoginHook = async ({ user, req }) => {
@@ -337,6 +354,7 @@ export const Users: CollectionConfig = {
   },
   auth: true,
   hooks: {
+    beforeValidate: [exigirPasswordFuerte],
     beforeLogin: [bloquearInactivos],
     afterLogin: [registrarUltimoAcceso],
     afterChange: [generarInvitacionAlCrear, registrarCambioRol],

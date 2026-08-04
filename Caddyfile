@@ -9,6 +9,10 @@
         X-Content-Type-Options nosniff
         X-Frame-Options DENY
         Referrer-Policy strict-origin-when-cross-origin
+        # El sitio no usa cámara/micrófono/geolocalización en ningún lado
+        # (verificado: sin navigator.geolocation/getUserMedia en src/) — solo
+        # restringe, no puede romper nada que ya funcione.
+        Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
     }
     request_body {
         max_size 25MB

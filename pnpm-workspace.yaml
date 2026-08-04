@@ -2,3 +2,15 @@ allowBuilds:
   esbuild: true
   sharp: true
   unrs-resolver: true
+
+# Parches de seguridad para dependencias transitivas de solo build/admin
+# (nunca en el runtime público) — ver auditoría OWASP de 2026-08-04.
+# brace-expansion NO se fuerza acá: el paquete publica dos líneas de versión
+# incompatibles (1.x y 5.x) bajo el mismo nombre, y un override ingenuo por
+# "major" rompió ESLint (minimatch@3 pide la API de la v1, no la v5). Es
+# deuda de solo lint (eslint/minimatch), nunca corre en producción — no vale
+# el riesgo de romper la herramienta por un DoS que no es explotable remoto.
+overrides:
+  postcss: '>=8.5.23'
+  dompurify: '>=3.4.13'
+  sharp: '>=0.35.0'

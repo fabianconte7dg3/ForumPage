@@ -72,6 +72,17 @@ graph TD
 
 ---
 
+## 🕵️ Auditoría OWASP Top 10 (2026-08-04)
+
+> [!check] Apto para publicar
+> Reporte completo: [docs/security-audit-2026-08-04.md](file:///home/fabianc/Documentos/ForumPage/docs/security-audit-2026-08-04.md). Semgrep + gitleaks + `pnpm audit` + revisión manual de las 24 colecciones/2 globals contra `01-documento-de-proyecto.md`, todo probado en vivo con `curl`. **Sin vulnerabilidades críticas ni de severidad alta explotables en el código propio.**
+
+9 cambios el mismo día, los dos más importantes son de A01 (control de acceso): `Necesidades.costo_estimado` y `Becarios.condicion_socioeconomica_verificada` estaban visibles a cualquier anónimo por falta de `field-access` — mismo tipo de hueco que ya se había encontrado y cerrado en `Becarios.foto` unas horas antes, esta vez detectado por la auditoría en vez de por una pregunta del usuario. También: mínimo de contraseña inconsistente (Payload por defecto exige 3 caracteres; el flujo de invitación de becarios no tenía el mínimo de 8 que sí exige "Cambiar contraseña"), `next`/`sharp` actualizados (corrigen 8 CVEs de severidad alta entre los dos), y tres endurecimientos de config (`X-Powered-By` fuera, `Permissions-Policy` restrictiva).
+
+Quedan dos pendientes **no bloqueantes**, cada uno con su propia tarea futura: actualizar Payload a 3.87.0 (cierra un SQL injection de severidad alta en `drizzle-orm`, pinneado por la propia dependencia de Payload — no se puede forzar aislado sin riesgo), y armar una CSP (necesita probarse en staging, no en el `Caddyfile` de producción a ciegas).
+
+---
+
 ## 🔗 Nodos Relacionados
 - [[🗺️ Home - Forum Foundation]]
 - [[🔐 Matriz IAM y Permisos]]

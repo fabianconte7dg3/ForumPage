@@ -8,6 +8,9 @@ const dirname = path.dirname(__filename)
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  // No hace falta anunciar el framework en cada respuesta — fingerprinting
+  // gratuito para quien busque CVEs conocidos de Next.js/Payload.
+  poweredByHeader: false,
   images: {
     localPatterns: [
       {

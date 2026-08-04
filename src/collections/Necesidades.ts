@@ -94,6 +94,8 @@ export const Necesidades: CollectionConfig = {
     {
       name: 'costo_estimado',
       type: 'number',
+      admin: { description: 'Estimación interna — nunca visible públicamente, mismo criterio que solicitante' },
+      access: { read: esStaffDirectivaOAdminFieldAccess },
     },
     {
       name: 'estado',
