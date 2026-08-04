@@ -8,10 +8,11 @@ import { TabPublicaciones } from '@/components/staff/TabPublicaciones'
 import { TabComunidades } from '@/components/staff/TabComunidades'
 import { TabProyectos } from '@/components/staff/TabProyectos'
 import { TabEquipo } from '@/components/staff/TabEquipo'
+import { TabAprendizaje } from '@/components/staff/TabAprendizaje'
 import { defaultLocale, type Locale } from '@/i18n'
 import { sesionActual } from '@/lib/auth'
 import config from '@/payload.config'
-import type { Becario, HoraLaborSocial, Actividad, Comunidad, Proyecto, Programa, Equipo } from '@/payload-types'
+import type { Becario, HoraLaborSocial, Actividad, Comunidad, Proyecto, Programa, Equipo, Recurso, Tutoria, Practica, Nivel, Materia, Sede } from '@/payload-types'
 
 export const dynamic = 'force-dynamic'
 
@@ -154,8 +155,12 @@ export default async function StaffDashboardPage({
         <BotonCerrarSesion locale={locale} texto={t.cerrarSesion} />
       </header>
 
-      <NavegacionStaff locale={locale} />
+      <div className="flex flex-col gap-8 md:flex-row md:items-start">
+        <aside className="md:w-56 md:flex-shrink-0">
+          <NavegacionStaff locale={locale} />
+        </aside>
 
+        <main className="min-w-0 flex-1">
       {tab === 'becarios' && (
         <>
           <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -271,6 +276,32 @@ export default async function StaffDashboardPage({
           )
         })()
       )}
+
+      {tab === 'aprendizaje' && (
+        await (async () => {
+          const [recursosRes, tutoriasRes, practicasRes, nivelesRes, materiasRes, sedesRes] = await Promise.all([
+            payload.find({ collection: 'recursos', limit: 200, depth: 1, sort: '-createdAt', overrideAccess: true }),
+            payload.find({ collection: 'tutorias', limit: 200, depth: 1, sort: '-fecha_hora', overrideAccess: true }),
+            payload.find({ collection: 'practicas', limit: 200, depth: 1, sort: '-createdAt', overrideAccess: true }),
+            payload.find({ collection: 'niveles', limit: 100, sort: 'nombre', overrideAccess: true }),
+            payload.find({ collection: 'materias', limit: 100, sort: 'nombre', overrideAccess: true }),
+            payload.find({ collection: 'sedes', limit: 100, sort: 'nombre', overrideAccess: true }),
+          ])
+          return (
+            <TabAprendizaje
+              locale={locale}
+              recursos={recursosRes.docs as Recurso[]}
+              tutorias={tutoriasRes.docs as Tutoria[]}
+              practicas={practicasRes.docs as Practica[]}
+              niveles={nivelesRes.docs as Nivel[]}
+              materias={materiasRes.docs as Materia[]}
+              sedes={sedesRes.docs as Sede[]}
+            />
+          )
+        })()
+      )}
+        </main>
+      </div>
     </div>
   )
 }
