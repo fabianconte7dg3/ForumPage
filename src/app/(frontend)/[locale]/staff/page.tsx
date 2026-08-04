@@ -9,10 +9,11 @@ import { TabComunidades } from '@/components/staff/TabComunidades'
 import { TabProyectos } from '@/components/staff/TabProyectos'
 import { TabEquipo } from '@/components/staff/TabEquipo'
 import { TabAprendizaje } from '@/components/staff/TabAprendizaje'
+import { FormularioConfiguracionModal } from '@/components/staff/FormularioConfiguracionModal'
 import { defaultLocale, type Locale } from '@/i18n'
 import { sesionActual } from '@/lib/auth'
 import config from '@/payload.config'
-import type { Becario, HoraLaborSocial, Actividad, Comunidad, Proyecto, Programa, Equipo, Recurso, Tutoria, Practica, Nivel, Materia, Sede } from '@/payload-types'
+import type { Becario, HoraLaborSocial, Actividad, Comunidad, Proyecto, Programa, Equipo, Recurso, Tutoria, Practica, Nivel, Materia, Sede, CentroEducativo, Configuracion } from '@/payload-types'
 
 export const dynamic = 'force-dynamic'
 
@@ -132,6 +133,7 @@ export default async function StaffDashboardPage({
     collection: 'actividades',
     limit: 10,
     page: paginaPublicaciones,
+    depth: 1,
     sort: '-fecha_publicacion',
     overrideAccess: true,
   })
@@ -178,32 +180,84 @@ export default async function StaffDashboardPage({
             </div>
           </div>
 
-          <TablaBecarios 
-            locale={locale} 
-            becarios={becarios} 
-            horasPorBecario={horasObj} 
+          <TablaBecarios
+            locale={locale}
+            becarios={becarios}
+            horasPorBecario={horasObj}
             comunidades={comunidades}
-            textos={t} 
+            textos={t}
           />
+
+          {await (async () => {
+            const configuracion = await payload.findGlobal({ slug: 'configuracion', locale, overrideAccess: true })
+            return (
+              <div className="mt-12 rounded-sm border border-piedra/25 bg-white p-6">
+                <div className="mb-4 flex flex-col gap-4 border-b border-piedra/25 pb-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h2 className="font-display text-lg font-bold uppercase text-montana">Configuración General</h2>
+                    <p className="font-lectura text-xs text-tinta/70">Meta de horas, calificaciones reprobatorias y contacto institucional.</p>
+                  </div>
+                  <FormularioConfiguracionModal configuracion={configuracion as Configuracion} locale={locale} />
+                </div>
+                <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-3">
+                  <div>
+                    <dt className="font-dato text-xs uppercase tracking-widest text-piedra">Meta de horas</dt>
+                    <dd className="font-lectura text-tinta">{configuracion?.meta_horas_labor_social ?? '—'}</dd>
+                  </div>
+                  <div>
+                    <dt className="font-dato text-xs uppercase tracking-widest text-piedra">Calificaciones reprobatorias</dt>
+                    <dd className="font-lectura text-tinta">
+                      {configuracion?.calificaciones_reprobatorias?.map((c) => c.calificacion).join(', ') || '—'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="font-dato text-xs uppercase tracking-widest text-piedra">Contacto institucional</dt>
+                    <dd className="font-lectura text-tinta">{configuracion?.contacto_institucional?.email ?? '—'}</dd>
+                  </div>
+                </dl>
+              </div>
+            )
+          })()}
         </>
       )}
 
       {tab === 'publicaciones' && (
-        <TabPublicaciones 
-          locale={locale} 
-          publicaciones={publicaciones}
-          page={publicacionesResponse.page}
-          totalPages={publicacionesResponse.totalPages}
-          hasNextPage={publicacionesResponse.hasNextPage}
-          hasPrevPage={publicacionesResponse.hasPrevPage}
-        />
+        await (async () => {
+          const [programasRes, proyectosRes] = await Promise.all([
+            payload.find({ collection: 'programas', limit: 100, sort: 'nombre', overrideAccess: true }),
+            payload.find({ collection: 'proyectos', limit: 200, sort: 'titulo', overrideAccess: true }),
+          ])
+          return (
+            <TabPublicaciones
+              comunidades={comunidades}
+              locale={locale}
+              programas={programasRes.docs.map((p) => ({ id: p.id, nombre: p.nombre }))}
+              proyectos={proyectosRes.docs.map((p) => ({ id: p.id, titulo: p.titulo }))}
+              publicaciones={publicaciones}
+              page={publicacionesResponse.page}
+              totalPages={publicacionesResponse.totalPages}
+              hasNextPage={publicacionesResponse.hasNextPage}
+              hasPrevPage={publicacionesResponse.hasPrevPage}
+            />
+          )
+        })()
       )}
 
       {tab === 'comunidades' && (
-        <TabComunidades 
-          locale={locale} 
-          comunidades={comunidadesDocs as Comunidad[]} 
-        />
+        await (async () => {
+          const [sedesRes, centrosRes] = await Promise.all([
+            payload.find({ collection: 'sedes', limit: 200, depth: 1, sort: 'nombre', overrideAccess: true }),
+            payload.find({ collection: 'centros-educativos', limit: 200, depth: 1, sort: 'nombre', overrideAccess: true }),
+          ])
+          return (
+            <TabComunidades
+              centrosEducativos={centrosRes.docs as CentroEducativo[]}
+              comunidades={comunidadesDocs as Comunidad[]}
+              locale={locale}
+              sedes={sedesRes.docs as Sede[]}
+            />
+          )
+        })()
       )}
 
       {tab === 'proyectos' && (
