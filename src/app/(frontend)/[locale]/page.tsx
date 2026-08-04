@@ -15,7 +15,6 @@ export const dynamic = 'force-dynamic'
 
 const TEXTOS = {
   es: {
-    recordLabel: 'REGISTRO 001. MISIÓN PRINCIPAL',
     titulo: 'Cambio sostenible en Coclé',
     subtitulo:
       'Documentando la metodología y el impacto verificado de las iniciativas educativas en comunidades rurales de Panamá.',
@@ -41,7 +40,6 @@ const TEXTOS = {
     sinInforme: 'Aún no hay informes anuales cargados.',
   },
   en: {
-    recordLabel: 'RECORD 001. PRIMARY MISSION',
     titulo: 'Sustainable change in Coclé',
     subtitulo:
       'Documenting the methodology and verified impact of educational initiatives across rural communities in Panama.',
@@ -119,8 +117,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: L
       {/* Hero */}
       <section className="border-b border-piedra/25 bg-niebla px-4 py-24 md:px-16 md:py-32">
         <div className="mx-auto max-w-(--container-content)">
-          <p className="font-dato text-xs uppercase tracking-widest text-tinta/60">{t.recordLabel}</p>
-          <h1 className="mt-4 font-display text-4xl font-bold uppercase text-montana md:text-6xl">{t.titulo}</h1>
+          <h1 className="font-display text-4xl font-bold uppercase text-montana md:text-6xl">{t.titulo}</h1>
           <p className="mt-6 max-w-2xl font-lectura text-lg text-tinta/70">{t.subtitulo}</p>
         </div>
         <div className="arco-divisor mx-auto mt-16 max-w-(--container-content)" />
