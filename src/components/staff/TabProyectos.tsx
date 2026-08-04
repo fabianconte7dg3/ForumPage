@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { FormularioProyectoModal } from '@/components/staff/FormularioProyectoModal'
+import { FormularioProgramaModal } from '@/components/staff/FormularioProgramaModal'
 import type { Proyecto, Comunidad, Programa } from '@/payload-types'
 import type { Locale } from '@/i18n'
 
@@ -109,6 +110,51 @@ export function TabProyectos({ locale, proyectos, comunidades, programas }: Prop
                   </tr>
                 )
               })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div className="mt-12 mb-6 flex flex-col gap-4 border-t border-piedra/25 pt-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="font-display text-lg font-bold uppercase text-montana">Programas</h2>
+          <p className="font-lectura text-xs text-tinta/70">Categorías con color e ícono que agrupan los proyectos en el Mapa de Impacto.</p>
+        </div>
+        <FormularioProgramaModal locale={locale} />
+      </div>
+
+      {programas.length === 0 ? (
+        <p className="font-lectura text-sm text-tinta/70">No hay programas registrados.</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b border-piedra/25">
+                <th className="py-3 pr-4 text-left font-dato text-xs uppercase tracking-widest text-piedra">Programa</th>
+                <th className="py-3 pr-4 text-left font-dato text-xs uppercase tracking-widest text-piedra">Color</th>
+                <th className="py-3 pr-4 text-left font-dato text-xs uppercase tracking-widest text-piedra">Estado</th>
+                <th className="py-3 text-right font-dato text-xs uppercase tracking-widest text-piedra">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {programas.map((prog) => (
+                <tr className="border-b border-piedra/10 transition-colors hover:bg-niebla/50" key={prog.id}>
+                  <td className="py-3 pr-4">
+                    <p className="font-display text-sm font-bold text-tinta">{prog.nombre}</p>
+                    {prog.descripcion && <p className="line-clamp-1 font-lectura text-xs text-piedra">{prog.descripcion}</p>}
+                  </td>
+                  <td className="py-3 pr-4">
+                    <span className="inline-flex items-center gap-2 font-dato text-xs text-tinta">
+                      <span className="inline-block h-3 w-3 rounded-full border border-piedra/25" style={{ backgroundColor: prog.color }} />
+                      {prog.color}
+                    </span>
+                  </td>
+                  <td className="py-3 pr-4 font-lectura text-sm text-tinta">{prog.activo ? 'Activo' : 'Inactivo'}</td>
+                  <td className="py-3 text-right">
+                    <FormularioProgramaModal locale={locale} programa={prog} variant="secondary" />
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
