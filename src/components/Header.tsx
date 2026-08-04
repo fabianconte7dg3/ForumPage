@@ -25,7 +25,6 @@ const NAV: Record<Locale, { href: string; label: string }[]> = {
   ],
 }
 
-const PORTAL_LABEL: Record<Locale, string> = { es: 'Portal', en: 'Portal' }
 const BANDERA: Record<Locale, string> = { es: '🇵🇦', en: '🇺🇸' }
 const NOMBRE_IDIOMA: Record<Locale, string> = { es: 'Español', en: 'English' }
 
@@ -62,12 +61,6 @@ export function Header({ locale }: { locale: Locale }) {
             title={NOMBRE_IDIOMA[otroLocale]}
           >
             <span aria-hidden="true">{BANDERA[otroLocale]}</span>
-          </Link>
-          <Link
-            className="rounded-md bg-montana px-3 py-2 font-dato text-xs uppercase tracking-wider text-niebla transition-colors hover:bg-montana-hover md:px-4"
-            href={`/${locale}/portal`}
-          >
-            {PORTAL_LABEL[locale]}
           </Link>
           <button
             aria-expanded={abierto}

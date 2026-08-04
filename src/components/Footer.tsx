@@ -1,16 +1,20 @@
+import Link from 'next/link'
+
 import type { Locale } from '@/i18n'
 
-const TEXTOS: Record<Locale, { legal: string; privacidad: string; transparencia: string; copyright: string }> = {
+const TEXTOS: Record<Locale, { legal: string; privacidad: string; transparencia: string; portal: string; copyright: string }> = {
   es: {
     legal: 'Aviso Legal',
     privacidad: 'Privacidad',
     transparencia: 'Transparencia',
+    portal: 'Portal',
     copyright: '© Forum Foundation. Coclé, Panamá.',
   },
   en: {
     legal: 'Legal Notice',
     privacidad: 'Privacy',
     transparencia: 'Transparency',
+    portal: 'Portal',
     copyright: '© Forum Foundation. Coclé, Panama.',
   },
 }
@@ -34,6 +38,9 @@ export function Footer({ locale }: { locale: Locale }) {
           <a className="hover:text-montana" href="#">
             {t.transparencia}
           </a>
+          <Link className="hover:text-montana" href={`/${locale}/portal`}>
+            {t.portal}
+          </Link>
         </nav>
       </div>
     </footer>
