@@ -2,7 +2,7 @@
 
 Auditoría completa de Forum Foundation (Payload CMS 3 + Next.js 16 + PostgreSQL) contra el [OWASP Top 10 2021](https://owasp.org/Top10/), pedida por el usuario antes de publicar el sitio. Alcance: todo el código de `src/`, la configuración de infraestructura (Docker, Caddy, CI), las dependencias, y el historial completo de git.
 
-**Veredicto general: el sitio está en buen estado para publicarse.** No se encontró ninguna vulnerabilidad crítica ni de severidad alta explotable en el código de la aplicación. Se encontraron y corrigieron 3 fugas reales de datos (dos de acceso a nivel de campo, una de política de contraseñas débil) y se hicieron 5 endurecimientos adicionales de bajo riesgo. Quedan 2 pendientes que requieren decisión del usuario antes de publicar (ver "Pendientes que requieren tu decisión").
+**Veredicto general: el sitio está en buen estado para publicarse.** No se encontró ninguna vulnerabilidad crítica ni de severidad alta explotable en el código de la aplicación. Se encontraron y corrigieron 3 fugas reales de datos (dos de acceso a nivel de campo, una de política de contraseñas débil), se hicieron 5 endurecimientos adicionales de bajo riesgo, y **se cerró el pendiente de mayor severidad de esta auditoría** (SQL injection en `drizzle-orm`) actualizando Payload a 3.87.0 — ver "Actualización de Payload 3.82.1 → 3.87.0 (2026-08-04, posterior al resto de esta auditoría)". Queda 1 pendiente que requiere decisión del usuario antes de publicar (ver "Pendientes que requieren tu decisión").
 
 ## Metodología
 
@@ -117,11 +117,25 @@ Auditoría completa de Forum Foundation (Payload CMS 3 + Next.js 16 + PostgreSQL
 9. **`postcss`, `dompurify`** forzados a versiones parcheadas vía `pnpm-workspace.yaml` overrides — ambos son dependencias de build/admin (`@tailwindcss/postcss` y el editor Monaco del panel de Payload), nunca corren en el sitio público.
 10. **Intento de override de `brace-expansion` revertido tras romper ESLint.** El paquete publica dos líneas de versión mayor incompatibles bajo el mismo nombre (1.x y 5.x); un override "por major" forzó la API equivocada a `minimatch@3` y rompió el lint (`TypeError: expand is not a function`). Se revirtió de inmediato. Es deuda de solo lint (nunca corre en producción), y el DoS que corrige requiere que un atacante controle los patrones glob que se le pasan a ESLint — no es explotable remotamente en este proyecto. Se documentó la razón en `pnpm-workspace.yaml` para que nadie reintente el mismo override sin saber por qué falló.
 
-### Pendiente — requiere su propia tanda de trabajo, no se tocó hoy
+### Cerrado el mismo día, en una segunda tanda (ver sección dedicada más abajo)
 
-- **`drizzle-orm` (SQL injection, severidad ALTA), `undici` (6 avisos, altos y moderados), `fast-uri`, `uuid`, `esbuild`**: los cinco están fijados por las dependencias internas de `payload@3.82.1` y sus paquetes `@payloadcms/*` — no se pueden actualizar de forma aislada sin arriesgar romper el adaptador de base de datos. **Se verificó que `payload@3.87.0` (la versión estable más reciente, 5 versiones menores por delante) ya trae `drizzle-orm@0.45.2`**, que es exactamente la versión que corrige el SQL injection. Actualizar Payload de 3.82.1 a 3.87.0 es la vía correcta para cerrar esto — pero es un cambio de alcance mucho mayor (regenera `payload-types.ts`, puede tener breaking changes en hooks/access/endpoints personalizados) que merece su propia tarea atómica con verificación dedicada, no algo para meter de pasada en una auditoría. **Recomendación: programar la actualización de Payload como el siguiente bloque de trabajo grande, antes de publicar si es posible.**
-  - Nota sobre el SQL injection de `drizzle-orm` específicamente: el CVE es sobre identificadores SQL mal escapados. Este proyecto nunca construye identificadores de columna/tabla dinámicamente a partir de input de usuario (los `sql` crudos que existen están solo en migraciones generadas, sin interpolación externa) — el riesgo real hoy es bajo, pero sigue siendo la corrección correcta.
-  - `esbuild` es una dependencia de `tsx` (herramienta de desarrollo, nunca se ejecuta en producción) — su hallazgo es "cualquier sitio puede mandarle requests al dev server y leer la respuesta", que solo importa si alguien corre `pnpm dev` en una red no confiable.
+- **`drizzle-orm` (SQL injection, severidad ALTA) y `uuid`**: cerrados actualizando Payload 3.82.1 → 3.87.0.
+- **`undici` (6 avisos, altos y moderados) y `fast-uri`**: siguen pinneados por la propia dependencia interna de `payload@3.87.0` (última estable disponible) — no bajaron con esta actualización, quedan para cuando Payload los actualice río arriba.
+- **`esbuild`**: es una dependencia de `tsx` (herramienta de desarrollo, nunca se ejecuta en producción) — su hallazgo es "cualquier sitio puede mandarle requests al dev server y leer la respuesta", que solo importa si alguien corre `pnpm dev` en una red no confiable. Sin cambios.
+
+---
+
+## Actualización de Payload 3.82.1 → 3.87.0 (2026-08-04, posterior al resto de esta auditoría)
+
+A pedido del usuario, se hizo la actualización de Payload que esta auditoría había dejado pendiente por su alcance. Antes de tocar nada se revisaron las notas de release de las 8 versiones intermedias (`gh release view` de cada una) buscando menciones de "breaking"/"migration" — **ninguna** — y se confirmó específicamente que `v3.83.0` es la que trae "**db-postgres: bump drizzle-orm to 0.45.2 to resolve an SQL injection vulnerability**", el fix exacto que esta auditoría había identificado como pendiente. Se encontró una mención a "remove deprecated root endpoint property" en `v3.87.0` que en un primer momento pareció relevante (este proyecto usa `endpoints` custom en `Users.ts` extensivamente) — se revisó el commit real y era un cambio de **solo documentación** (`docs/rest-api/overview.mdx`), sin ningún efecto en código.
+
+**Verificado tras la actualización:**
+- `tsc --noEmit`, `eslint`, `pnpm build` (producción real) y `check:budget` (163.1 KB / 500 KB) limpios.
+- `pnpm audit`: `drizzle-orm` (SQL injection alto) y `uuid` (moderado) ya no aparecen — de 17 avisos a 14.
+- **Estado de migraciones sin cambios**: 19 aplicadas, 19 archivos — la actualización no generó ninguna migración nueva (el fix es interno a cómo Drizzle arma las queries, no un cambio de esquema).
+- **Los 4 endpoints custom de autenticación probados de punta a punta contra el servidor real**, no solo compilados: login en dos pasos con 2FA completo (contraseña → `desafioId` → código TOTP calculado con el mismo algoritmo RFC 6238 → cookie de sesión real emitida, confirmada válida contra `/api/users/me`), `dosFA_secreto` confirmado ausente de la respuesta, política de contraseña fuerte (hook `beforeValidate` de la auditoría) rechazando una contraseña de 3 caracteres, y bloqueo por fuerza bruta (5 intentos → cuenta bloqueada, confirmado con el 6º intento) — los cuatro puntos de mayor riesgo de una actualización de framework, todos intactos.
+- **Matriz de acceso anónimo repetida contra las 24 colecciones**: resultado idéntico al de antes de la actualización, sin regresiones. Las dos correcciones de campo de esta auditoría (`costo_estimado`, `condicion_socioeconomica_verificada`) siguen activas.
+- Cuenta de prueba descartable, creada y borrada con scripts de un solo uso — nunca se tocó la cuenta real del usuario.
 
 ---
 
@@ -178,7 +192,5 @@ Todos verificados con `tsc --noEmit`, `eslint`, `pnpm build` (producción real) 
 
 ## Pendientes que requieren tu decisión
 
-1. **Actualizar Payload 3.82.1 → 3.87.0** — cierra el SQL injection de `drizzle-orm` (severidad alta) y la mayoría de los avisos de `undici`. Alcance mayor a lo que corresponde meter en esta auditoría; recomendado como el próximo bloque de trabajo, con su propia verificación dedicada.
-2. **Content-Security-Policy** — mejora real de defensa en profundidad contra XSS, pero necesita probarse en staging antes de tocar el `Caddyfile` de producción (riesgo real de dejar `/admin` inaccesible si se arma mal).
-
-Ninguno de los dos es explotable hoy de forma directa contra este sitio (el SQL injection de drizzle-orm requiere un vector que este código no expone; el XSS que la CSP mitigaría ya está cerrado en el código mismo). Ninguno bloquea la publicación, pero conviene resolverlos pronto después.
+1. ~~Actualizar Payload 3.82.1 → 3.87.0~~ — **cerrado el 2026-08-04**, ver sección dedicada arriba.
+2. **Content-Security-Policy** — mejora real de defensa en profundidad contra XSS, pero necesita probarse en staging antes de tocar el `Caddyfile` de producción (riesgo real de dejar `/admin` inaccesible si se arma mal). No es explotable hoy de forma directa (el XSS que la CSP mitigaría ya está cerrado en el código mismo — no hay `dangerouslySetInnerHTML` en ningún lado). No bloquea la publicación, pero conviene resolverlo pronto después.

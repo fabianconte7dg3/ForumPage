@@ -79,7 +79,7 @@ graph TD
 
 9 cambios el mismo día, los dos más importantes son de A01 (control de acceso): `Necesidades.costo_estimado` y `Becarios.condicion_socioeconomica_verificada` estaban visibles a cualquier anónimo por falta de `field-access` — mismo tipo de hueco que ya se había encontrado y cerrado en `Becarios.foto` unas horas antes, esta vez detectado por la auditoría en vez de por una pregunta del usuario. También: mínimo de contraseña inconsistente (Payload por defecto exige 3 caracteres; el flujo de invitación de becarios no tenía el mínimo de 8 que sí exige "Cambiar contraseña"), `next`/`sharp` actualizados (corrigen 8 CVEs de severidad alta entre los dos), y tres endurecimientos de config (`X-Powered-By` fuera, `Permissions-Policy` restrictiva).
 
-Quedan dos pendientes **no bloqueantes**, cada uno con su propia tarea futura: actualizar Payload a 3.87.0 (cierra un SQL injection de severidad alta en `drizzle-orm`, pinneado por la propia dependencia de Payload — no se puede forzar aislado sin riesgo), y armar una CSP (necesita probarse en staging, no en el `Caddyfile` de producción a ciegas).
+**Actualización 2026-08-04, mismo día:** Payload actualizado a 3.87.0 — cierra el SQL injection de `drizzle-orm` que era el pendiente de mayor severidad. Verificado de punta a punta contra el servidor real (login en dos pasos con 2FA, política de contraseña fuerte, bloqueo por fuerza bruta, matriz de acceso de las 24 colecciones), sin regresiones. Queda **un solo pendiente no bloqueante**: armar una CSP (necesita probarse en staging, no en el `Caddyfile` de producción a ciegas).
 
 ---
 
