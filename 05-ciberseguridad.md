@@ -163,22 +163,33 @@ El mapa se sirve como archivo estático. Es un archivo público, sin autenticaci
 
 ### 3.9 Cabeceras y CSP
 
+**Implementada y verificada 2026-08-04** (`src/proxy.ts`) — el ejemplo original de esta sección se ajustó en dos puntos no negociables, descubiertos al construirla de verdad en vez de copiar el texto:
+
+1. **`script-src 'self'` a secas rompe Next.js App Router.** El framework inyecta `<script>` inline para el streaming de React Server Components (`self.__next_f.push(...)`) — sin ellos no hay hidratación, el sitio entero queda sin JS. Next 13.4+ soporta nonce por request detectado solo desde el header `Content-Security-Policy` de salida (`getScriptNonceFromHeader`), aplicado automáticamente a su propio JS sin tocar `layout.tsx`. Usado acá: `script-src 'self' 'nonce-<random-por-request>' 'strict-dynamic'`.
+2. **`worker-src 'self' blob:'` — el `blob:` no hace falta en este código.** `ImpactoMap.tsx` ya evita el worker de MapLibre basado en `blob:` (`setWorkerUrl('/maplibre-gl-worker.mjs')`, un archivo propio servido desde `/public`) — confirmado sin violaciones con `worker-src 'self'` solo.
+
 ```text
-Content-Security-Policy: default-src 'self';
-  img-src 'self' data: https://*.digitaloceanspaces.com https://i.ytimg.com;
-  script-src 'self';
-  worker-src 'self' blob:;              # MapLibre lo requiere
+Content-Security-Policy:
+  default-src 'self';
+  script-src 'self' 'nonce-<random>' 'strict-dynamic';
+  style-src 'self' 'unsafe-inline';    # nonces no cubren atributos style="" inline (style={{}} en 11 archivos + admin de Payload)
+  img-src 'self' data: https://i.ytimg.com;
+  font-src 'self';                     # next/font autohospeda Google Fonts, sin red externa
+  connect-src 'self' https://api.maptiler.com https://a.basemaps.cartocdn.com https://b.basemaps.cartocdn.com https://c.basemaps.cartocdn.com;
+  worker-src 'self';
   frame-src https://www.youtube-nocookie.com;
-  connect-src 'self' https://api.maptiler.com;
-  object-src 'none'; base-uri 'self'; frame-ancestors 'none';
-Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';
+  upgrade-insecure-requests;
+Strict-Transport-Security: max-age=31536000; includeSubDomains
 X-Content-Type-Options: nosniff
 Referrer-Policy: strict-origin-when-cross-origin
-Permissions-Policy: geolocation=(), camera=(), microphone=()
+Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
 ```
 
-- [ ] CSP desplegada primero en `Report-Only` y ajustada antes de forzarla
-- [ ] Verificada en securityheaders.com
+`img-src` todavía no incluye `https://*.digitaloceanspaces.com`: los medios siguen en disco local (sin adaptador S3 todavía, ver [[🛡️ Ciberseguridad & No-Negociables]] §Aislamiento de Almacenamiento) — agregar el dominio real de Spaces es parte de esa migración pendiente, no de esta tarea.
+
+- [x] CSP construida y verificada contra un build de producción real (`node .next/standalone/server.js`, `NODE_ENV=production`) — no solo contra `next dev`. **No se pasó por una fase `Report-Only` separada**: no hay infraestructura de reporting (`report-uri`/`report-to`) ni visitantes reales que la alimenten todavía (sin droplet desplegado), así que un Report-Only silencioso no habría aportado más que la verificación directa que sí se hizo: cada directiva probada en ambos sentidos (dominio real permitido, dominio inventado bloqueado) con el evento `securitypolicyviolation` del navegador, sobre las páginas reales que usan cada recurso (mapa completo, iframe de YouTube, login de `/admin` y `/portal`).
+- [ ] Verificada en securityheaders.com — pendiente de que exista un dominio público desplegado (no aplica en local/staging sin DNS real, ver runbook §12).
 
 ### 3.10 Límite de tasa
 

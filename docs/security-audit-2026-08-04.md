@@ -193,4 +193,6 @@ Todos verificados con `tsc --noEmit`, `eslint`, `pnpm build` (producción real) 
 ## Pendientes que requieren tu decisión
 
 1. ~~Actualizar Payload 3.82.1 → 3.87.0~~ — **cerrado el 2026-08-04**, ver sección dedicada arriba.
-2. **Content-Security-Policy** — mejora real de defensa en profundidad contra XSS, pero necesita probarse en staging antes de tocar el `Caddyfile` de producción (riesgo real de dejar `/admin` inaccesible si se arma mal). No es explotable hoy de forma directa (el XSS que la CSP mitigaría ya está cerrado en el código mismo — no hay `dangerouslySetInnerHTML` en ningún lado). No bloquea la publicación, pero conviene resolverlo pronto después.
+2. ~~Content-Security-Policy~~ — **cerrado el 2026-08-04**, ver [docs/plan.md](plan.md) (Fase 3, entrada "Content-Security-Policy, probada en staging"). No terminó en el `Caddyfile` como se anticipaba acá — se implementó como nonce por request en `src/proxy.ts`, que Next.js aplica solo a su propio JS, evitando por completo el riesgo de `/admin` inaccesible que motivaba dejarlo pendiente. Verificado con build de producción real, no solo en dev.
+
+Sin pendientes abiertos de esta auditoría.
