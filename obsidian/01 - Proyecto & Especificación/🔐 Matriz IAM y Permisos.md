@@ -32,9 +32,11 @@ status: activo
 | `público` | Visitantes del sitio web | Lectura de contenidos públicos marcados explícitamente (`visible_publicamente`, `/nosotros`, etc.). | Sin acceso de administración ni login. | Sin sesión |
 
 > [!note] Verificación de la Vista de Directiva
-> Se ha verificado vía API real que el rol `directiva` tiene permisos de lectura HTTP 200 en las **21 colecciones** (de las 22) + 2 globales cerradas en Fase 3, mientras que cualquier intento de escritura (POST/PATCH/DELETE) es bloqueado con HTTP 403 Forbidden sin excepciones.
+> Se ha verificado vía API real que el rol `directiva` tiene permisos de lectura HTTP 200 en las **23 colecciones** (de las 24) + 2 globales cerradas en Fase 3, mientras que cualquier intento de escritura (POST/PATCH/DELETE) es bloqueado con HTTP 403 Forbidden sin excepciones.
 >
 > **Única excepción a "directiva lee todo":** `DocumentosPrivados` (agregada después de esta verificación, en la remediación de seguridad de 2026-08-01/03) es `read: esStaffOSuperior` — ni directiva la lee. Decisión deliberada: ninguna vista de directiva renderiza estos archivos, y uno de los cuatro campos que guarda (`Recuperaciones.evidencia`) delataría por sí solo que un becario estuvo suspendido.
+>
+> `FotosBecarios` y `DestinosInternacionales` (2026-08-04) no son excepciones: `directiva` está en la lista de roles con lectura total de la primera, y la segunda es `read: () => true` para cualquiera. Verificado con la cuenta directiva de prueba que ya se usó para probar `/directiva/auditoria`.
 
 ---
 

@@ -8,12 +8,21 @@ import type { Locale } from '@/i18n'
 
 type HorasData = { pendientes: number; aprobadas: number }
 type ComunidadSimple = { id: number; nombre: string }
+type DestinoSimple = {
+  id: number
+  universidad: string
+  pais: string
+  ciudad: string
+  coordenadas: { lat: number; lng: number }
+  bandera?: string | null
+}
 
 type Props = {
   locale: Locale
   becarios: Becario[]
   horasPorBecario: Record<number, HorasData>
   comunidades?: ComunidadSimple[]
+  destinos?: DestinoSimple[]
   textos: {
     buscarPlaceholder: string
     columnasBecario: string
@@ -40,7 +49,7 @@ const ESTADO_ESTILO: Record<Becario['estado'], string> = {
   suspendido: 'border-cosecha bg-cosecha/10 text-cosecha',
 }
 
-export function TablaBecarios({ locale, becarios, horasPorBecario, comunidades = [], textos: t }: Props) {
+export function TablaBecarios({ locale, becarios, horasPorBecario, comunidades = [], destinos = [], textos: t }: Props) {
   const [query, setQuery] = useState('')
 
   const ESTADO_LABEL: Record<Becario['estado'], string> = {
@@ -65,7 +74,7 @@ export function TablaBecarios({ locale, becarios, horasPorBecario, comunidades =
           onChange={(e) => setQuery(e.target.value)}
           className="w-full max-w-md rounded-sm border border-piedra/25 px-4 py-2 font-lectura text-sm outline-none transition-colors focus:border-montana"
         />
-        <FormularioNuevoBecario locale={locale} comunidades={comunidades} />
+        <FormularioNuevoBecario locale={locale} comunidades={comunidades} destinos={destinos} />
       </div>
 
       {becariosFiltrados.length === 0 ? (

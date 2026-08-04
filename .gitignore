@@ -16,6 +16,9 @@ media/
 # repo y los deja en el historial para siempre, que es justo lo que la
 # colección DocumentosPrivados existe para impedir.
 documentos-privados/
+# fotos-becarios/ es pública condicionalmente (mostrar_en_mapa), pero sigue
+# siendo un directorio de subidas — mismo criterio que media/, nunca se versiona.
+fotos-becarios/
 
 # Volcado del WordPress viejo, solo de referencia para migrar contenido —
 # no es parte de la app, no se versiona (son varios cientos de MB de imágenes).

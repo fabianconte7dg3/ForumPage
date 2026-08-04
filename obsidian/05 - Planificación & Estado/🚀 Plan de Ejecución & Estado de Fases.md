@@ -17,7 +17,7 @@ status: activo
 
 > [!flag] Estado General del Proyecto
 > Seguimiento vivo del progreso de desarrollo. Fuente original: [docs/plan.md](file:///home/fabianc/Documentos/ForumPage/docs/plan.md).
-> **Última actualización:** 2026-08-04 — Cambio de contraseña y cierre de sesiones agregados a "Seguridad de mi cuenta". Incidente real: 2FA se activó sin querer en la cuenta del fundador — causa raíz encontrada (la pestaña del navegador de pruebas comparte cookies con la sesión real del usuario).
+> **Última actualización:** 2026-08-04 — Tres pendientes de deuda técnica cerrados a pedido del usuario ("arregla todo, dejalo listo"): destinos internacionales frecuentes ya no hardcodeados, visor de Auditoría en `/directiva/auditoria`, y `Becarios.foto` ya no queda pública para siempre tras revocar consentimiento.
 
 ---
 
@@ -43,6 +43,7 @@ gantt
     Publicaciones/Actividades al panel de staff :done, f8, 2026-08-03, 2026-08-03
     Página Seguridad de mi cuenta (2FA)          :done, f9, 2026-08-04, 2026-08-04
     Cambio de password, sesiones & fix incidente 2FA :done, f10, 2026-08-04, 2026-08-04
+    Deuda técnica: destinos, auditoría, foto privada :done, f11, 2026-08-04, 2026-08-04
 ```
 
 ---
@@ -153,6 +154,16 @@ gantt
 - [x] **Incidente real resuelto: la cuenta del fundador tenía 2FA activado sin haberlo configurado.** Confirmado en la base (`dosFA_habilitado: true` con secreto real) — no era un error de pantalla. Desactivado de inmediato con `overrideAccess` para restaurar el acceso.
 - [x] **Causa raíz encontrada al verificar la página nueva con un usuario de prueba**: la pestaña del navegador de pruebas del agente **comparte las cookies de sesión con la sesión real del usuario** — no son navegadores aislados, ni por pestaña (abrir una pestaña nueva tampoco aísla nada, las cookies son por origen). Confirmado navegando a `/api/users/me` en medio de una prueba y encontrando la sesión real del usuario con sesiones creadas en los minutos exactos de las pruebas de 2FA de la sesión anterior.
 - [x] **Cambio de método para pruebas autenticadas sensibles**: de acá en adelante, login/2FA/contraseña/sesiones se verifican contra la API Local de Payload o `curl` con un cookie-jar aislado — nunca el navegador de pruebas compartido, que demostró poder interferir con sesiones reales. El navegador de pruebas sigue sirviendo para lo que no arriesga colisión de sesión (páginas públicas, formularios sin datos de otra cuenta).
+
+### Deuda Técnica: Destinos, Auditoría & Foto Privada (2026-08-04 — Completo)
+> El usuario pidió "arregla todo, dejalo listo" sobre los pendientes de código que quedaban en `docs/plan.md` — excluyendo Fase 0, que no depende de código. Aplicó la lección de la sección anterior: cada prueba autenticada real se hizo con una cuenta descartable vía script/`curl`, la sesión real del usuario en el navegador compartido solo se usó para observación sin mutar nada.
+
+- [x] **`DestinosInternacionales` (nueva colección)**: los 6 destinos frecuentes de becarios internacionales vivían hardcodeados en un `if/else` duplicado en `FormularioNuevoBecario.tsx`/`FormularioEditarBecario.tsx`. Ahora colección editable por staff (`universidad`/`pais`/`ciudad`/`coordenadas`/`bandera`), sembrada con las mismas 6 universidades reales para no perder el dato. Verificado abriendo el modal real con la sesión del usuario (sin guardar): las 6 opciones vienen de la base con bandera y orden alfabético.
+- [x] **Visor de `/directiva/auditoria` (nueva página)** — ver detalle en [[📋 Pipeline de Necesidades & Directiva]]. `Auditoria` ya se poblaba sola desde varios hooks pero nadie sin `/admin` podía leerla.
+- [x] **`FotosBecarios` (nueva colección) — cierra el hueco de privacidad de `Becarios.foto`** señalado en la auditoría del 2026-08-01. Ver detalle en [[🛡️ Ciberseguridad & No-Negociables]] y [[🗄️ Modelo de Datos y Colecciones]]. Resuelto con control de acceso condicional, sin esperar a buckets S3.
+- [x] **Bugs propios encontrados en el camino:** `.gitignore` no tenía `fotos-becarios/` (agregado antes de que hubiera archivos reales); `documentos-privados/` **tampoco** estaba en los volúmenes de `docker-compose.staging.yml` desde que se creó esa colección — un despliegue real habría perdido esos archivos en cada redeploy. Agregados los tres volúmenes que faltaban.
+- [x] **Migraciones verificadas contra Postgres de dev, con `down()` correcto desde el primer intento** (`IF EXISTS` en los `DROP CONSTRAINT`/`DROP INDEX`, la regla ya aprendida del Paso L). Bug de tooling en el camino: un comentario SQL con backticks de Markdown dentro de un template literal de TypeScript cerraba el string antes de tiempo — `esbuild` fallaba al parsear la migración. Corregido quitando los backticks del comentario.
+- [x] `tsc --noEmit`, `eslint`, `pnpm build` y `check:budget` (162.2 KB / 500 KB) limpios.
 
 ---
 

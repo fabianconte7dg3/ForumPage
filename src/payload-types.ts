@@ -70,6 +70,7 @@ export interface Config {
     users: User;
     media: Media;
     'documentos-privados': DocumentosPrivado;
+    'fotos-becarios': FotosBecario;
     auditoria: Auditoria;
     becarios: Becario;
     comunidades: Comunidad;
@@ -89,6 +90,7 @@ export interface Config {
     'horas-labor-social': HoraLaborSocial;
     desembolsos: Desembolso;
     equipo: Equipo;
+    'destinos-internacionales': DestinosInternacionale;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -99,6 +101,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'documentos-privados': DocumentosPrivadosSelect<false> | DocumentosPrivadosSelect<true>;
+    'fotos-becarios': FotosBecariosSelect<false> | FotosBecariosSelect<true>;
     auditoria: AuditoriaSelect<false> | AuditoriaSelect<true>;
     becarios: BecariosSelect<false> | BecariosSelect<true>;
     comunidades: ComunidadesSelect<false> | ComunidadesSelect<true>;
@@ -118,6 +121,7 @@ export interface Config {
     'horas-labor-social': HorasLaborSocialSelect<false> | HorasLaborSocialSelect<true>;
     desembolsos: DesembolsosSelect<false> | DesembolsosSelect<true>;
     equipo: EquipoSelect<false> | EquipoSelect<true>;
+    'destinos-internacionales': DestinosInternacionalesSelect<false> | DestinosInternacionalesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -249,7 +253,7 @@ export interface Becario {
    * Sobrescribe la meta global de Configuracion — solo si esta universidad exige un mínimo distinto
    */
   meta_horas_personalizada?: number | null;
-  foto?: (number | null) | Media;
+  foto?: (number | null) | FotosBecario;
   cita?: string | null;
   historia?: string | null;
   /**
@@ -340,6 +344,39 @@ export interface Media {
       filename?: string | null;
     };
     og?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "fotos-becarios".
+ */
+export interface FotosBecario {
+  id: number;
+  alt: string;
+  /**
+   * Se sincroniza solo desde Becarios.mostrar_en_mapa — no editar a mano.
+   */
+  publica?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
       url?: string | null;
       width?: number | null;
       height?: number | null;
@@ -782,6 +819,28 @@ export interface Equipo {
   createdAt: string;
 }
 /**
+ * Destinos frecuentes sugeridos al registrar un becario internacional.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "destinos-internacionales".
+ */
+export interface DestinosInternacionale {
+  id: number;
+  universidad: string;
+  pais: string;
+  ciudad: string;
+  coordenadas: {
+    lat: number;
+    lng: number;
+  };
+  /**
+   * Emoji de bandera para el selector, ej. 🇮🇹
+   */
+  bandera?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -816,6 +875,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'documentos-privados';
         value: number | DocumentosPrivado;
+      } | null)
+    | ({
+        relationTo: 'fotos-becarios';
+        value: number | FotosBecario;
       } | null)
     | ({
         relationTo: 'auditoria';
@@ -892,6 +955,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'equipo';
         value: number | Equipo;
+      } | null)
+    | ({
+        relationTo: 'destinos-internacionales';
+        value: number | DestinosInternacionale;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1035,6 +1102,39 @@ export interface MediaSelect<T extends boolean = true> {
 export interface DocumentosPrivadosSelect<T extends boolean = true> {
   alt?: T;
   uploadedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "fotos-becarios_select".
+ */
+export interface FotosBecariosSelect<T extends boolean = true> {
+  alt?: T;
+  publica?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1407,6 +1507,24 @@ export interface EquipoSelect<T extends boolean = true> {
   foto?: T;
   destacado?: T;
   orden?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "destinos-internacionales_select".
+ */
+export interface DestinosInternacionalesSelect<T extends boolean = true> {
+  universidad?: T;
+  pais?: T;
+  ciudad?: T;
+  coordenadas?:
+    | T
+    | {
+        lat?: T;
+        lng?: T;
+      };
+  bandera?: T;
   updatedAt?: T;
   createdAt?: T;
 }

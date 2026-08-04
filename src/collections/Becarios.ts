@@ -1,4 +1,4 @@
-import type { Access, CollectionBeforeChangeHook, CollectionConfig, FieldAccess, Where } from 'payload'
+import type { Access, CollectionAfterChangeHook, CollectionBeforeChangeHook, CollectionConfig, FieldAccess, Where } from 'payload'
 
 import { esStaffOSuperior, esStaffOSuperiorFieldAccess, esStaffDirectivaOAdminFieldAccess, idDeRelacion } from '@/access'
 import type { Becario, User } from '@/payload-types'
@@ -55,6 +55,23 @@ const registrarReactivacion: CollectionBeforeChangeHook<Becario> = ({ data, orig
   return data
 }
 
+// La foto es pública en /impacto solo mientras mostrar_en_mapa esté activo
+// (ver FotosBecarios.access.read) — este hook mantiene el campo `publica` de
+// la foto sincronizado con el consentimiento actual, en vez de dejar que el
+// staff tenga que acordarse de tocarlo a mano en dos colecciones distintas.
+const sincronizarFotoPublica: CollectionAfterChangeHook<Becario> = async ({ doc, req }) => {
+  const fotoId = idDeRelacion(doc.foto)
+  if (!fotoId) return doc
+  await req.payload.update({
+    collection: 'fotos-becarios',
+    id: fotoId,
+    data: { publica: doc.mostrar_en_mapa === true },
+    overrideAccess: true,
+    req,
+  })
+  return doc
+}
+
 // Alta de becarios: creada por el staff mediante invitación — no hay
 // autorregistro (01-documento-de-proyecto.md §4.6).
 export const Becarios: CollectionConfig = {
@@ -72,6 +89,7 @@ export const Becarios: CollectionConfig = {
   },
   hooks: {
     beforeChange: [registrarReactivacion],
+    afterChange: [sincronizarFotoPublica],
   },
   fields: [
     {
@@ -185,7 +203,7 @@ export const Becarios: CollectionConfig = {
     {
       name: 'foto',
       type: 'upload',
-      relationTo: 'media',
+      relationTo: 'fotos-becarios',
     },
     {
       name: 'cita',

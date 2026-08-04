@@ -51,8 +51,9 @@ status: activo
     - Serializado vía `@payloadcms/richtext-lexical/react`. Prohibido `dangerouslySetInnerHTML`.
 14. **Inmutabilidad de Desembolsos**:
     - Permiso `delete` en [[🗄️ Modelo de Datos y Colecciones|Desembolsos]] retorna `() => false` para todos los roles.
-15. **Documentos de expediente nunca en el bucket público** (remediación 2026-08-01/03, **migración pendiente de correr en producción**):
-    - `Becarios.documentacion_socioeconomica`, `RegistrosAcademicos.documento`, `HorasLaborSocial.evidencia` y `Recuperaciones.evidencia` migraron de `Media` (pública) a [[🗄️ Modelo de Datos y Colecciones|DocumentosPrivados]] (solo-staff en las cuatro operaciones). Ver [[🚀 Plan de Ejecución & Estado de Fases]] para el estado exacto — código listo, `pnpm payload migrate` y `pnpm purgar:media-privada` aún no corrieron contra producción.
+15. **Documentos de expediente nunca en el bucket público** (remediación 2026-08-01/03, **migración confirmada en dev, producción pendiente del droplet**):
+    - `Becarios.documentacion_socioeconomica`, `RegistrosAcademicos.documento`, `HorasLaborSocial.evidencia` y `Recuperaciones.evidencia` migraron de `Media` (pública) a [[🗄️ Modelo de Datos y Colecciones|DocumentosPrivados]] (solo-staff en las cuatro operaciones). Ver [[🚀 Plan de Ejecución & Estado de Fases]] para el estado exacto — las 17 migraciones están aplicadas contra el Postgres de dev y `pnpm purgar:media-privada` da 0 a borrar hoy; solo falta correr contra producción cuando exista droplet.
+16. **Foto de becario condicionada al consentimiento** (2026-08-04): `Becarios.foto` pasó de `Media` (siempre pública) a [[🗄️ Modelo de Datos y Colecciones|FotosBecarios]], con `access.read` condicional a un campo `publica` que un hook sincroniza con `mostrar_en_mapa` en cada save. Antes, apagar el consentimiento sacaba al becario de `/api/becarios` pero su foto seguía sirviéndose para siempre — resuelto sin depender de buckets S3.
 
 ---
 
@@ -67,7 +68,7 @@ graph TD
 ```
 
 > [!warning] Estado real (no aspiracional)
-> Solo el nivel de **colección** está hecho (`Media` pública vs. `DocumentosPrivados` solo-staff). A nivel de **almacenamiento** no hay todavía adaptador S3 — los archivos siguen en disco local y el control de acceso lo aplica Payload en la ruta del archivo, no 3 buckets físicos separados. Al mover a S3 hay que separar los buckets de verdad y firmar URLs.
+> Solo el nivel de **colección** está hecho (`Media` pública vs. `DocumentosPrivados` solo-staff vs. `FotosBecarios` condicional). A nivel de **almacenamiento** no hay todavía adaptador S3 — los archivos siguen en disco local y el control de acceso lo aplica Payload en la ruta del archivo (`access.read` evaluado en cada request), no 3 buckets físicos separados. Esto alcanza para el caso de `Becarios.foto` (2026-08-04): pública solo si `mostrar_en_mapa` sigue activo. Al mover a S3 hay que separar los buckets de verdad y firmar URLs — pero eso es un cambio de *dónde* vive el archivo, no un rediseño del control de acceso, que ya es correcto hoy.
 
 ---
 

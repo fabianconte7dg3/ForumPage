@@ -10,12 +10,22 @@ type ComunidadSimple = {
   nombre: string
 }
 
+type DestinoSimple = {
+  id: number
+  universidad: string
+  pais: string
+  ciudad: string
+  coordenadas: { lat: number; lng: number }
+  bandera?: string | null
+}
+
 type Props = {
   locale: Locale
   comunidades: ComunidadSimple[]
+  destinos: DestinoSimple[]
 }
 
-export function FormularioNuevoBecario({ locale, comunidades }: Props) {
+export function FormularioNuevoBecario({ locale, comunidades, destinos }: Props) {
   const router = useRouter()
   const [abierto, setAbierto] = useState(false)
   const [cargando, setCargando] = useState(false)
@@ -258,54 +268,23 @@ export function FormularioNuevoBecario({ locale, comunidades }: Props) {
                       </label>
                       <select
                         onChange={(e) => {
-                          const v = e.target.value
-                          if (v === 'bocconi') {
-                            setUniversidad('Bocconi University')
-                            setPaisEstudio('Italia')
-                            setCiudadEstudio('Milán')
-                            setLat(45.4497)
-                            setLng(9.1895)
-                          } else if (v === 'uf') {
-                            setUniversidad('University of Florida')
-                            setPaisEstudio('Estados Unidos')
-                            setCiudadEstudio('Gainesville')
-                            setLat(29.6516)
-                            setLng(-82.3248)
-                          } else if (v === 'navarra') {
-                            setUniversidad('Universidad de Navarra')
-                            setPaisEstudio('España')
-                            setCiudadEstudio('Pamplona')
-                            setLat(42.8016)
-                            setLng(-1.6586)
-                          } else if (v === 'tec') {
-                            setUniversidad('Tecnológico de Monterrey')
-                            setPaisEstudio('México')
-                            setCiudadEstudio('Monterrey')
-                            setLat(25.6515)
-                            setLng(-100.2895)
-                          } else if (v === 'earth') {
-                            setUniversidad('EARTH University')
-                            setPaisEstudio('Costa Rica')
-                            setCiudadEstudio('Guápiles')
-                            setLat(10.2173)
-                            setLng(-83.5975)
-                          } else if (v === 'zamorano') {
-                            setUniversidad('Universidad Zamorano')
-                            setPaisEstudio('Honduras')
-                            setCiudadEstudio('San Antonio de Oriente')
-                            setLat(14.0116)
-                            setLng(-87.0142)
-                          }
+                          const destino = destinos.find((d) => String(d.id) === e.target.value)
+                          if (!destino) return
+                          setUniversidad(destino.universidad)
+                          setPaisEstudio(destino.pais)
+                          setCiudadEstudio(destino.ciudad)
+                          setLat(destino.coordenadas.lat)
+                          setLng(destino.coordenadas.lng)
                         }}
                         className="w-full rounded-sm border border-piedra/25 bg-white px-3 py-2 font-lectura text-sm outline-none focus:border-montana"
                       >
                         <option value="">-- Seleccionar si aplica o ingresar manual abajo --</option>
-                        <option value="bocconi">🇮🇹 Bocconi University (Milán, Italia)</option>
-                        <option value="uf">🇺🇸 University of Florida (EE.UU.)</option>
-                        <option value="navarra">🇪🇸 Universidad de Navarra (España)</option>
-                        <option value="tec">🇲🇽 Tecnológico de Monterrey (México)</option>
-                        <option value="earth">🇨🇷 EARTH University (Costa Rica)</option>
-                        <option value="zamorano">🇭🇳 Universidad Zamorano (Honduras)</option>
+                        {destinos.map((d) => (
+                          <option key={d.id} value={d.id}>
+                            {d.bandera ? `${d.bandera} ` : ''}
+                            {d.universidad} ({d.ciudad}, {d.pais})
+                          </option>
+                        ))}
                       </select>
                     </div>
 

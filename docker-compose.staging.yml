@@ -19,6 +19,8 @@ services:
         condition: service_healthy
     volumes:
       - media_uploads:/app/media
+      - documentos_privados_uploads:/app/documentos-privados
+      - fotos_becarios_uploads:/app/fotos-becarios
     restart: unless-stopped
 
   db:
@@ -53,3 +55,5 @@ volumes:
   pgdata:
   caddy_data:
   media_uploads:
+  documentos_privados_uploads:
+  fotos_becarios_uploads:

@@ -50,6 +50,11 @@ graph TD
 - **Transparencia Financiera**: Muestra el `costo_estimado` y el nombre del `solicitante` (restringidos por `FieldAccess` a visitantes públicos).
 - **Gestión inline (2026-08-03)**: `staff`/`admin` ven, además de la tarjeta de lectura, los controles de [AccionesNecesidad.tsx](file:///home/fabianc/Documentos/ForumPage/src/components/staff/AccionesNecesidad.tsx) — cambiar `estado`, `prioridad`, `visible_publicamente` y vincular un `proyecto_resultante`, todo sin salir de esta página. La Server Action [actualizar-necesidad.ts](file:///home/fabianc/Documentos/ForumPage/src/actions/actualizar-necesidad.ts) exige el mismo rol que `Necesidades.access.update` (`esStaffOSuperior`) — **`directiva` sigue viendo solo la tarjeta de lectura, sin controles**: su rol es de rendición de cuentas, no de operación del pipeline. Antes de este cambio, mover un caso por el pipeline exigía `/admin` sin excepción.
 
+### 3. Registro de Auditoría (`/directiva/auditoria`) — nuevo 2026-08-04
+- **Gating**: solo `directiva`/`admin` — a diferencia de la cola de Necesidades, `staff` **no** entra (`Auditoria.access.read: esDirectivaOSuperior` lo excluye explícitamente). Antes de esto la colección se poblaba sola desde varios hooks pero nadie sin `/admin` podía leerla.
+- **Contenido**: tabla paginada (30/página) con fecha, actor (`email`), acción, colección y documento; cada fila tiene un `<details>` nativo (sin JS de cliente) para ver `valor_anterior`/`valor_nuevo` en JSON.
+- Link cruzado con `/directiva/necesidades` (única forma de descubrir cada página desde la otra — ninguna vive en la navegación de `/staff`, porque `/staff` entero está gateado a `staff`/`admin`, y esta página necesita `directiva`).
+
 ---
 
 ## 🔗 Nodos Relacionados

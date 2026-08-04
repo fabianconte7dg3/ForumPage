@@ -27,6 +27,8 @@ import { HorasLaborSocial } from './collections/HorasLaborSocial'
 import { Desembolsos } from './collections/Desembolsos'
 import { Equipo } from './collections/Equipo'
 import { DocumentosPrivados } from './collections/DocumentosPrivados'
+import { DestinosInternacionales } from './collections/DestinosInternacionales'
+import { FotosBecarios } from './collections/FotosBecarios'
 import { Configuracion } from './globals/Configuracion'
 import { Nosotros } from './globals/Nosotros'
 
@@ -50,6 +52,7 @@ export default buildConfig({
     Users,
     Media,
     DocumentosPrivados,
+    FotosBecarios,
     Auditoria,
     Becarios,
     Comunidades,
@@ -69,6 +72,7 @@ export default buildConfig({
     HorasLaborSocial,
     Desembolsos,
     Equipo,
+    DestinosInternacionales,
   ],
   globals: [Configuracion, Nosotros],
   editor: lexicalEditor(),

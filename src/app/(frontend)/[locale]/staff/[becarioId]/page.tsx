@@ -85,6 +85,22 @@ export default async function ExpedienteBecarioPage({
   ).docs
   const comunidades = comunidadesDocs.map((c) => ({ id: c.id, nombre: c.nombre }))
 
+  const destinos = (
+    await payload.find({
+      collection: 'destinos-internacionales',
+      limit: 200,
+      sort: 'universidad',
+      overrideAccess: true,
+    })
+  ).docs.map((d) => ({
+    id: d.id,
+    universidad: d.universidad,
+    pais: d.pais,
+    ciudad: d.ciudad,
+    coordenadas: d.coordenadas,
+    bandera: d.bandera,
+  }))
+
   const ESTADO_BECA_LABEL = {
     activo: t.estadoActivo,
     suspendido: t.estadoSuspendido,
@@ -112,7 +128,7 @@ export default async function ExpedienteBecarioPage({
             <p className="font-dato text-xs uppercase tracking-widest text-piedra">{t.subtitulo}</p>
             <h1 className="mt-1 font-display text-2xl font-bold uppercase text-tinta md:text-3xl">{becario.nombre}</h1>
           </div>
-          <FormularioEditarBecario locale={locale} becario={becario} comunidades={comunidades} />
+          <FormularioEditarBecario locale={locale} becario={becario} comunidades={comunidades} destinos={destinos} />
         </div>
         
         <div className="mt-4 flex flex-wrap gap-4 font-dato text-xs text-piedra">

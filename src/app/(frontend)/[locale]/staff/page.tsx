@@ -99,6 +99,23 @@ export default async function StaffDashboardPage({
   ).docs
   const comunidades = comunidadesDocs.map((c) => ({ id: c.id, nombre: c.nombre }))
 
+  // Destinos internacionales frecuentes, para la sugerencia del formulario de becarios
+  const destinos = (
+    await payload.find({
+      collection: 'destinos-internacionales',
+      limit: 200,
+      sort: 'universidad',
+      overrideAccess: true,
+    })
+  ).docs.map((d) => ({
+    id: d.id,
+    universidad: d.universidad,
+    pais: d.pais,
+    ciudad: d.ciudad,
+    coordenadas: d.coordenadas,
+    bandera: d.bandera,
+  }))
+
   // Todos los becarios
   const becarios = (
     await payload.find({
@@ -193,6 +210,7 @@ export default async function StaffDashboardPage({
             becarios={becarios}
             horasPorBecario={horasObj}
             comunidades={comunidades}
+            destinos={destinos}
             textos={t}
           />
 

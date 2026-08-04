@@ -149,9 +149,19 @@ export default async function ColaNecesidadesPage({ params }: { params: Promise<
 
   return (
     <div className="mx-auto max-w-(--container-content) px-4 py-12 md:px-16 md:py-24">
-      <header className="mb-12 border-b border-piedra/25 pb-8">
-        <h1 className="font-display text-3xl font-bold uppercase text-montana md:text-4xl">{t.titulo}</h1>
-        <p className="mt-2 max-w-(--text-reading-width) font-lectura text-sm text-tinta/80">{t.descripcion}</p>
+      <header className="mb-12 flex flex-wrap items-start justify-between gap-4 border-b border-piedra/25 pb-8">
+        <div>
+          <h1 className="font-display text-3xl font-bold uppercase text-montana md:text-4xl">{t.titulo}</h1>
+          <p className="mt-2 max-w-(--text-reading-width) font-lectura text-sm text-tinta/80">{t.descripcion}</p>
+        </div>
+        {usuario.rol === 'directiva' || usuario.rol === 'admin' ? (
+          <Link
+            className="font-dato text-xs uppercase tracking-widest text-piedra transition-colors hover:text-montana"
+            href={`/${locale}/directiva/auditoria`}
+          >
+            Registro de auditoría →
+          </Link>
+        ) : null}
       </header>
 
       {grupos.map((grupo) => {
