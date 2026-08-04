@@ -21,7 +21,7 @@ const NAV: Record<Locale, { href: string; label: string }[]> = {
     { href: '/impact', label: 'Impact' },
     { href: '/learn', label: 'Learn' },
     { href: '/stories', label: 'Stories' },
-    { href: '/contact', label: 'Contact' },
+    { href: '/contacto', label: 'Contact' },
   ],
 }
 

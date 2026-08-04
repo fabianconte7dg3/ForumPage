@@ -1,4 +1,5 @@
 import { RichText } from '@payloadcms/richtext-lexical/react'
+import Link from 'next/link'
 import { getPayload } from 'payload'
 
 import { defaultLocale, type Locale } from '@/i18n'
@@ -14,11 +15,13 @@ const TEXTOS = {
     titulo: 'Nosotros',
     historiaTitulo: 'Nuestra historia',
     equipoTitulo: 'Nuestro equipo',
+    verProgramas: 'Ver nuestros programas →',
   },
   en: {
     titulo: 'About Us',
     historiaTitulo: 'Our history',
     equipoTitulo: 'Our team',
+    verProgramas: 'See our programs →',
   },
 } satisfies Record<Locale, Record<string, string>>
 
@@ -38,6 +41,9 @@ export default async function NosotrosPage({ params }: { params: Promise<{ local
     <div className="mx-auto max-w-(--container-content) px-4 py-12 md:px-16 md:py-24">
       <header className="mb-12 border-b border-piedra/25 pb-8">
         <h1 className="font-display text-3xl font-bold uppercase text-montana md:text-4xl">{t.titulo}</h1>
+        <Link className="mt-3 inline-block font-display text-sm font-bold uppercase tracking-widest text-montana" href={`/${locale}/nosotros/programas`}>
+          {t.verProgramas}
+        </Link>
       </header>
 
       {(nosotros.mision || nosotros.historia) && (

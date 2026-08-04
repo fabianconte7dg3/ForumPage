@@ -58,6 +58,17 @@ status: completado
 
 ---
 
+## 🧭 Páginas hijas (2026-08-04)
+
+> [!map] `/nosotros/programas` y `/contacto`
+> Dos páginas institucionales más, cerrando el pendiente de "1.4 Sitio público". Ninguna agregó colección ni campo nuevo — ambas leen datos que el staff ya podía editar desde antes:
+> - **`/nosotros/programas`**: lista los `Programas` con `activo: true` (colección ya editable en `/staff` → Proyectos → Programas), con conteo real de proyectos activos/completados por programa. Enlazada desde el encabezado de esta página.
+> - **`/contacto`**: muestra `Configuracion.contacto_institucional` (email/teléfono/dirección), ya editable desde `/staff` → Configuración general. La colección `Configuracion` sigue restringida a staff/directiva/admin — la página server-rendered lee con `overrideAccess: true` pero solo desestructura y renderiza ese subcampo, nunca el resto del documento (que tiene umbrales internos no públicos). `/api/globals/configuracion` sin sesión sigue en 403.
+>
+> Detalle completo en [[🚀 Plan de Ejecución & Estado de Fases]], Fase 1, Paso P.
+
+---
+
 ## 🔄 Sembrado de Datos (`scripts/seed-nosotros.ts`)
 
 El script `pnpm seed:nosotros` migra el contenido institucional real del sitio WordPress archivado (`ForumOldPageInfo/`), poblando los 7 miembros del equipo original con sus fotos reales y traduciendo la misión e historia al español.
