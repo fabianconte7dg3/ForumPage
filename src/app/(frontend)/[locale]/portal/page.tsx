@@ -1,4 +1,5 @@
 import { getPayload } from 'payload'
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 import { BotonCerrarSesion } from '@/components/BotonCerrarSesion'
@@ -24,6 +25,7 @@ const TEXTOS = {
     irAlPanel: 'Ir al panel',
     hola: 'Hola',
     cerrarSesion: 'Cerrar sesión',
+    seguridad: 'Seguridad',
     horasTitulo: 'Horas de labor social',
     horasDetalle: 'de',
     horasAprobadas: 'horas aprobadas',
@@ -50,6 +52,7 @@ const TEXTOS = {
     irAlPanel: 'Go to the panel',
     hola: 'Hi',
     cerrarSesion: 'Log out',
+    seguridad: 'Security',
     horasTitulo: 'Community service hours',
     horasDetalle: 'of',
     horasAprobadas: 'approved hours',
@@ -173,7 +176,12 @@ export default async function PortalPage({ params }: { params: Promise<{ locale:
         <h1 className="font-display text-2xl font-bold uppercase text-montana md:text-3xl">
           {t.hola}, {becario?.nombre ?? usuario.email}
         </h1>
-        <BotonCerrarSesion locale={locale} texto={t.cerrarSesion} />
+        <div className="flex items-center gap-4">
+          <Link className="font-dato text-xs uppercase tracking-widest text-tinta/60 underline" href={`/${locale}/cuenta/seguridad`}>
+            {t.seguridad}
+          </Link>
+          <BotonCerrarSesion locale={locale} texto={t.cerrarSesion} />
+        </div>
       </header>
 
       {becario?.estado === 'suspendido' && (

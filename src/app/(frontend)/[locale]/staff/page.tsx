@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 
@@ -22,6 +23,7 @@ const TEXTOS = {
     titulo: 'Panel del Staff',
     subtitulo: 'Gestión de expedientes de becarios',
     cerrarSesion: 'Cerrar sesión',
+    seguridad: 'Seguridad',
     columnasBecario: 'Becario',
     columnasUniversidad: 'Universidad',
     columnasEstado: 'Estado de beca',
@@ -45,6 +47,7 @@ const TEXTOS = {
     titulo: 'Staff Panel',
     subtitulo: 'Becario expedition management',
     cerrarSesion: 'Log out',
+    seguridad: 'Security',
     columnasBecario: 'Becario',
     columnasUniversidad: 'University',
     columnasEstado: 'Scholarship status',
@@ -154,7 +157,12 @@ export default async function StaffDashboardPage({
           <h1 className="font-display text-2xl font-bold uppercase text-montana md:text-3xl">{t.titulo}</h1>
           <p className="mt-1 font-lectura text-sm text-tinta/70">{t.subtitulo}</p>
         </div>
-        <BotonCerrarSesion locale={locale} texto={t.cerrarSesion} />
+        <div className="flex items-center gap-4">
+          <Link className="font-dato text-xs uppercase tracking-widest text-tinta/60 underline" href={`/${locale}/cuenta/seguridad`}>
+            {t.seguridad}
+          </Link>
+          <BotonCerrarSesion locale={locale} texto={t.cerrarSesion} />
+        </div>
       </header>
 
       <div className="flex flex-col gap-8 md:flex-row md:items-start">
