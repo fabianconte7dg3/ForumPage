@@ -28,6 +28,7 @@ const TEXTOS = {
     anterior: 'Anterior',
     siguiente: 'Siguiente',
     descargar: '↓ Descargar para uso sin conexión',
+    ver: 'Ver ↗',
     abrir: 'Abrir enlace ↗',
     tipos: {
       pdf_propio: 'PDF',
@@ -49,6 +50,7 @@ const TEXTOS = {
     anterior: 'Previous',
     siguiente: 'Next',
     descargar: '↓ Download for offline use',
+    ver: 'View ↗',
     abrir: 'Open link ↗',
     tipos: {
       pdf_propio: 'PDF',
@@ -121,6 +123,7 @@ export default async function BibliotecaPage({
                   textoAbrir={t.abrir}
                   textoDescargar={t.descargar}
                   textoFuente={t.fuente}
+                  textoVer={t.ver}
                   tipos={t.tipos}
                 />
               ))}
@@ -161,12 +164,14 @@ function RecursoCard({
   textoAbrir,
   textoDescargar,
   textoFuente,
+  textoVer,
   tipos,
 }: {
   recurso: Recurso
   textoAbrir: string
   textoDescargar: string
   textoFuente: string
+  textoVer: string
   tipos: Record<Recurso['tipo'], string>
 }) {
   const nivel = typeof recurso.nivel === 'object' ? recurso.nivel : undefined
@@ -201,9 +206,22 @@ function RecursoCard({
         <div className="truncate font-dato text-[10px] uppercase text-piedra">
           {textoFuente}: {recurso.fuente_y_licencia}
         </div>
-        {(esDescargable || recurso.tipo === 'enlace_externo') && (
-          <div className="mt-2 font-dato text-[10px] uppercase tracking-wide text-cosecha">
-            {esDescargable ? textoDescargar : textoAbrir}
+        {recurso.tipo === 'enlace_externo' && (
+          <div className="mt-2 font-dato text-[10px] uppercase tracking-wide text-cosecha">{textoAbrir}</div>
+        )}
+        {esDescargable && href && (
+          <div className="mt-3 flex gap-4">
+            <a
+              className="font-dato text-[10px] uppercase tracking-wide text-cosecha hover:underline"
+              href={href}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              {textoVer}
+            </a>
+            <a className="font-dato text-[10px] uppercase tracking-wide text-cosecha hover:underline" download href={href}>
+              {textoDescargar}
+            </a>
           </div>
         )}
       </div>
@@ -219,13 +237,23 @@ function RecursoCard({
     )
   }
 
+  // PDF propio no es un solo link: "Ver" y "Descargar" son dos acciones
+  // distintas (visor nativo del navegador vs. guardar para uso sin conexión),
+  // así que la tarjeta entera deja de ser clickeable para no anidar <a> dentro de <a>.
+  if (esDescargable) {
+    return (
+      <div className="flex flex-col justify-between rounded-lg border border-piedra/25 bg-white p-5 transition-colors hover:border-montana/50">
+        {infoBlock}
+      </div>
+    )
+  }
+
   return (
     <a
       className="flex flex-col justify-between rounded-lg border border-piedra/25 bg-white p-5 transition-colors hover:border-montana/50"
-      download={esDescargable ? true : undefined}
       href={href ?? '#'}
       rel={href ? 'noopener noreferrer' : undefined}
-      target={esDescargable ? undefined : href ? '_blank' : undefined}
+      target={href ? '_blank' : undefined}
     >
       {infoBlock}
     </a>
