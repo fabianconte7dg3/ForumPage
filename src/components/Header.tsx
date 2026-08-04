@@ -17,10 +17,10 @@ const NAV: Record<Locale, { href: string; label: string }[]> = {
   ],
   en: [
     { href: '', label: 'Home' },
-    { href: '/about', label: 'About' },
-    { href: '/impact', label: 'Impact' },
-    { href: '/learn', label: 'Learn' },
-    { href: '/stories', label: 'Stories' },
+    { href: '/nosotros', label: 'About' },
+    { href: '/impacto', label: 'Impact' },
+    { href: '/aprende', label: 'Learn' },
+    { href: '/historias', label: 'Stories' },
     { href: '/contacto', label: 'Contact' },
   ],
 }
