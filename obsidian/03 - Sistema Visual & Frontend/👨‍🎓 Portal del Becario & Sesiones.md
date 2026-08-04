@@ -17,6 +17,9 @@ status: activo
 > [!graduated-cap] Interfaz del Beneficiario (`/portal`)
 > El Portal del Becario es la aplicación donde los estudiantes consultan el estado de su beca, su progreso en labor social, el historial de desembolsos y la lista en vivo de materias pendientes en caso de suspensión.
 
+> [!book] Manual del becario (2026-08-04)
+> Guía paso a paso en texto plano, sin capturas: [docs/manual-becario.md](file:///home/fabianc/Documentos/ForumPage/docs/manual-becario.md). Aclara explícitamente que el becario **no** sube su propio expediente académico — esa carga la hace el staff en su nombre.
+
 ---
 
 ## 🏗️ Arquitectura de Autenticación & Componentes

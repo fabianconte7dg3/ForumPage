@@ -129,5 +129,6 @@ Documentado a propósito, no es un olvido:
 
 ## Relacionado
 
+- [docs/manual-becario.md](manual-becario.md) — manual del Portal del Becario.
 - [docs/plan.md](plan.md) — historial completo de cómo se construyó cada sección, con las decisiones y los recortes de alcance explicados.
 - [docs/spec.md](spec.md) — modelo de datos y control de acceso de cada colección.
