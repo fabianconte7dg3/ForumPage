@@ -26,6 +26,8 @@ const NAV: Record<Locale, { href: string; label: string }[]> = {
 }
 
 const PORTAL_LABEL: Record<Locale, string> = { es: 'Portal', en: 'Portal' }
+const BANDERA: Record<Locale, string> = { es: '🇵🇦', en: '🇺🇸' }
+const NOMBRE_IDIOMA: Record<Locale, string> = { es: 'Español', en: 'English' }
 
 export function Header({ locale }: { locale: Locale }) {
   const pathname = usePathname()
@@ -38,7 +40,7 @@ export function Header({ locale }: { locale: Locale }) {
   return (
     <header className="sticky top-0 z-50 border-b border-piedra/25 bg-niebla/95 backdrop-blur-sm">
       <div className="mx-auto flex max-w-(--container-content) items-center justify-between px-4 py-4 md:px-16">
-        <Link className="font-display text-xl font-bold tracking-tight text-montana" href={`/${locale}`}>
+        <Link className="font-display text-lg font-bold tracking-tight text-montana md:text-xl" href={`/${locale}`}>
           FORUM FOUNDATION
         </Link>
         <nav className="hidden items-center gap-6 md:flex">
@@ -52,12 +54,17 @@ export function Header({ locale }: { locale: Locale }) {
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-4">
-          <Link className="font-dato text-xs text-tinta hover:text-montana" href={rutaOtroIdioma}>
-            {otroLocale.toUpperCase()}
+        <div className="flex items-center gap-2 sm:gap-4">
+          <Link
+            aria-label={`${NOMBRE_IDIOMA[otroLocale]} / Switch to ${NOMBRE_IDIOMA[otroLocale]}`}
+            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-sm border border-piedra/25 text-base leading-none transition-colors hover:border-montana"
+            href={rutaOtroIdioma}
+            title={NOMBRE_IDIOMA[otroLocale]}
+          >
+            <span aria-hidden="true">{BANDERA[otroLocale]}</span>
           </Link>
           <Link
-            className="rounded-md bg-montana px-4 py-2 font-dato text-xs uppercase tracking-wider text-niebla transition-colors hover:bg-montana-hover"
+            className="rounded-md bg-montana px-3 py-2 font-dato text-xs uppercase tracking-wider text-niebla transition-colors hover:bg-montana-hover md:px-4"
             href={`/${locale}/portal`}
           >
             {PORTAL_LABEL[locale]}
