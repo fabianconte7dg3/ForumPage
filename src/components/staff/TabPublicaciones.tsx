@@ -1,38 +1,49 @@
 import Link from 'next/link'
+import { FormularioActividadModal } from '@/components/staff/FormularioActividadModal'
 import type { Actividad } from '@/payload-types'
 import { formatearFecha } from '@/lib/format'
+import type { Locale } from '@/i18n'
 
 type Props = {
-  locale: 'es' | 'en'
+  locale: Locale
   publicaciones: Actividad[]
+  comunidades: { id: number; nombre: string }[]
+  programas: { id: number; nombre: string }[]
+  proyectos: { id: number; titulo: string }[]
   page?: number
   totalPages?: number
   hasNextPage?: boolean
   hasPrevPage?: boolean
 }
 
-export function TabPublicaciones({ locale, publicaciones, page = 1, totalPages = 1, hasNextPage = false, hasPrevPage = false }: Props) {
+export function TabPublicaciones({
+  locale,
+  publicaciones,
+  comunidades,
+  programas,
+  proyectos,
+  page = 1,
+  totalPages = 1,
+  hasNextPage = false,
+  hasPrevPage = false,
+}: Props) {
   const t = {
     es: {
-      nuevaPublicacion: '+ Nueva Publicación',
       sinPublicaciones: 'No hay publicaciones recientes.',
       fecha: 'Fecha',
       comunidad: 'Comunidad',
       titulo: 'Título',
       accion: '',
-      editar: 'Editar',
       anterior: 'Anterior',
       siguiente: 'Siguiente',
       paginaDe: (p: number, t: number) => `Página ${p} de ${t}`,
     },
     en: {
-      nuevaPublicacion: '+ New Publication',
       sinPublicaciones: 'No recent publications.',
       fecha: 'Date',
       comunidad: 'Community',
       titulo: 'Title',
       accion: '',
-      editar: 'Edit',
       anterior: 'Previous',
       siguiente: 'Next',
       paginaDe: (p: number, t: number) => `Page ${p} of ${t}`,
@@ -42,14 +53,7 @@ export function TabPublicaciones({ locale, publicaciones, page = 1, totalPages =
   return (
     <div>
       <div className="mb-6 flex justify-end">
-        <a
-          href="/admin/collections/actividades/create"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded-sm bg-montana px-4 py-2 font-dato text-xs uppercase tracking-widest text-white transition-colors hover:bg-montana/90"
-        >
-          {t.nuevaPublicacion}
-        </a>
+        <FormularioActividadModal comunidades={comunidades} locale={locale} programas={programas} proyectos={proyectos} />
       </div>
 
       {publicaciones.length === 0 ? (
@@ -85,14 +89,14 @@ export function TabPublicaciones({ locale, publicaciones, page = 1, totalPages =
                       )}
                     </td>
                     <td className="py-3 text-right">
-                      <a
-                        className="rounded-sm border border-montana px-3 py-1.5 font-dato text-xs uppercase tracking-widest text-montana transition-colors hover:bg-montana hover:text-white"
-                        href={`/admin/collections/actividades/${pub.id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {t.editar}
-                      </a>
+                      <FormularioActividadModal
+                        actividad={pub}
+                        comunidades={comunidades}
+                        locale={locale}
+                        programas={programas}
+                        proyectos={proyectos}
+                        variant="secondary"
+                      />
                     </td>
                   </tr>
                 )
@@ -118,11 +122,11 @@ export function TabPublicaciones({ locale, publicaciones, page = 1, totalPages =
               </span>
             )}
           </div>
-          
+
           <div className="font-dato text-xs uppercase tracking-widest text-piedra">
             {t.paginaDe(page, totalPages)}
           </div>
-          
+
           <div>
             {hasNextPage ? (
               <Link

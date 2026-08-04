@@ -17,7 +17,12 @@ export function ActividadCard({ actividad, locale }: { actividad: Actividad; loc
       <div className="aspect-4/3 border-b border-piedra/25 bg-niebla">
         {portada?.url ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img alt={portada.alt ?? ''} className="h-full w-full object-cover" src={portada.url} />
+          <img
+            alt={portada.alt ?? ''}
+            className="h-full w-full object-cover"
+            src={portada.url}
+            style={{ objectPosition: `${portada.focalX ?? 50}% ${portada.focalY ?? 50}%` }}
+          />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-piedra/40">FORUM</div>
         )}
