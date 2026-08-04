@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getPayload } from 'payload'
 
+import { AccionesNecesidad } from '@/components/staff/AccionesNecesidad'
 import { defaultLocale, type Locale } from '@/i18n'
 import { formatearFecha } from '@/lib/format'
 import { sesionActual } from '@/lib/auth'
@@ -85,8 +86,9 @@ export default async function ColaNecesidadesPage({ params }: { params: Promise<
   }
 
   const payload = await getPayload({ config })
+  const puedeGestionar = usuario.rol === 'staff' || usuario.rol === 'admin'
 
-  const [activas, completadas] = await Promise.all([
+  const [activas, completadas, proyectosRes] = await Promise.all([
     payload.find({
       collection: 'necesidades',
       where: { estado: { not_equals: 'completada' } },
@@ -105,7 +107,15 @@ export default async function ColaNecesidadesPage({ params }: { params: Promise<
       locale,
       overrideAccess: true,
     }),
+    payload.find({
+      collection: 'proyectos',
+      limit: 200,
+      sort: 'titulo',
+      locale,
+      overrideAccess: true,
+    }),
   ])
+  const proyectos = proyectosRes.docs.map((p) => ({ id: p.id, titulo: p.titulo }))
 
   const grupos: { clave: Necesidade['prioridad']; titulo: string }[] = [
     { clave: 'alta', titulo: t.prioridadAlta },
@@ -132,6 +142,7 @@ export default async function ColaNecesidadesPage({ params }: { params: Promise<
           {formatearFecha(n.createdAt, locale)}
           {n.costo_estimado ? ` · ${t.costoEstimado}: ${n.costo_estimado.toLocaleString(locale === 'es' ? 'es-PA' : 'en-US', { currency: 'USD', style: 'currency' })}` : ''}
         </p>
+        {puedeGestionar && <AccionesNecesidad locale={locale} necesidad={n} proyectos={proyectos} />}
       </li>
     )
   }
