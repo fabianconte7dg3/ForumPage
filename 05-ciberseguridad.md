@@ -120,6 +120,8 @@ forum-backups     PRIVADO          → pg_dump, con versionado
 - [ ] Verificado manualmente: pegar la URL directa de un documento en una ventana privada debe fallar
 - [ ] CORS de cada bucket restringido al dominio del sitio
 
+**Decisión del fundador (2026-08-04): riesgo aceptado por presupuesto, mientras no exista droplet.** En vez de los tres buckets separados, medios/documentos/respaldos van a vivir juntos en el disco del mismo VPS. El control de acceso a nivel de aplicación (quién puede *leer* cada documento, ya resuelto en el `access` de cada colección de Payload) no depende de esto y sigue siendo correcto igual. Lo que sí se pierde sin buckets separados es la resiliencia si ese VPS específico falla o se compromete — un respaldo que vive en el mismo disco que respalda no es un respaldo real. **Compromiso explícito para cerrar esa brecha concreta, no todo el ítem:** los respaldos (`pg_dump`) van a copiarse fuera del droplet — servidor personal en casa o un disco en la nube, todavía sin definir cuál — antes de considerar el respaldo real y no solo nominal. Reemplaza la obligatoriedad `[CRÍTICO]` de este punto mientras dure esa decisión; ver `docs/plan.md` Fase 1.
+
 ### 3.5 El GeoJSON público **[CRÍTICO]**
 
 El mapa se sirve como archivo estático. Es un archivo público, sin autenticación, cacheado por el CDN.

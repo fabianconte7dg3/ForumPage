@@ -69,6 +69,8 @@ graph TD
 
 > [!warning] Estado real (no aspiracional)
 > Solo el nivel de **colección** está hecho (`Media` pública vs. `DocumentosPrivados` solo-staff vs. `FotosBecarios` condicional). A nivel de **almacenamiento** no hay todavía adaptador S3 — los archivos siguen en disco local y el control de acceso lo aplica Payload en la ruta del archivo (`access.read` evaluado en cada request), no 3 buckets físicos separados. Esto alcanza para el caso de `Becarios.foto` (2026-08-04): pública solo si `mostrar_en_mapa` sigue activo. Al mover a S3 hay que separar los buckets de verdad y firmar URLs — pero eso es un cambio de *dónde* vive el archivo, no un rediseño del control de acceso, que ya es correcto hoy.
+>
+> **Decisión del fundador (2026-08-04):** riesgo aceptado por presupuesto — medios/documentos/respaldos van a seguir juntos en el disco de un único VPS, no en tres buckets de Spaces, mientras no haya presupuesto para eso. Compromiso explícito para no dejar la brecha de respaldo del todo abierta: los `pg_dump` se copian fuera del droplet (servidor personal en casa o disco en la nube, todavía sin definir cuál) — un respaldo que vive en el mismo disco que respalda no cuenta como respaldo real. Detalle en [[🚀 Plan de Ejecución & Estado de Fases]], Fase 1.
 
 ---
 
