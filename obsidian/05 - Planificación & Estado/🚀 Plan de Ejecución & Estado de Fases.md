@@ -17,7 +17,7 @@ status: activo
 
 > [!flag] Estado General del Proyecto
 > Seguimiento vivo del progreso de desarrollo. Fuente original: [docs/plan.md](file:///home/fabianc/Documentos/ForumPage/docs/plan.md).
-> **Última actualización:** 2026-08-04 — Página "Seguridad de mi cuenta": el 2FA TOTP (Paso H) por fin tiene una pantalla real de activación, no solo endpoints probados por HTTP. Botón Portal movido del header al footer.
+> **Última actualización:** 2026-08-04 — Cambio de contraseña y cierre de sesiones agregados a "Seguridad de mi cuenta". Incidente real: 2FA se activó sin querer en la cuenta del fundador — causa raíz encontrada (la pestaña del navegador de pruebas comparte cookies con la sesión real del usuario).
 
 ---
 
@@ -42,6 +42,7 @@ gantt
     Cobertura /staff vs /admin — 5 gaps cerrados :done, f7, 2026-08-03, 2026-08-03
     Publicaciones/Actividades al panel de staff :done, f8, 2026-08-03, 2026-08-03
     Página Seguridad de mi cuenta (2FA)          :done, f9, 2026-08-04, 2026-08-04
+    Cambio de password, sesiones & fix incidente 2FA :done, f10, 2026-08-04, 2026-08-04
 ```
 
 ---
@@ -140,9 +141,18 @@ gantt
 > El usuario preguntó cómo se activa el 2FA que ya existía (Paso H, sesión anterior). La respuesta honesta: no había ninguna pantalla — los tres endpoints estaban probados solo por HTTP directo.
 
 - [x] **Nueva página `/[locale]/cuenta/seguridad`** ([FormularioDosFA.tsx](file:///home/fabianc/Documentos/ForumPage/src/components/FormularioDosFA.tsx)), un solo componente para cualquier rol (los endpoints `/2fa/generar`/`/2fa/confirmar`/`/2fa/desactivar` solo miran `req.user`, no rol) — enlazada desde `/portal` y `/staff`. Sin endpoints nuevos: es UI pura sobre lo que Paso H ya había construido y probado.
-- [x] **Anomalía investigada durante la verificación, no confirmada como bug real.** Un primer test (activar → cerrar sesión → login) pasó directo sin pedir el código, con `dosFA_habilitado` en `false` después. Aislado con pruebas controladas — confirmar y chequear la base sin login de por medio: se mantiene en `true`; login limpio (una sola petición): pide el código correctamente; dos logins concurrentes a propósito: tampoco lo corrompen. No se reprodujo bajo ninguna condición controlada; coincidió con un burst de 3 POST duplicados a `/login`, consistente con el mismo flakeo del navegador de pruebas ya documentado varias veces en esta sesión, no con el código de producción.
+- [x] **Anomalía investigada durante la verificación — en su momento no confirmada, causa raíz encontrada después (ver sección siguiente).** Un primer test (activar → cerrar sesión → login) pasó directo sin pedir el código. Aislado con pruebas controladas ese mismo día no se reprodujo, así que se atribuyó a flakeo del navegador de pruebas. **Resultó ser la causa real de un incidente en la cuenta del fundador** — el navegador de pruebas comparte cookies con la sesión real del usuario.
 - [x] **Los tres flujos verificados de punta a punta por la UI real**, no solo por API: activar con el código TOTP calculado a partir de la clave mostrada en pantalla (mismo algoritmo RFC 6238 de `src/lib/totp.ts`, replicado aparte solo para la prueba); login en dos pasos completo con sesión emitida; desactivar rechazando contraseña incorrecta y aceptando la correcta. Datos y usuario de prueba borrados.
 - [x] **Aparte, a pedido del usuario:** botón "Portal" movido del header público al footer — cambio de diseño, no de seguridad (`/portal` sigue siendo accesible por URL directa).
+
+### Cambio de Contraseña, Sesiones & Fix del Incidente de 2FA (2026-08-04 — Completo)
+> El usuario reportó que su cuenta real pedía un código 2FA que nunca configuró, al mismo tiempo que pedía agregar cambio de contraseña a "Seguridad de mi cuenta".
+
+- [x] **`FormularioCambiarPassword.tsx` / `cambiar-password.ts`**: exige la contraseña actual (`payload.login()`, mismo criterio que `desactivarDosFA`) antes de aceptar la nueva (mínimo 8 caracteres). No cierra otras sesiones — acción separada, a propósito.
+- [x] **`PanelSesiones.tsx` / `cerrar-todas-sesiones.ts`**: muestra `ultimo_acceso` (campo que ya existía, nunca se mostraba) y cantidad de sesiones activas, con botón para cerrarlas todas — **incluida la propia**, a propósito: más simple y más seguro que preservar solo "esta sesión" (exigiría decodificar el `sid` del JWT actual), y el caso de uso real ("no sé si alguien más entró") se resuelve mejor cerrando todo.
+- [x] **Incidente real resuelto: la cuenta del fundador tenía 2FA activado sin haberlo configurado.** Confirmado en la base (`dosFA_habilitado: true` con secreto real) — no era un error de pantalla. Desactivado de inmediato con `overrideAccess` para restaurar el acceso.
+- [x] **Causa raíz encontrada al verificar la página nueva con un usuario de prueba**: la pestaña del navegador de pruebas del agente **comparte las cookies de sesión con la sesión real del usuario** — no son navegadores aislados, ni por pestaña (abrir una pestaña nueva tampoco aísla nada, las cookies son por origen). Confirmado navegando a `/api/users/me` en medio de una prueba y encontrando la sesión real del usuario con sesiones creadas en los minutos exactos de las pruebas de 2FA de la sesión anterior.
+- [x] **Cambio de método para pruebas autenticadas sensibles**: de acá en adelante, login/2FA/contraseña/sesiones se verifican contra la API Local de Payload o `curl` con un cookie-jar aislado — nunca el navegador de pruebas compartido, que demostró poder interferir con sesiones reales. El navegador de pruebas sigue sirviendo para lo que no arriesga colisión de sesión (páginas públicas, formularios sin datos de otra cuenta).
 
 ---
 
