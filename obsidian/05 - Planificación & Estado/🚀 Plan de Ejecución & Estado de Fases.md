@@ -17,7 +17,7 @@ status: activo
 
 > [!flag] Estado General del Proyecto
 > Seguimiento vivo del progreso de desarrollo. Fuente original: [docs/plan.md](file:///home/fabianc/Documentos/ForumPage/docs/plan.md).
-> **Última actualización:** 2026-08-03 — auditoría del trabajo de Antigravity (21 commits) + remediación de privacidad de `DocumentosPrivados` (código listo, migración pendiente de correr en producción).
+> **Última actualización:** 2026-08-03 — Centro de Aprendizaje en `/staff` (CRUD de Recursos/Tutorías/Prácticas sin pasar por `/admin`, panel lateral) + pulido de UI pública (filtros de Prácticas, Ver/Descargar en Biblioteca, banderas en el idioma).
 
 ---
 
@@ -38,6 +38,7 @@ gantt
     section Adicionales
     Página Institucional Nosotros     :done, f4, 2026-07-30, 2026-07-30
     Auditoría Antigravity & Seguridad Docs :active, f5, 2026-08-01, 2026-08-03
+    Centro de Aprendizaje en /staff & Pulido UI :done, f6, 2026-08-03, 2026-08-03
 ```
 
 ---
@@ -86,6 +87,8 @@ gantt
   - Pestaña `COMUNIDADES (MAPA)`: Modales `+ Nueva Comunidad` y `✏ Editar Comunidad` para administración de coordenadas GPS.
   - Pestaña `PROYECTOS`: Modal `+ Nuevo Proyecto` y `✏ Editar / Avance` con slider (0-100%) para actualización en vivo del porcentaje de avance en el Mapa de Impacto.
   - Pestaña `NOSOTROS / EQUIPO`: Modales `✏ Editar Misión e Historia` (global `/nosotros`) y `+ Agregar Miembro` / `✏ Editar Miembro` (colección `equipo` con tarjeta destacada para el fundador).
+  - Pestaña `CENTRO DE APRENDIZAJE` (2026-08-03): CRUD completo de `Recursos`, `Tutorías` y `Prácticas` vía modales — ver sección dedicada más abajo.
+  - Navegación pasó de barra horizontal a panel lateral en desktop (md+) al no entrar ya 6 pestañas en el ancho de pantalla; en mobile sigue horizontal con scroll.
   - Selector de autocompletado de **Destinos Internacionales Frecuentes** (*Bocconi, University of Florida, Navarra, Tec, Zamorano, EARTH*).
   - Tarjeta documental del becario internacional en el mapa con foto, cita inspiradora, insignias de trayectoria e i18n (`es`/`en`).
   - Integración de becarios originarios en la Ficha de la Comunidad (`/impacto/comunidades/[slug]`).
@@ -98,6 +101,16 @@ gantt
 - [ ] **Remediación de privacidad de documentos — código listo, migración SIN correr en producción.** `Becarios.documentacion_socioeconomica`, `RegistrosAcademicos.documento`, `HorasLaborSocial.evidencia` y `Recuperaciones.evidencia` vivían en `Media` (`read: () => true`, pública) — cualquiera con la URL podía descargar documentación socioeconómica o evidencia de labor social que puede contener menores. Nueva colección `DocumentosPrivados` (solo-staff en las cuatro operaciones — ni siquiera directiva lee, único caso así en todo el sistema, porque ninguna vista del becario ni de directiva renderiza estos archivos).
   Migración en dos mitades: la migración SQL copia las filas de `media` a `documentos_privados` preservando el id (mantiene las FK válidas sin remapear) y reescribe la `url`; `pnpm purgar:media-privada` mueve el archivo físico y borra el original público con `payload.delete`.
   **Postgres estuvo caído durante todo este trabajo — la migración nunca se ejecutó y el script de purga nunca corrió.** Pendiente antes de dar esto por cerrado: `pnpm payload migrate`, luego `pnpm purgar:media-privada` (dry-run, revisar salida) y `pnpm purgar:media-privada --purge`, y confirmar con un GET sin sesión contra `/api/documentos-privados` (no la interfaz) que responde 403/404.
+
+### Centro de Aprendizaje en `/staff` & Pulido de UI Pública (2026-08-03 — Completo)
+- [x] **Nueva pestaña Centro de Aprendizaje.** El staff no tenía forma de publicar `Recursos`/`Tutorías`/`Prácticas` sin pasar por `/admin` — justo lo que `/staff` existe para evitar. CRUD completo vía modales para las tres colecciones; `Prácticas` incluye armado de preguntas/opciones en el mismo panel (sin salir a `/admin`), con validación de mínimo 2 opciones completas por pregunta y un índice de respuesta correcta válido. `Recursos.archivo`/`Practicas.archivo` suben a `media` a propósito (material público de la Biblioteca, no expediente privado).
+- [x] **Bug real encontrado probando con 20 preguntas reales (a pedido del usuario, no hipotético):** el modal centraba verticalmente con `items-center` — con contenido más alto que la ventana eso atasca el scroll del navegador (bug conocido de Chromium con flexbox centrado + overflow), el título quedaba fuera del viewport sin forma de volver arriba. Corregido a `items-start` en los tres modales nuevos.
+- [x] **Las 3 modalidades de Práctica verificadas de punta a punta, no solo compiladas:** autocorregido (20 preguntas reales, `respuesta_correcta`/`retroalimentacion` confirmadas ausentes de `/api/practicas` sin sesión), con progreso (calificado + recarga confirmando "Completado antes: X/Y" desde `localStorage`), descargable (archivo real subido vía `DataTransfer`, descarga confirmada con `curl`). Datos de prueba borrados después en los tres casos.
+- [x] **Filtros en `/aprende/practicas`** (modalidad/nivel/materia + paginación), reutilizando [[📚 Centro de Aprendizaje & Quizzes|`FiltrosBiblioteca`]] tal cual, sin duplicar el componente.
+- [x] **"Ver" y "Descargar" separados para PDF propio en Biblioteca** — antes un solo botón forzaba descarga siempre; ahora "Ver" abre en pestaña nueva con el visor nativo del navegador y "Descargar" sigue forzando el guardado para uso sin conexión.
+- [x] **Selector de idioma con banderas** 🇵🇦/🇺🇸 en vez de texto plano "EN"/"ES" — se veía pegado al logo en mobile, sin contenedor propio.
+- [x] **Botón "Portal de equipo" removido de `/impacto`** — Antigravity lo había agregado enlazando a `/portal` (autenticado); un visitante anónimo solo chocaba con un login.
+- [x] **Niveles/materias faltantes agregados vía script contra Payload** (Universidad; Química, Física, Biología, Historia, Geografía) — nunca hardcodeados en código.
 
 ---
 

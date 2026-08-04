@@ -24,14 +24,16 @@ status: activo
 
 1. **Biblioteca (`/aprende/biblioteca`)**:
    - Filtros de búsqueda por materia, nivel educativo y tipo de recurso mediante Server Components y `FiltrosBiblioteca` sin recarga dura de página (`router.push`).
-   - **Descarga Física**: Recursos de tipo `pdf_propio` incluyen el atributo `download` para guardar el archivo en el dispositivo para uso sin conexión.
+   - **Ver y Descargar (2026-08-03)**: Recursos de tipo `pdf_propio` ofrecen dos acciones separadas — "Ver" abre en pestaña nueva con el visor nativo del navegador, "Descargar" incluye el atributo `download` para guardar el archivo en el dispositivo para uso sin conexión. Antes era un solo botón que forzaba descarga siempre.
    - **Videos de YouTube Diferidos**: Utiliza un reproductor estático personalizado que no carga los `iframe` de `youtube-nocookie.com` hasta que el estudiante hace clic explícito, ahorrando datos móviles.
 
 2. **Tutorías (`/aprende/tutorias`)**:
    - Anuncios de sesiones de reforzamiento académico con filtro por materia y sede.
 
 3. **Prácticas & Quizzes (`/aprende/practicas`)**:
-   - Evaluaciones interactivas autocorregibles.
+   - Evaluaciones interactivas autocorregibles, en tres modalidades: `descargable`, `quiz_autocorregido`, `quiz_con_progreso` (persiste `{aciertos, total, fecha}` en `localStorage` del alumno).
+   - Filtros por modalidad/nivel/materia + paginación (2026-08-03), reutilizando `FiltrosBiblioteca` tal cual.
+   - El staff las crea/edita desde `/staff` (pestaña Centro de Aprendizaje) sin pasar por `/admin` — ver [[🚀 Plan de Ejecución & Estado de Fases]].
 
 ---
 
