@@ -48,6 +48,7 @@ graph TD
 - **Agrupamiento por Prioridad**: Organiza los casos activos en 3 columnas/bloques (`Alta`, `Media`, `Baja`) ordenados numéricamente por `prioridad_orden`.
 - **Casos Resueltos**: Se desglosan en una sección inferior independiente ("Completados") fuera de la cola de atención inmediata.
 - **Transparencia Financiera**: Muestra el `costo_estimado` y el nombre del `solicitante` (restringidos por `FieldAccess` a visitantes públicos).
+- **Gestión inline (2026-08-03)**: `staff`/`admin` ven, además de la tarjeta de lectura, los controles de [AccionesNecesidad.tsx](file:///home/fabianc/Documentos/ForumPage/src/components/staff/AccionesNecesidad.tsx) — cambiar `estado`, `prioridad`, `visible_publicamente` y vincular un `proyecto_resultante`, todo sin salir de esta página. La Server Action [actualizar-necesidad.ts](file:///home/fabianc/Documentos/ForumPage/src/actions/actualizar-necesidad.ts) exige el mismo rol que `Necesidades.access.update` (`esStaffOSuperior`) — **`directiva` sigue viendo solo la tarjeta de lectura, sin controles**: su rol es de rendición de cuentas, no de operación del pipeline. Antes de este cambio, mover un caso por el pipeline exigía `/admin` sin excepción.
 
 ---
 

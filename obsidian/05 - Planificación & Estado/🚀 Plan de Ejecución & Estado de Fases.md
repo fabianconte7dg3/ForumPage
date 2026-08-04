@@ -17,7 +17,7 @@ status: activo
 
 > [!flag] Estado General del Proyecto
 > Seguimiento vivo del progreso de desarrollo. Fuente original: [docs/plan.md](file:///home/fabianc/Documentos/ForumPage/docs/plan.md).
-> **Última actualización:** 2026-08-03 — Centro de Aprendizaje en `/staff` (CRUD de Recursos/Tutorías/Prácticas sin pasar por `/admin`, panel lateral) + pulido de UI pública (filtros de Prácticas, Ver/Descargar en Biblioteca, banderas en el idioma).
+> **Última actualización:** 2026-08-03 — Auditoría de cobertura `/staff` vs. `/admin`: pipeline de Necesidades, Sedes, Centros Educativos, Programas, Configuración General y ahora Publicaciones/Actividades, todo administrable sin salir de `/staff`.
 
 ---
 
@@ -39,6 +39,8 @@ gantt
     Página Institucional Nosotros     :done, f4, 2026-07-30, 2026-07-30
     Auditoría Antigravity & Seguridad Docs :active, f5, 2026-08-01, 2026-08-03
     Centro de Aprendizaje en /staff & Pulido UI :done, f6, 2026-08-03, 2026-08-03
+    Cobertura /staff vs /admin — 5 gaps cerrados :done, f7, 2026-08-03, 2026-08-03
+    Publicaciones/Actividades al panel de staff :done, f8, 2026-08-03, 2026-08-03
 ```
 
 ---
@@ -111,6 +113,27 @@ gantt
 - [x] **Selector de idioma con banderas** 🇵🇦/🇺🇸 en vez de texto plano "EN"/"ES" — se veía pegado al logo en mobile, sin contenedor propio.
 - [x] **Botón "Portal de equipo" removido de `/impacto`** — Antigravity lo había agregado enlazando a `/portal` (autenticado); un visitante anónimo solo chocaba con un login.
 - [x] **Niveles/materias faltantes agregados vía script contra Payload** (Universidad; Química, Física, Biología, Historia, Geografía) — nunca hardcodeados en código.
+
+### Cobertura `/staff` vs. `/admin` — 5 Gaps Cerrados (2026-08-03 — Completo)
+> Auditoría a pedido del usuario: qué colecciones seguían exigiendo `/admin` para operarse a diario. Resultado y cierre, en orden de impacto operativo.
+
+- [x] **Pipeline de Necesidades gestionable desde `/directiva/necesidades`.** Antes era 100% de solo lectura para todos los roles — sin un solo botón para cambiar `estado`/`prioridad`/`visible_publicamente` ni vincular un `proyecto_resultante`. Nueva Server Action (`actualizarNecesidad`) + componente `AccionesNecesidad`. Solo staff/admin gestionan (mismo criterio que `Necesidades.access.update = esStaffOSuperior`, sin tocar el `access` de la colección); directiva sigue viendo la cola, sin controles.
+- [x] **Sedes y Centros Educativos administrables desde la pestaña Comunidades.** Comparten sección con Comunidades por tener el mismo shape (`comunidad` + `coordenadas`). **Recorte de alcance a propósito:** `Sedes.fotos` (upload `hasMany`) no se expuso en el formulario nuevo — campo opcional de poco uso, no justifica la complejidad de un uploader múltiple ahí (el patrón sí existe si hiciera falta, ver [[🚀 Plan de Ejecución & Estado de Fases#Publicaciones (Actividades) al Panel de Staff (2026-08-03 — Completo)|Publicaciones/Actividades]] más abajo).
+- [x] **Programas administrable desde la pestaña Proyectos**, reutilizando el array `programas` que esa pestaña ya cargaba para el dropdown de Proyectos — sin fetch nuevo.
+- [x] **Configuración General editable desde la pestaña Becarios** — meta de horas, calificaciones reprobatorias, aviso de suspensión, contacto institucional, fecha de cifras de impacto. `/staff` entero ya es staff/admin-only a nivel de página, no hizo falta gating adicional.
+- [x] **Bug propio en el script de QA, no en el código de producción:** restaurar `texto_aviso_suspension` con `undefined` no lo vació (Payload trata `undefined` como "campo omitido" en updates parciales) — el valor de prueba quedó pisando el real hasta que la verificación visual lo detectó. Corregido con `null` explícito. La acción real usa el mismo patrón `?.trim() || undefined` que ya usan `crear-comunidad.ts`/`editar-comunidad.ts` — consistente con el resto del código, pero ese patrón no sirve si algún día hace falta poder vaciar el campo desde el formulario.
+- [x] **Verificación de los 5, no solo compilado:** contra Postgres real vía scripts desechables con la API Local de Payload (creado/editado + becario de prueba rechazado con 403 en cada colección, mismo camino que la Server Action) y visualmente en el navegador logueado como staff descartable (nunca la contraseña real del usuario). `tsc --noEmit` limpio bajo `src/` (el proyecto tiene ~1500 errores preexistentes en `node_modules/@maplibre/maplibre-gl-style-spec`, ajenos a este cambio).
+- [x] **Gaps dejados fuera a propósito, no son bugs:** Niveles/Materias siguen linkeando a `/admin` (taxonomías de un solo campo); alta de cuentas staff/directiva/admin sigue exigiendo `/admin` (Paso I, deliberado); no hay visor de `Auditoria` en `/staff` todavía.
+
+### Publicaciones (Actividades) al Panel de Staff (2026-08-03 — Completo)
+> El usuario probó el link-out a `/admin` que había quedado de la auditoría anterior y lo encontró poco intuitivo — único gap que se había dejado fuera a propósito por su complejidad (rich text + galería multi-archivo), ahora cerrado.
+
+- [x] **Sin editor WYSIWYG completo, a propósito.** El campo `contenido` (Lexical richText) se edita con un `<textarea>` de texto plano donde una línea en blanco separa párrafos — sin negrita/enlaces/listas. Nuevo helper compartido `src/lib/richtext.ts`: `textoAParrafos` arma el JSON mínimo de Lexical, `parrafosATexto` hace el camino inverso para precargar el textarea al editar, preservando los saltos de párrafo (a diferencia del `extractTextFromRichText` que ya usaba `staff/page.tsx` para Nosotros, que junta todo con espacios — ahí no importa porque es texto corto, acá sí porque es de longitud de artículo).
+- [x] **Portada y galería con el mismo patrón de subida que `crear-equipo.ts`**, extendido a múltiples archivos (`formData.getAll('files')`, loop de `payload.create({collection:'media'})`). Al editar, cada foto de la galería tiene su botón "✕" para sacarla antes de guardar; las nuevas se agregan aparte. Sin reordenamiento ni metadatos por foto — deliberadamente fuera de alcance.
+- [x] **Verificado:** helper de richtext con test de ida y vuelta; creación con portada + 2 fotos de galería y edición que saca una foto, contra Postgres real vía script con la API Local; becario rechazado (403). En el navegador: edición de una publicación real del seed con todo precargado correctamente (contenido con párrafos intactos), remoción de una foto de galería confirmada (cancelado sin guardar, dato real); creación de punta a punta con subida de imagen real vía `DataTransfer`, publicación visible en `/es/historias` con slug autogenerado y párrafos separados. Datos de prueba borrados. `tsc --noEmit` limpio.
+- [x] **Punto focal de portada — gap encontrado a partir de una pregunta del usuario, corregido el mismo día.** El sitio ya usaba `Media.focalX`/`focalY` (que Payload agrega solo a cualquier upload) para el hero y la galería de `/historias/[slug]`, con centro (50/50) por defecto. El formulario nuevo subía sin fijar ese punto y sin previsualización — capacidad que el subidor nativo de `/admin` sí traía integrada. **Peor aún, encontrado al revisar:** `ActividadCard.tsx` (la tarjeta de `/historias`, fuera de la publicación) **nunca leía el punto focal, ni antes de esta sesión** — bug preexistente que la pregunta hizo aflorar.
+  **Corregido:** una línea en `ActividadCard.tsx` (mismo patrón que hero/galería); previsualización clic-para-fijar-foco en `FormularioActividadModal.tsx` a `aspect-4/3` (el recorte más ajustado), con marcador y "Restablecer centro"; `crear-actividad.ts`/`editar-actividad.ts` guardan el punto al subir, o actualizan el documento de media existente si solo cambió el foco sin resubir la foto.
+  **Verificado con una imagen mitad roja/mitad azul** generada con `<canvas>` en el propio navegador (sin archivo externo): clic en la franja roja fijó `(36%, 15%)`; tras publicar, tanto la tarjeta como el hero mostraron ese mismo `object-position` en su `style` computado. De paso confirmó que el arreglo también corrige la vista de tarjeta para posts reales que ya tenían foco seteado desde `/admin` (ej. `46% 62%`) y que hasta ahora se ignoraba ahí.
 
 ---
 
