@@ -17,7 +17,7 @@ status: activo
 
 > [!flag] Estado General del Proyecto
 > Seguimiento vivo del progreso de desarrollo. Fuente original: [docs/plan.md](file:///home/fabianc/Documentos/ForumPage/docs/plan.md).
-> **Última actualización:** 2026-08-03 — Auditoría de cobertura `/staff` vs. `/admin`: pipeline de Necesidades, Sedes, Centros Educativos, Programas, Configuración General y ahora Publicaciones/Actividades, todo administrable sin salir de `/staff`.
+> **Última actualización:** 2026-08-04 — Página "Seguridad de mi cuenta": el 2FA TOTP (Paso H) por fin tiene una pantalla real de activación, no solo endpoints probados por HTTP. Botón Portal movido del header al footer.
 
 ---
 
@@ -41,6 +41,7 @@ gantt
     Centro de Aprendizaje en /staff & Pulido UI :done, f6, 2026-08-03, 2026-08-03
     Cobertura /staff vs /admin — 5 gaps cerrados :done, f7, 2026-08-03, 2026-08-03
     Publicaciones/Actividades al panel de staff :done, f8, 2026-08-03, 2026-08-03
+    Página Seguridad de mi cuenta (2FA)          :done, f9, 2026-08-04, 2026-08-04
 ```
 
 ---
@@ -134,6 +135,14 @@ gantt
 - [x] **Punto focal de portada — gap encontrado a partir de una pregunta del usuario, corregido el mismo día.** El sitio ya usaba `Media.focalX`/`focalY` (que Payload agrega solo a cualquier upload) para el hero y la galería de `/historias/[slug]`, con centro (50/50) por defecto. El formulario nuevo subía sin fijar ese punto y sin previsualización — capacidad que el subidor nativo de `/admin` sí traía integrada. **Peor aún, encontrado al revisar:** `ActividadCard.tsx` (la tarjeta de `/historias`, fuera de la publicación) **nunca leía el punto focal, ni antes de esta sesión** — bug preexistente que la pregunta hizo aflorar.
   **Corregido:** una línea en `ActividadCard.tsx` (mismo patrón que hero/galería); previsualización clic-para-fijar-foco en `FormularioActividadModal.tsx` a `aspect-4/3` (el recorte más ajustado), con marcador y "Restablecer centro"; `crear-actividad.ts`/`editar-actividad.ts` guardan el punto al subir, o actualizan el documento de media existente si solo cambió el foco sin resubir la foto.
   **Verificado con una imagen mitad roja/mitad azul** generada con `<canvas>` en el propio navegador (sin archivo externo): clic en la franja roja fijó `(36%, 15%)`; tras publicar, tanto la tarjeta como el hero mostraron ese mismo `object-position` en su `style` computado. De paso confirmó que el arreglo también corrige la vista de tarjeta para posts reales que ya tenían foco seteado desde `/admin` (ej. `46% 62%`) y que hasta ahora se ignoraba ahí.
+
+### Página "Seguridad de mi Cuenta" — Activación de 2FA (2026-08-04 — Completo)
+> El usuario preguntó cómo se activa el 2FA que ya existía (Paso H, sesión anterior). La respuesta honesta: no había ninguna pantalla — los tres endpoints estaban probados solo por HTTP directo.
+
+- [x] **Nueva página `/[locale]/cuenta/seguridad`** ([FormularioDosFA.tsx](file:///home/fabianc/Documentos/ForumPage/src/components/FormularioDosFA.tsx)), un solo componente para cualquier rol (los endpoints `/2fa/generar`/`/2fa/confirmar`/`/2fa/desactivar` solo miran `req.user`, no rol) — enlazada desde `/portal` y `/staff`. Sin endpoints nuevos: es UI pura sobre lo que Paso H ya había construido y probado.
+- [x] **Anomalía investigada durante la verificación, no confirmada como bug real.** Un primer test (activar → cerrar sesión → login) pasó directo sin pedir el código, con `dosFA_habilitado` en `false` después. Aislado con pruebas controladas — confirmar y chequear la base sin login de por medio: se mantiene en `true`; login limpio (una sola petición): pide el código correctamente; dos logins concurrentes a propósito: tampoco lo corrompen. No se reprodujo bajo ninguna condición controlada; coincidió con un burst de 3 POST duplicados a `/login`, consistente con el mismo flakeo del navegador de pruebas ya documentado varias veces en esta sesión, no con el código de producción.
+- [x] **Los tres flujos verificados de punta a punta por la UI real**, no solo por API: activar con el código TOTP calculado a partir de la clave mostrada en pantalla (mismo algoritmo RFC 6238 de `src/lib/totp.ts`, replicado aparte solo para la prueba); login en dos pasos completo con sesión emitida; desactivar rechazando contraseña incorrecta y aceptando la correcta. Datos y usuario de prueba borrados.
+- [x] **Aparte, a pedido del usuario:** botón "Portal" movido del header público al footer — cambio de diseño, no de seguridad (`/portal` sigue siendo accesible por URL directa).
 
 ---
 

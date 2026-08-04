@@ -43,6 +43,7 @@ graph TD
 ### 1. Inicio de Sesión & Formularios ([FormularioLogin.tsx](file:///home/fabianc/Documentos/ForumPage/src/components/FormularioLogin.tsx))
 - Soporta inicio de sesión por email/password y maneja automáticamente la bifurcación del desafío 2FA TOTP (`confirmarDosFA`).
 - **Restablecimiento y Activación**: Formulario unificado ([FormularioContrasena.tsx](file:///home/fabianc/Documentos/ForumPage/src/components/FormularioContrasena.tsx)) para activar cuentas invitadas o restablecer contraseñas con desafío 2FA integrado.
+- **Activación del 2FA (2026-08-04)**: página nueva `/[locale]/cuenta/seguridad` ([FormularioDosFA.tsx](file:///home/fabianc/Documentos/ForumPage/src/components/FormularioDosFA.tsx)), enlazada desde el header de `/portal` y `/staff`. Antes de esto el backend del Paso H estaba probado pero sin ninguna UI — activar/desactivar 2FA solo era posible llamando a los endpoints a mano. Un mismo componente sirve para cualquier rol, porque los endpoints (`/2fa/generar`, `/2fa/confirmar`, `/2fa/desactivar`) no distinguen rol, solo `req.user`.
 
 ### 2. Progreso de Labor Social
 - Calcula las horas aprobadas en [[🗄️ Modelo de Datos y Colecciones|HorasLaborSocial]] contra la meta anual del becario.
