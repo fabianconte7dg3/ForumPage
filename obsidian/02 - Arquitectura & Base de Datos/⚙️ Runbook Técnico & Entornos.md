@@ -84,6 +84,13 @@ docker compose -f docker-compose.staging.yml exec app pnpm payload migrate
 
 ---
 
+## 📦 Contenido real cargado en producción (2026-08-04)
+
+> [!inbox] `pg_dump`/`pg_restore` desde dev, con criterio sobre qué era real
+> 36 comunidades, 71 actividades/historias, 8 del equipo, sedes/centros educativos/tutorías/prácticas/recursos, y 958 MB de imágenes reales — llevados de la base de dev a producción. **Excluidos a propósito**: `programas`/`proyectos` (ficticios, confirmado por el usuario) y `becarios`/`users` (datos de prueba — nombres duplicados, y una cuenta con contraseña ya filtrada en el historial de git). Lo que dependía de esos becarios/usuarios de prueba se limpió con la Local API de Payload, no SQL crudo. Detalle completo en [[🚀 Plan de Ejecución & Estado de Fases]], Fase 1, Paso T.
+
+---
+
 ## 🚀 Primer despliegue real (2026-08-04)
 
 > [!rocket] VPS de AWS, no el droplet definitivo
