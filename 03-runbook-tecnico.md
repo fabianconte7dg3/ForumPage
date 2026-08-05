@@ -616,11 +616,11 @@ PermitRootLogin no
 PasswordAuthentication no
 ```
 
-- [ ] `ufw` activo: solo 22, 80 y 443
-- [ ] `fail2ban` instalado
-- [ ] `unattended-upgrades` activo para parches de seguridad
-- [ ] Puerto de Postgres **no expuesto**: solo accesible dentro de la red de Docker
-- [ ] Firewall de DigitalOcean como segunda capa
+- [x] `ufw` activo: solo 22 (con `limit`, no `allow` — banea temporalmente una IP que intenta más de 6 conexiones en 30s), 80 y 443. **Lección real (2026-08-04):** un script propio que reintenta la conexión SSH en loop cada pocos segundos para chequear un estado (ej. "avisame cuando termine tal instalación") puede disparar ese mismo `limit` contra la propia IP del operador y quedar bloqueado varios minutos — espaciar los reintentos a 30s o más, o mejor, evitar loops de polling por SSH.
+- [x] `fail2ban` instalado, jail `sshd` activo (`maxretry=5`, `findtime=10m`, `bantime=1h`) — confirmado funcionando: ya baneó IPs reales de escaneo automatizado de internet en las primeras horas.
+- [x] `unattended-upgrades` activo — viene así por defecto en la AMI oficial de Ubuntu de AWS, sin que haga falta instalarlo a mano.
+- [x] Puerto de Postgres **no expuesto**: solo accesible dentro de la red de Docker (confirmado, `docker-compose.staging.yml` no publica el puerto 5432).
+- [ ] Firewall de DigitalOcean como segunda capa — no aplica todavía: el servidor real actual es un VPS de AWS (Security Group de AWS ya restringe 22/80/443, ver `docs/plan.md` Fase 1 Paso Q), no el droplet de DigitalOcean que describe esta sección.
 
 ### 11.4 Docker
 

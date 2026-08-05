@@ -1,0 +1,8 @@
+# Caddy oficial no trae rate limiting — el directive `rate_limit` lo agrega
+# el plugin community github.com/mholt/caddy-ratelimit, compilado con xcaddy.
+# Ver Caddyfile (bloque rate_limit) y docs/runbook-despliegue.md.
+FROM caddy:2-builder-alpine AS builder
+RUN xcaddy build --with github.com/mholt/caddy-ratelimit
+
+FROM caddy:2-alpine
+COPY --from=builder /usr/bin/caddy /usr/bin/caddy

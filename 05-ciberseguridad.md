@@ -195,8 +195,8 @@ Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
 
 ### 3.10 Límite de tasa
 
-- [ ] Login, recuperación de contraseña y subida de archivos
-- [ ] Formulario público de Necesidades — protegido contra spam sin CAPTCHA invasivo (honeypot + límite por IP)
+- [x] **Login, 2FA, recuperación/reset de contraseña y activación por invitación (2026-08-04).** Todo lo que vive bajo `/api/users/*`, limitado a nivel de red en Caddy (30 pedidos/minuto por IP, plugin community `caddy-ratelimit` vía `Dockerfile.caddy` — Caddy oficial no trae rate limiting). Es una capa **adicional** al bloqueo de 5 intentos por cuenta que ya aplica Payload (§3.1) — esa protege una cuenta puntual, esta frena el volumen agregado por IP antes de que llegue a la aplicación. Verificado contra el servidor real: 31 pedidos seguidos a `/api/users/login` dan `401` (credenciales inválidas, comportamiento normal) en los primeros 30 y `429` en el 31º.
+- [ ] Formulario público de Necesidades — protegido contra spam sin CAPTCHA invasivo (honeypot ya implementado, ver `docs/plan.md` Fase 3 §3.5 "Página pública `/impacto/necesidades`"), **límite por IP todavía no**
 - [ ] API pública, para evitar el raspado masivo del padrón consentido
 
 ---

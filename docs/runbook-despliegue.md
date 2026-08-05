@@ -26,7 +26,7 @@ Esto no cambia respecto a como se viene trabajando todo el proyecto:
 DEPLOY_HOST=<ip-del-vps> DEPLOY_USER=ubuntu DEPLOY_KEY=/ruta/a/la/clave.pem ./scripts/deploy.sh
 ```
 
-Qué hace, en orden:
+Qué hace, en orden (incluye reconstruir Caddy si `Dockerfile.caddy` o el `Caddyfile` cambiaron — no hace falta ningún flag extra, `docker compose up -d --build` reconstruye cualquier servicio con `build:` en el compose):
 1. `rsync` del código local al VPS (excluye `node_modules/`, `.next/`, `.git/`, `.env`, medios subidos y todo lo que ya excluye `.gitignore` — nunca pisa el `.env` real del servidor).
 2. Si se pasa `--migrate`: construye la imagen del stage `build` y corre las migraciones pendientes contra el Postgres real, **antes** de tocar el contenedor que sirve tráfico (para no dejar nunca código nuevo corriendo contra un esquema viejo).
 3. `docker compose up -d --build`: reconstruye la imagen final y reemplaza el contenedor `app` — `db` y `caddy` no se tocan si no cambiaron.

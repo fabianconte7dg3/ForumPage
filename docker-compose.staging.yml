@@ -40,7 +40,9 @@ services:
     restart: unless-stopped
 
   caddy:
-    image: caddy:2-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.caddy
     environment:
       SITE_DOMAIN: ${SITE_DOMAIN}
     ports:

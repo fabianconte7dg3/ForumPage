@@ -1,20 +1,41 @@
 # Ver 03-runbook-tecnico.md §12.3. SITE_DOMAIN se define en .env — así el
 # mismo compose sirve para staging.forum-foundation.org y forum-foundation.org
 # sin tocar este archivo.
+#
+# rate_limit necesita el plugin community caddy-ratelimit (Dockerfile.caddy,
+# no viene en la imagen oficial). Cubre login, 2FA, recuperación/reset de
+# contraseña y activación por invitación — todo lo que vive bajo
+# /api/users/*. Es una capa de red además del bloqueo de 5 intentos que ya
+# aplica Payload por cuenta (05-ciberseguridad.md §3.1) — esta frena el
+# volumen de intentos por IP, no reemplaza esa protección.
+{
+	order rate_limit before reverse_proxy
+}
+
 {$SITE_DOMAIN} {
-    reverse_proxy app:3000
-    encode gzip zstd
-    header {
-        Strict-Transport-Security "max-age=31536000; includeSubDomains"
-        X-Content-Type-Options nosniff
-        X-Frame-Options DENY
-        Referrer-Policy strict-origin-when-cross-origin
-        # El sitio no usa cámara/micrófono/geolocalización en ningún lado
-        # (verificado: sin navigator.geolocation/getUserMedia en src/) — solo
-        # restringe, no puede romper nada que ya funcione.
-        Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
-    }
-    request_body {
-        max_size 25MB
-    }
+	rate_limit {
+		zone auth_zone {
+			match {
+				path /api/users/*
+			}
+			key {remote_host}
+			events 30
+			window 1m
+		}
+	}
+	reverse_proxy app:3000
+	encode gzip zstd
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy strict-origin-when-cross-origin
+		# El sitio no usa cámara/micrófono/geolocalización en ningún lado
+		# (verificado: sin navigator.geolocation/getUserMedia en src/) — solo
+		# restringe, no puede romper nada que ya funcione.
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+	}
+	request_body {
+		max_size 25MB
+	}
 }

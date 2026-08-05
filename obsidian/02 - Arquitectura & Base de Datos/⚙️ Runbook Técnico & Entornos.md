@@ -77,6 +77,13 @@ docker compose -f docker-compose.staging.yml exec app pnpm payload migrate
 
 ---
 
+## 🔐 Endurecimiento del VPS (2026-08-04)
+
+> [!shield] `ufw` + `fail2ban` + rate limiting real en Caddy
+> `ufw` activo (solo 22 con `limit`/80/443), `fail2ban` en `sshd` (ya baneó IPs de escaneo real), y `Dockerfile.caddy` (Caddy + plugin `caddy-ratelimit`, la imagen oficial no lo trae) limitando `/api/users/*` a 30 pedidos/min por IP — verificado con una ráfaga real dando `429` en la request 31. `unattended-upgrades` y el endurecimiento de SSH ya venían así por defecto en la AMI de Ubuntu de AWS. Detalle en [[🚀 Plan de Ejecución & Estado de Fases]], Fase 1, Paso S.
+
+---
+
 ## 🚀 Primer despliegue real (2026-08-04)
 
 > [!rocket] VPS de AWS, no el droplet definitivo
