@@ -66,6 +66,7 @@ graph TD
 ### 5. Portal del Staff (`/staff`)
 - **Sistema de Pestañas**: Navegación dividida entre `Becarios` y `Publicaciones`.
 - **Buscador Dinámico**: Filtro instantáneo por nombre en el cliente para la gestión acelerada de expedientes (>100 becarios).
+- **Alta unificada (2026-08-05)**: "+ Registrar Becario" ya no es solo el expediente — en el mismo paso crea la cuenta (`Users` con `rol: 'becario'`) y muestra el enlace de invitación de un solo uso listo para copiar. Antes exigía terminar el alta a mano en `/admin`. Detalle en [[🚀 Plan de Ejecución & Estado de Fases]], Fase 3.
 - **Verificación de Expedientes y Evidencias**: Vista previa de créditos universitarios e informes/evidencias de labor social.
 - **Registro Directo de Desembolsos**: Flujo simplificado "Registrar Pago Realizado" con estado `pagado` y fecha efectiva automática.
 - **Publicaciones & Payload Admin**: Historial de 10 elementos con paginación (`?tab=publicaciones&p=1`) y enlace a creación en Payload Admin con branding corporativo inyectado (`admin.scss`).

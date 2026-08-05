@@ -30,9 +30,13 @@ export function FormularioNuevoBecario({ locale, comunidades, destinos }: Props)
   const [abierto, setAbierto] = useState(false)
   const [cargando, setCargando] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [enlaceGenerado, setEnlaceGenerado] = useState<string | null>(null)
+  const [avisoCuenta, setAvisoCuenta] = useState<string | null>(null)
+  const [copiado, setCopiado] = useState(false)
 
   // Form states
   const [nombre, setNombre] = useState('')
+  const [email, setEmail] = useState('')
   const [comunidadId, setComunidadId] = useState<number | undefined>(undefined)
   const [universidad, setUniversidad] = useState('')
   const [carrera, setCarrera] = useState('')
@@ -55,6 +59,7 @@ export function FormularioNuevoBecario({ locale, comunidades, destinos }: Props)
 
     const res = await crearBecario({
       nombre,
+      email,
       comunidadId: comunidadId ? Number(comunidadId) : undefined,
       universidad,
       carrera,
@@ -76,17 +81,36 @@ export function FormularioNuevoBecario({ locale, comunidades, destinos }: Props)
 
     if (res.error) {
       setErrorMsg(res.error)
-    } else {
-      setAbierto(false)
-      // Reset form
-      setNombre('')
-      setUniversidad('')
-      setCarrera('')
-      setCita('')
-      setConsentimientoFirmado(false)
-      setMostrarEnMapa(false)
-      router.refresh()
+      return
     }
+
+    // Reset form
+    setNombre('')
+    setEmail('')
+    setUniversidad('')
+    setCarrera('')
+    setCita('')
+    setConsentimientoFirmado(false)
+    setMostrarEnMapa(false)
+    router.refresh()
+
+    // No se cierra el modal todavía: primero hay que darle al staff la
+    // chance de copiar el enlace de invitación, que solo se muestra una vez.
+    setEnlaceGenerado(res.enlaceInvitacion ?? null)
+    setAvisoCuenta(res.avisoCuenta ?? null)
+  }
+
+  const cerrarTrasExito = () => {
+    setAbierto(false)
+    setEnlaceGenerado(null)
+    setAvisoCuenta(null)
+    setCopiado(false)
+  }
+
+  const copiarEnlace = async () => {
+    if (!enlaceGenerado) return
+    await navigator.clipboard.writeText(enlaceGenerado)
+    setCopiado(true)
   }
 
   return (
@@ -109,20 +133,59 @@ export function FormularioNuevoBecario({ locale, comunidades, destinos }: Props)
               </div>
               <button
                 type="button"
-                onClick={() => setAbierto(false)}
+                onClick={cerrarTrasExito}
                 className="font-dato text-sm font-bold text-piedra hover:text-tinta"
               >
                 ✕
               </button>
             </div>
 
-            {errorMsg && (
-              <div className="mb-4 rounded-sm border border-cosecha/50 bg-cosecha/10 p-3 font-lectura text-sm text-tinta">
-                {errorMsg}
+            {enlaceGenerado || avisoCuenta ? (
+              <div className="space-y-4">
+                <div className="rounded-sm border border-montana/30 bg-montana/5 p-4">
+                  <p className="mb-2 font-lectura text-sm text-tinta">
+                    Becario registrado. {enlaceGenerado ? 'Copiá este enlace y enviaselo — vence en 1 hora y es de un solo uso:' : null}
+                  </p>
+                  {enlaceGenerado && (
+                    <div className="flex items-center gap-2">
+                      <input
+                        readOnly
+                        value={enlaceGenerado}
+                        onFocus={(e) => e.target.select()}
+                        className="w-full rounded-sm border border-piedra/25 bg-white px-3 py-2 font-dato text-xs text-tinta outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={copiarEnlace}
+                        className="shrink-0 rounded-sm border border-montana bg-montana px-3 py-2 font-dato text-xs font-bold uppercase tracking-widest text-white hover:bg-montana/90"
+                      >
+                        {copiado ? 'Copiado ✓' : 'Copiar'}
+                      </button>
+                    </div>
+                  )}
+                  {avisoCuenta && (
+                    <p className="font-lectura text-sm text-cosecha">{avisoCuenta}</p>
+                  )}
+                </div>
+                <div className="flex justify-end border-t border-piedra/25 pt-4">
+                  <button
+                    type="button"
+                    onClick={cerrarTrasExito}
+                    className="rounded-sm border border-montana bg-montana px-5 py-2 font-dato text-xs font-bold uppercase tracking-widest text-white hover:bg-montana/90"
+                  >
+                    Listo
+                  </button>
+                </div>
               </div>
-            )}
+            ) : (
+              <>
+                {errorMsg && (
+                  <div className="mb-4 rounded-sm border border-cosecha/50 bg-cosecha/10 p-3 font-lectura text-sm text-tinta">
+                    {errorMsg}
+                  </div>
+                )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1 block font-dato text-xs uppercase tracking-widest text-tinta">
@@ -136,6 +199,23 @@ export function FormularioNuevoBecario({ locale, comunidades, destinos }: Props)
                     placeholder="Ej. Juan Pérez"
                     className="w-full rounded-sm border border-piedra/25 px-3 py-2 font-lectura text-sm outline-none focus:border-montana"
                   />
+                </div>
+
+                <div>
+                  <label className="mb-1 block font-dato text-xs uppercase tracking-widest text-tinta">
+                    Correo del becario <span className="text-cosecha">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="becario@correo.com"
+                    className="w-full rounded-sm border border-piedra/25 px-3 py-2 font-lectura text-sm outline-none focus:border-montana"
+                  />
+                  <p className="mt-1 font-lectura text-xs text-tinta/50">
+                    Al guardar se crea su cuenta y un enlace de invitación de un solo uso, listo para copiar.
+                  </p>
                 </div>
 
                 <div>
@@ -388,7 +468,7 @@ export function FormularioNuevoBecario({ locale, comunidades, destinos }: Props)
               <div className="flex justify-end space-x-3 pt-4 border-t border-piedra/25">
                 <button
                   type="button"
-                  onClick={() => setAbierto(false)}
+                  onClick={cerrarTrasExito}
                   className="rounded-sm border border-piedra/25 px-4 py-2 font-dato text-xs font-bold uppercase tracking-widest text-tinta hover:bg-niebla"
                 >
                   Cancelar
@@ -401,7 +481,9 @@ export function FormularioNuevoBecario({ locale, comunidades, destinos }: Props)
                   {cargando ? 'Guardando...' : 'Registrar Becario'}
                 </button>
               </div>
-            </form>
+                </form>
+              </>
+            )}
           </div>
         </div>
       )}

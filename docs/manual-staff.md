@@ -18,9 +18,9 @@ Quién puede entrar a cada sección:
 
 **Buscador**: filtra por nombre al instante, sin recargar la página.
 
-**+ Registrar Becario**: crea el expediente (nombre, comunidad de origen, universidad, carrera, año, año de inicio de la beca, estado, tipo de estudio nacional/internacional). Si es internacional, el selector "Sugerencia / Destino Frecuente" completa universidad/país/ciudad/coordenadas de un tirón — la lista sale de la colección `Destinos Internacionales` (ver más abajo cómo agregarle uno nuevo), o se puede tipear todo a mano si el destino no está en la lista. El checkbox "Mostrar becario en el Mapa de Impacto" no se puede activar sin marcar antes "Consentimiento de imagen firmado" — es la condición que hace pública su ficha en `/impacto`.
+**+ Registrar Becario**: crea el expediente **y** la cuenta de acceso en un solo paso (2026-08-05 — antes había que terminar el alta a mano en `/admin`, ya no). Pide nombre, **correo del becario**, comunidad de origen, universidad, carrera, año, año de inicio de la beca, estado, tipo de estudio nacional/internacional. Si es internacional, el selector "Sugerencia / Destino Frecuente" completa universidad/país/ciudad/coordenadas de un tirón — la lista sale de la colección `Destinos Internacionales` (ver más abajo cómo agregarle uno nuevo), o se puede tipear todo a mano si el destino no está en la lista. El checkbox "Mostrar becario en el Mapa de Impacto" no se puede activar sin marcar antes "Consentimiento de imagen firmado" — es la condición que hace pública su ficha en `/impacto`.
 
-**Importante — esto NO crea el login del becario.** Registrar acá solo crea el *expediente* (comunidad, universidad, etc.). Para que la persona pueda entrar a `/portal`, todavía hay que ir a `/admin` → Users → Create, elegir rol `Becario`, vincular el campo "El registro de becario vinculado a esta cuenta" con el expediente recién creado, y guardar. Eso genera solo un enlace de invitación de un solo uso (campo `enlace_invitacion` en esa misma pantalla de `/admin`) que hay que copiar y mandarle por el canal que sea — nunca se le asigna una contraseña a mano, el enlace es lo único válido y vence en 1 hora.
+Al guardar, el formulario no se cierra solo — muestra el **enlace de invitación de un solo uso** (vence en 1 hora) con un botón "Copiar", para mandárselo al becario por el canal que sea. Nunca se le asigna una contraseña a mano, el enlace es lo único válido. Si el correo ya está en uso o algo falla al crear la cuenta, el expediente igual queda guardado y el formulario avisa — reintentar la cuenta desde `/admin` en ese caso puntual.
 
 **Ver expediente** (en cada fila) abre `/staff/[id]` con:
 - **Verificación académica**: subir/revisar créditos y boletín, botón "Evaluar y Verificar" — si hay materias reprobadas, el sistema suspende la beca solo.
@@ -120,7 +120,7 @@ Si una foto de una publicación se ve mal recortada (corta una cara, un cartel, 
 
 Documentado a propósito, no es un olvido:
 
-- **Crear el login de un becario** (el paso de invitación descrito en la sección 1) y **crear cuentas de staff/directiva/admin** — decisión deliberada: solo becarios se invitan desde el flujo simplificado, el resto de los roles se da de alta a mano con criterio.
+- **Crear cuentas de staff/directiva/admin** — decisión deliberada: solo becarios se invitan desde el flujo simplificado de "Registrar Becario" (sección 1, unificado desde el 2026-08-05), el resto de los roles se da de alta a mano con criterio.
 - **Niveles y Materias** (taxonomías de un solo campo, cambian muy poco).
 - **Fotos múltiples de una Sede** (`Sedes.fotos`) — campo opcional, poco usado, no justificaba un uploader múltiple extra en el panel.
 - Cualquier edición de una publicación que necesite negrita, enlaces o listas en el contenido (el editor del panel es texto plano con párrafos).

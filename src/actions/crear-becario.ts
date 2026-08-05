@@ -1,12 +1,16 @@
 'use server'
 
+import { randomBytes } from 'crypto'
 import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 export type CrearBecarioInput = {
   nombre: string
+  email: string
   comunidadId?: number
   universidad?: string
   carrera?: string
@@ -32,6 +36,10 @@ export async function crearBecario(input: CrearBecarioInput) {
 
   if (!input.nombre || input.nombre.trim().length < 2) {
     return { error: 'El nombre completo es obligatorio.' }
+  }
+
+  if (!input.email || !EMAIL_RE.test(input.email.trim())) {
+    return { error: 'El correo del becario no es válido.' }
   }
 
   if (input.mostrar_en_mapa && !input.consentimiento_firmado) {
@@ -75,9 +83,56 @@ export async function crearBecario(input: CrearBecarioInput) {
       user: usuario,
     })
 
+    // Une en un solo paso lo que antes exigía ir a /admin aparte: crear el
+    // login del becario y generar su enlace de invitación. La contraseña de
+    // relleno nunca se usa — el hook `generarInvitacionAlCrear` de
+    // `Users.ts` la pisa enseguida y arma el enlace de un solo uso; acá solo
+    // hace falta un valor que pase el mínimo de 8 caracteres para crear la
+    // cuenta.
+    let enlaceInvitacion: string | null = null
+    try {
+      await payload.create({
+        collection: 'users',
+        data: {
+          email: input.email.trim(),
+          password: randomBytes(32).toString('hex'),
+          rol: 'becario',
+          becario: nuevo.id,
+        },
+        overrideAccess: false,
+        user: usuario,
+      })
+      // El create de arriba no trae el enlace todavía — el hook lo escribe
+      // con un update posterior al propio create, hace falta releer.
+      // overrideAccess acá es necesario y seguro: el access de lectura de
+      // `users` a nivel de colección limita a un staff a ver solo su propio
+      // documento (`id: { equals: req.user.id }`), así que con
+      // overrideAccess: false esta consulta volvería vacía para cualquier
+      // staff que no sea admin. El propio `sesionActual()` de arriba ya
+      // valida que quien llama es staff/admin, y la acción solo devuelve al
+      // cliente el string del enlace — nunca el resto del documento.
+      const cuentaBecario = await payload.find({
+        collection: 'users',
+        where: { becario: { equals: nuevo.id } },
+        limit: 1,
+        overrideAccess: true,
+      })
+      enlaceInvitacion = (cuentaBecario.docs[0]?.enlace_invitacion as string | undefined) ?? null
+    } catch (errorCuenta) {
+      console.error('Becario creado, pero falló crear su cuenta/invitación:', errorCuenta)
+      revalidatePath(`/${input.locale}/staff`)
+      revalidatePath(`/${input.locale}/impacto`)
+      return {
+        success: true,
+        id: nuevo.id,
+        enlaceInvitacion: null,
+        avisoCuenta: 'El becario se registró, pero no se pudo crear su cuenta (¿ese correo ya está en uso?). Podés reintentar desde /admin.',
+      }
+    }
+
     revalidatePath(`/${input.locale}/staff`)
     revalidatePath(`/${input.locale}/impacto`)
-    return { success: true, id: nuevo.id }
+    return { success: true, id: nuevo.id, enlaceInvitacion }
   } catch (error) {
     console.error('Error al crear becario:', error)
     return { error: 'Ocurrió un error al registrar el becario. Revisa los datos ingresados.' }
