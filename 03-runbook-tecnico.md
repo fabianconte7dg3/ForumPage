@@ -697,12 +697,10 @@ forum-foundation.org, www.forum-foundation.org {
 
 ### 12.4 Migraciones
 
-```bash
-docker compose exec app pnpm payload migrate
-```
+**Corregido 2026-08-04, verificado contra un droplet real:** `docker compose exec app pnpm payload migrate` **no funciona** — el contenedor `runner` (salida `standalone` de Next.js) no incluye el CLI de Payload a propósito, para mantener la imagen final mínima. Las migraciones se corren desde una imagen aparte construida desde el stage intermedio `build` (que sí tiene el `node_modules` completo), conectada a la misma red de Docker que `db`. Automatizado en `scripts/deploy.sh --migrate` — ver [docs/runbook-despliegue.md](../docs/runbook-despliegue.md) §2-3 para el procedimiento completo y el porqué.
 
-- [ ] Ejecutadas siempre **antes** de levantar la nueva versión
-- [ ] Nunca `push` de esquema automático en producción
+- [x] Ejecutadas siempre **antes** de levantar la nueva versión
+- [x] Nunca `push` de esquema automático en producción (`push: false` fijo en el adaptador)
 
 ---
 
