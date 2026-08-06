@@ -1643,23 +1643,16 @@ export interface Nosotro {
     [k: string]: unknown;
   } | null;
   /**
-   * Resumen de las líneas de trabajo de la fundación, para /nosotros/programas.
+   * Resumen de las líneas de trabajo de la fundación, seccionado por tipo de programa con foto — para /nosotros/programas.
    */
-  resumen?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
+  secciones_resumen?:
+    | {
+        titulo: string;
+        texto: string;
+        imagen?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
   /**
    * Foto que acompaña la misión/historia
    */
@@ -1700,7 +1693,14 @@ export interface ConfiguracionSelect<T extends boolean = true> {
 export interface NosotrosSelect<T extends boolean = true> {
   mision?: T;
   historia?: T;
-  resumen?: T;
+  secciones_resumen?:
+    | T
+    | {
+        titulo?: T;
+        texto?: T;
+        imagen?: T;
+        id?: T;
+      };
   foto?: T;
   logo?: T;
   updatedAt?: T;

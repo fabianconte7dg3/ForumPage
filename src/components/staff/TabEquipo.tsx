@@ -1,7 +1,7 @@
 'use client'
 
 import { FormularioEquipoModal } from '@/components/staff/FormularioEquipoModal'
-import { FormularioNosotrosModal } from '@/components/staff/FormularioNosotrosModal'
+import { FormularioNosotrosModal, type SeccionInicial } from '@/components/staff/FormularioNosotrosModal'
 import type { Equipo } from '@/payload-types'
 import type { Locale } from '@/i18n'
 
@@ -10,10 +10,10 @@ type Props = {
   equipo: Equipo[]
   misionTexto?: string
   historiaTexto?: string
-  resumenTexto?: string
+  secciones?: SeccionInicial[]
 }
 
-export function TabEquipo({ locale, equipo, misionTexto, historiaTexto, resumenTexto }: Props) {
+export function TabEquipo({ locale, equipo, misionTexto, historiaTexto, secciones }: Props) {
   return (
     <div className="space-y-12">
       {/* Sección 1: Misión e Historia Global */}
@@ -29,7 +29,7 @@ export function TabEquipo({ locale, equipo, misionTexto, historiaTexto, resumenT
             historiaInicial={historiaTexto}
             locale={locale}
             misionInicial={misionTexto}
-            resumenInicial={resumenTexto}
+            seccionesIniciales={secciones}
           />
         </div>
 

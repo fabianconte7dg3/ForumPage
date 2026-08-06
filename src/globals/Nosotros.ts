@@ -22,10 +22,14 @@ export const Nosotros: GlobalConfig = {
       localized: true,
     },
     {
-      name: 'resumen',
-      type: 'richText',
-      localized: true,
-      admin: { description: 'Resumen de las líneas de trabajo de la fundación, para /nosotros/programas.' },
+      name: 'secciones_resumen',
+      type: 'array',
+      admin: { description: 'Resumen de las líneas de trabajo de la fundación, seccionado por tipo de programa con foto — para /nosotros/programas.' },
+      fields: [
+        { name: 'titulo', type: 'text', required: true, localized: true },
+        { name: 'texto', type: 'textarea', required: true, localized: true },
+        { name: 'imagen', type: 'upload', relationTo: 'media' },
+      ],
     },
     {
       name: 'foto',

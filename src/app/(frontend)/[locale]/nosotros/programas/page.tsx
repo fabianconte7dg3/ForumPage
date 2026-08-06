@@ -1,10 +1,9 @@
-import { RichText } from '@payloadcms/richtext-lexical/react'
 import Link from 'next/link'
 import { getPayload } from 'payload'
 
 import { defaultLocale, type Locale } from '@/i18n'
 import config from '@/payload.config'
-import type { Programa, Proyecto } from '@/payload-types'
+import type { Media, Programa, Proyecto } from '@/payload-types'
 
 // El contenido (nombre, descripción, color) lo edita el staff desde
 // /staff → Proyectos → Programas — nunca estático en el código.
@@ -41,7 +40,7 @@ export default async function ProgramasPage({ params }: { params: Promise<{ loca
   const [programas, proyectos, nosotros] = await Promise.all([
     payload.find({ collection: 'programas', where: { activo: { equals: true } }, sort: 'nombre', limit: 100, locale, overrideAccess: true }),
     payload.find({ collection: 'proyectos', limit: 500, depth: 0, overrideAccess: true }),
-    payload.findGlobal({ slug: 'nosotros', locale, depth: 0, overrideAccess: true }),
+    payload.findGlobal({ slug: 'nosotros', locale, depth: 1, overrideAccess: true }),
   ])
 
   const conteoPorPrograma = new Map<number, { activos: number; completados: number }>()
@@ -64,9 +63,32 @@ export default async function ProgramasPage({ params }: { params: Promise<{ loca
         <p className="mt-2 font-lectura text-lg text-tinta/70">{t.subtitulo}</p>
       </header>
 
-      {nosotros.resumen && (
-        <div className="mb-12 max-w-(--text-reading-width) font-lectura text-base leading-relaxed text-tinta [&>p]:mb-4">
-          <RichText data={nosotros.resumen} />
+      {nosotros.secciones_resumen && nosotros.secciones_resumen.length > 0 && (
+        <div className="mb-16 space-y-12">
+          {nosotros.secciones_resumen.map((seccion, i) => {
+            const imagen = typeof seccion.imagen === 'object' ? (seccion.imagen as Media) : undefined
+            return (
+              <div
+                className={`grid grid-cols-1 items-center gap-6 ${imagen?.url ? 'md:grid-cols-2' : ''}`}
+                key={seccion.id ?? i}
+              >
+                {imagen?.url && (
+                  <div className={i % 2 === 1 ? 'md:order-2' : ''}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      alt={imagen.alt ?? ''}
+                      className="aspect-4/3 w-full rounded-md object-cover"
+                      src={imagen.url}
+                    />
+                  </div>
+                )}
+                <div className={imagen?.url && i % 2 === 1 ? 'md:order-1' : ''}>
+                  <h2 className="mb-3 font-display text-xl font-bold uppercase text-montana">{seccion.titulo}</h2>
+                  <p className="font-lectura text-base leading-relaxed text-tinta/80">{seccion.texto}</p>
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
 

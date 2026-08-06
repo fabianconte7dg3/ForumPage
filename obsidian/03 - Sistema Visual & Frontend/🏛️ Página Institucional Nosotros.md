@@ -28,7 +28,7 @@ status: completado
 - **Campos**:
   - `mision`: Lexical RichText localizado (`es`/`en`).
   - `historia`: Lexical RichText localizado (`es`/`en`).
-  - `resumen`: Lexical RichText localizado (`es`/`en`), agregado 2026-08-06 — a diferencia de `mision`/`historia` (un solo párrafo), usa `textoAParrafos`/`parrafosATexto` (`src/lib/richtext.ts`) para soportar varios párrafos separados por línea en blanco. Se muestra arriba de la grilla en `/nosotros/programas`, no en `/nosotros`.
+  - `secciones_resumen`: Array (agregado 2026-08-06, reemplaza un intento anterior con `richText` de un solo bloque que el usuario rechazó por no verse seccionado). Cada ítem: `titulo` (texto, localizado), `texto` (textarea, localizado), `imagen` (upload a `Media`, no localizada). Se muestra arriba de la grilla en `/nosotros/programas` como filas alternadas imagen/texto, no en `/nosotros`.
   - `foto`: Imagen descriptiva que acompaña el texto.
   - `logo`: Emblema/marca institucional.
 - **Acceso**: Lectura pública (`() => true`), edición restringida a Staff/Admin (`esStaffOSuperior`).
@@ -63,7 +63,7 @@ status: completado
 
 > [!map] `/nosotros/programas` y `/contacto`
 > Dos páginas institucionales más, cerrando el pendiente de "1.4 Sitio público". Ninguna agregó colección ni campo nuevo — ambas leen datos que el staff ya podía editar desde antes:
-> - **`/nosotros/programas`**: lista los `Programas` con `activo: true` (colección ya editable en `/staff` → Proyectos → Programas), con conteo real de proyectos activos/completados por programa. Enlazada desde el encabezado de esta página. Desde 2026-08-06 muestra arriba de la grilla el campo `Nosotros.resumen` — un resumen narrativo de las líneas de trabajo históricas de la fundación (becas, tutorías, donación de computadoras/paneles solares, transporte, dormitorios, meriendas, aulas, uniformes, curso de inglés con becas al Hun School of Princeton), rescatado y traducido del WordPress viejo (`ForumOldPageInfo/programas/`), a pedido explícito del usuario ("una pestaña donde se vea un resumen de lo que hacemos").
+> - **`/nosotros/programas`**: lista los `Programas` con `activo: true` (colección ya editable en `/staff` → Proyectos → Programas), con conteo real de proyectos activos/completados por programa. Enlazada desde el encabezado de esta página. Desde 2026-08-06 muestra arriba de la grilla `Nosotros.secciones_resumen` — el resumen de las líneas de trabajo históricas de la fundación, seccionado por tipo de programa (Becas John Y. Keffer, Tutorías, Acceso a Tecnología, Transporte y Dormitorios, Alimentación/Aulas/Uniformes, Programa de Inglés), cada una con su foto real y en filas alternadas imagen/texto. Contenido rescatado y traducido del WordPress viejo (`ForumOldPageInfo/programas/`), a pedido explícito del usuario, que primero rechazó una versión de un solo bloque de texto ("no me gusta que se vea como solo un párrafo... seccionalo por el tipo de programa y con imágenes").
 > - **`/contacto`**: muestra `Configuracion.contacto_institucional` (email/teléfono/dirección), ya editable desde `/staff` → Configuración general. La colección `Configuracion` sigue restringida a staff/directiva/admin — la página server-rendered lee con `overrideAccess: true` pero solo desestructura y renderiza ese subcampo, nunca el resto del documento (que tiene umbrales internos no públicos). `/api/globals/configuracion` sin sesión sigue en 403.
 >
 > Detalle completo en [[🚀 Plan de Ejecución & Estado de Fases]], Fase 1, Paso P.

@@ -60,7 +60,7 @@ Tres secciones en la misma pestaña, porque comparten forma (comunidad + coorden
 
 ## 5. Nosotros / Equipo
 
-- **Misión e Historia (`/nosotros`)**: el contenido institucional (misión, historia, foto, logo) — un solo formulario porque es un global, no una lista. El mismo formulario incluye el **Resumen de lo que hacemos**, que se muestra arriba de las categorías en `/nosotros/programas` — párrafos separados por línea en blanco, igual que el contenido de Publicaciones.
+- **Misión e Historia (`/nosotros`)**: el contenido institucional (misión, historia, foto, logo) — un solo formulario porque es un global, no una lista. El mismo formulario incluye el **Resumen de lo que hacemos, por sección**: cada sección tiene título, texto y una foto opcional, y se muestra arriba de las categorías en `/nosotros/programas` como filas alternadas de imagen y texto. "+ Agregar Sección" suma una nueva; "Quitar sección" la borra (mínimo una).
 - **Miembros del Equipo**: nombre, cargo, bio, foto, "destacado" (le da la tarjeta grande, pensado para el fundador) y orden de aparición.
 
 ---

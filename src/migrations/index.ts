@@ -18,6 +18,7 @@ import * as migration_20260801_193645_evidencia_recuperaciones_privada from './2
 import * as migration_20260804_165434_agregar_destinos_internacionales from './20260804_165434_agregar_destinos_internacionales';
 import * as migration_20260804_171527_agregar_fotos_becarios from './20260804_171527_agregar_fotos_becarios';
 import * as migration_20260806_043317_agregar_resumen_nosotros from './20260806_043317_agregar_resumen_nosotros';
+import * as migration_20260806_060854_reemplazar_resumen_por_secciones from './20260806_060854_reemplazar_resumen_por_secciones';
 
 export const migrations = [
   {
@@ -118,6 +119,11 @@ export const migrations = [
   {
     up: migration_20260806_043317_agregar_resumen_nosotros.up,
     down: migration_20260806_043317_agregar_resumen_nosotros.down,
-    name: '20260806_043317_agregar_resumen_nosotros'
+    name: '20260806_043317_agregar_resumen_nosotros',
+  },
+  {
+    up: migration_20260806_060854_reemplazar_resumen_por_secciones.up,
+    down: migration_20260806_060854_reemplazar_resumen_por_secciones.down,
+    name: '20260806_060854_reemplazar_resumen_por_secciones'
   },
 ];
