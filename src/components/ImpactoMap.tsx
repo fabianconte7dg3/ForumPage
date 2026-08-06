@@ -274,6 +274,27 @@ export function ImpactoMap({
         setSeleccion({ tipo: 'sede', data: feature.properties })
       })
 
+      // Trayectoria de becarios (línea origen → destino)
+      const becariosTrayectorias = becarios.map((b) => ({
+        type: 'Feature' as const,
+        geometry: { type: 'LineString' as const, coordinates: [b.origen, b.destino] },
+        properties: { ...b },
+      }))
+      mapa.addSource('becarios-trayectorias', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: becariosTrayectorias },
+      })
+      mapa.addLayer({
+        id: 'becarios-trayectorias-layer',
+        type: 'line',
+        source: 'becarios-trayectorias',
+        paint: {
+          'line-color': COLOR_COSECHA,
+          'line-width': 1.5,
+          'line-dasharray': [2, 2],
+        },
+      })
+
       // Destinos de becarios (puntos)
       const becariosDestinos = becarios.map((b) => ({
         type: 'Feature' as const,
@@ -331,6 +352,9 @@ export function ImpactoMap({
     if (mapa.getLayer('becarios-destinos-layer')) {
       mapa.setLayoutProperty('becarios-destinos-layer', 'visibility', capasVisibles.becarios ? 'visible' : 'none')
     }
+    if (mapa.getLayer('becarios-trayectorias-layer')) {
+      mapa.setLayoutProperty('becarios-trayectorias-layer', 'visibility', capasVisibles.becarios ? 'visible' : 'none')
+    }
   }, [capasVisibles])
 
   const seleccionarComunidad = (comunidad: ComunidadFeature) => {
@@ -339,7 +363,7 @@ export function ImpactoMap({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[300px_1fr]">
+    <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[300px_1fr]">
       <aside className="flex flex-col gap-6">
         <div className="grid grid-cols-3 gap-2">
           <StatCard label={t.statComunidades} value={stats.comunidades} />
@@ -347,7 +371,7 @@ export function ImpactoMap({
           <StatCard label={t.statBecariosActivos} value={stats.becariosActivos} />
           <StatCard label={t.statSedes} value={stats.sedes} />
           <StatCard label={t.statProyectosActivos} value={stats.proyectosActivos} />
-          <StatCard label={t.statPaises} value="—" />
+          <StatCard label={t.statPaises} value={new Set(becarios.map((b) => b.pais_estudio).filter(Boolean)).size || '—'} />
         </div>
 
         <div>
@@ -486,7 +510,7 @@ function PanelComunidad({ data, locale, t }: { data: ComunidadFeature['propertie
       <h3 className="mb-2 pr-6 font-display text-xl font-bold text-montana">{data.nombre}</h3>
       {data.descripcion && <p className="mb-4 font-lectura text-sm text-tinta/70">{data.descripcion}</p>}
 
-      {data.avanceProm !== null && (
+      {typeof data.avanceProm === 'number' && (
         <div className="mb-4">
           <div className="h-2 w-full rounded-full bg-piedra/15">
             <div className="h-2 rounded-full bg-cosecha" style={{ width: `${data.avanceProm}%` }} />
