@@ -13,6 +13,7 @@ import { TabAprendizaje } from '@/components/staff/TabAprendizaje'
 import { FormularioConfiguracionModal } from '@/components/staff/FormularioConfiguracionModal'
 import { defaultLocale, type Locale } from '@/i18n'
 import { sesionActual } from '@/lib/auth'
+import { parrafosATexto } from '@/lib/richtext'
 import config from '@/payload.config'
 import type { Becario, HoraLaborSocial, Actividad, Comunidad, Proyecto, Programa, Equipo, Recurso, Tutoria, Practica, Nivel, Materia, Sede, CentroEducativo, Configuracion } from '@/payload-types'
 
@@ -345,6 +346,7 @@ export default async function StaffDashboardPage({
 
           const misionTexto = extractTextFromRichText(nosotrosGlobal?.mision)
           const historiaTexto = extractTextFromRichText(nosotrosGlobal?.historia)
+          const resumenTexto = parrafosATexto(nosotrosGlobal?.resumen)
 
           return (
             <TabEquipo
@@ -352,6 +354,7 @@ export default async function StaffDashboardPage({
               historiaTexto={historiaTexto}
               locale={locale}
               misionTexto={misionTexto}
+              resumenTexto={resumenTexto}
             />
           )
         })()

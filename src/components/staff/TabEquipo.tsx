@@ -10,9 +10,10 @@ type Props = {
   equipo: Equipo[]
   misionTexto?: string
   historiaTexto?: string
+  resumenTexto?: string
 }
 
-export function TabEquipo({ locale, equipo, misionTexto, historiaTexto }: Props) {
+export function TabEquipo({ locale, equipo, misionTexto, historiaTexto, resumenTexto }: Props) {
   return (
     <div className="space-y-12">
       {/* Sección 1: Misión e Historia Global */}
@@ -28,6 +29,7 @@ export function TabEquipo({ locale, equipo, misionTexto, historiaTexto }: Props)
             historiaInicial={historiaTexto}
             locale={locale}
             misionInicial={misionTexto}
+            resumenInicial={resumenTexto}
           />
         </div>
 

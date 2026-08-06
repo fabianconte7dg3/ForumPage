@@ -4,10 +4,12 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
+import { textoAParrafos } from '@/lib/richtext'
 
 export type EditarNosotrosInput = {
   misionText: string
   historiaText: string
+  resumenText: string
   locale: string
 }
 
@@ -56,11 +58,14 @@ export async function editarNosotrosGlobal(input: EditarNosotrosInput) {
       },
     }
 
+    const richResumen = textoAParrafos(input.resumenText.trim())
+
     await payload.updateGlobal({
       slug: 'nosotros',
       data: {
         mision: richMision,
         historia: richHistoria,
+        resumen: richResumen,
       },
       overrideAccess: false,
       user: usuario,

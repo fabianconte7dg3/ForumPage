@@ -1,3 +1,4 @@
+import { RichText } from '@payloadcms/richtext-lexical/react'
 import Link from 'next/link'
 import { getPayload } from 'payload'
 
@@ -37,9 +38,10 @@ export default async function ProgramasPage({ params }: { params: Promise<{ loca
   const t = TEXTOS[locale] ?? TEXTOS[defaultLocale]
   const payload = await getPayload({ config })
 
-  const [programas, proyectos] = await Promise.all([
+  const [programas, proyectos, nosotros] = await Promise.all([
     payload.find({ collection: 'programas', where: { activo: { equals: true } }, sort: 'nombre', limit: 100, locale, overrideAccess: true }),
     payload.find({ collection: 'proyectos', limit: 500, depth: 0, overrideAccess: true }),
+    payload.findGlobal({ slug: 'nosotros', locale, depth: 0, overrideAccess: true }),
   ])
 
   const conteoPorPrograma = new Map<number, { activos: number; completados: number }>()
@@ -61,6 +63,12 @@ export default async function ProgramasPage({ params }: { params: Promise<{ loca
         <h1 className="font-display text-3xl font-bold uppercase text-montana md:text-4xl">{t.titulo}</h1>
         <p className="mt-2 font-lectura text-lg text-tinta/70">{t.subtitulo}</p>
       </header>
+
+      {nosotros.resumen && (
+        <div className="mb-12 max-w-(--text-reading-width) font-lectura text-base leading-relaxed text-tinta [&>p]:mb-4">
+          <RichText data={nosotros.resumen} />
+        </div>
+      )}
 
       {programas.docs.length === 0 ? (
         <p className="font-lectura text-sm text-tinta/70">{t.sinPrograms}</p>

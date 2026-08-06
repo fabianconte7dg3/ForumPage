@@ -9,12 +9,14 @@ type Props = {
   locale: Locale
   misionInicial?: string
   historiaInicial?: string
+  resumenInicial?: string
 }
 
 export function FormularioNosotrosModal({
   locale,
   misionInicial = '',
   historiaInicial = '',
+  resumenInicial = '',
 }: Props) {
   const router = useRouter()
   const [abierto, setAbierto] = useState(false)
@@ -23,6 +25,7 @@ export function FormularioNosotrosModal({
 
   const [mision, setMision] = useState(misionInicial)
   const [historia, setHistoria] = useState(historiaInicial)
+  const [resumen, setResumen] = useState(resumenInicial)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,6 +35,7 @@ export function FormularioNosotrosModal({
     const res = await editarNosotrosGlobal({
       misionText: mision,
       historiaText: historia,
+      resumenText: resumen,
       locale,
     })
 
@@ -105,6 +109,20 @@ export function FormularioNosotrosModal({
                   value={historia}
                   onChange={(e) => setHistoria(e.target.value)}
                   placeholder="Escribe la historia de la fundación..."
+                  className="w-full rounded-sm border border-piedra/25 p-3 font-lectura text-sm outline-none focus:border-montana"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block font-dato text-xs uppercase tracking-widest text-tinta">
+                  Resumen de lo que hacemos (página Programas)
+                </label>
+                <textarea
+                  rows={8}
+                  required
+                  value={resumen}
+                  onChange={(e) => setResumen(e.target.value)}
+                  placeholder="Escribe un resumen de las líneas de trabajo de la fundación. Dejá una línea en blanco entre párrafos."
                   className="w-full rounded-sm border border-piedra/25 p-3 font-lectura text-sm outline-none focus:border-montana"
                 />
               </div>

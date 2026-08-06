@@ -56,7 +56,7 @@ sequenceDiagram
 - **ImpactoOverview (Panel de Resumen)**: Panel estadístico implementado desde la vista `/impacto` que muestra métricas globales (estudiantes, proyectos), un becario destacado ("Scholar of the term") y dos tablas para monitorear proyectos en ejecución y destinos de estudio.
 - **Depuración de Ubicaciones Falsas/Obsoletas**: Corrección de coordenadas de **El Caimito** a su posición real en Penonomé Norte (`8.6987, -80.2355` en la zona montañosa de Pajonal/Sofre) y eliminación completa del subtítulo/descripción obsoleto que hacía referencia a la antigua sede no existente.
 - **Etiquetas de Texto Directas (Symbol Layers)**: Capa de renderizado de texto con halo blanco que muestra el nombre de cada comunidad y sede directamente sobre el mapa junto a su marcador visual.
-- **Eliminación de Líneas Punteadas Residuales**: Remoción de la capa de arcos geodésicos borrador (`becarios-lineas-layer`) para mantener el visor del mapa 100% limpio y enfocado exclusivamente en las ubicaciones territoriales.
+- **Trayectoria de Becarios Internacionales**: capa `line` (`becarios-trayectorias-layer`, línea punteada origen→destino) reincorporada el 2026-08-06 a pedido del usuario — una iteración anterior la había quitado por considerarla "residual"; la visibilidad sigue ligada al mismo checkbox "Becarios Internacionales" que la capa de puntos.
 - **Lista de Comunidades**: Navegación lateral que ejecuta `flyTo` al hacer clic en una comunidad.
 - **Panel Lateral de Detalle de Comunidad**: Reemplaza el popup genérico con la ficha completa de la comunidad, sus proyectos en ejecución y el desglose de **becarios originarios de esa comunidad**.
 - **Mini-Mapa Interactivo en la Portada (`/`)**: Componente `MapaPreviewHome` que renderiza un visor interactivo de MapLibre en miniatura enfocado en Coclé Norte (`[-80.3621, 8.6186]`), dibujando los puntos de las 9 comunidades, el badge `📍 Coclé Norte · 9 Comunidades` y el acceso directo `EXPLORAR MAPA COMPLETO →`, reemplazando cualquier contenedor estático.
@@ -74,6 +74,12 @@ Para cumplir la **Regla Rector** (*"gestionar o publicar en menos de 3 minutos d
 - **Autocompletado de Destinos Internacionales**: Selector con las coordenadas pre-cargadas de universidades frecuentes en el extranjero (*Bocconi, University of Florida, Navarra, Tec de Monterrey, Zamorano, EARTH*) para agilizar el registro de trayectorias.
 
 ---
+
+## 🐛 Correcciones encontradas probando en local (2026-08-06)
+
+- **Popups fuera del margen del mapa**: CSS Grid estira (`align-items: stretch`) por defecto los ítems de una fila a la altura del más alto. La lista de comunidades pierde su `max-h` desde `lg` para mostrar las ~35 sin scroll, y esa altura se contagiaba a la columna del mapa — el popup (anclado `top-4`/`bottom-4` a ese contenedor) llegaba a medir ~1770px en vez de ajustarse al mapa real. Fix: `items-start` en el grid.
+- **"Países alcanzados" hardcodeado en "—"**: nunca se calculaba: ahora cuenta países distintos de `pais_estudio` entre los becarios internacionales.
+- **Barra de avance "fantasma"**: al hacer clic en un punto del mapa (no desde la lista lateral), una comunidad sin proyectos mostraba la barra llena al 100%. MapLibre convierte las fuentes GeoJSON a vector tiles para dibujarlas, formato que no representa `null` en las propiedades — `avanceProm: null` llegaba como `undefined` al handler de clic sobre el canvas, y el guard `!== null` dejaba pasar ese `undefined`. Cambiado a `typeof === 'number'`.
 
 ## 🔗 Nodos Relacionados
 - [[🗺️ Home - Forum Foundation]]

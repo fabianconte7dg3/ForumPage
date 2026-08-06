@@ -22,6 +22,12 @@ export const Nosotros: GlobalConfig = {
       localized: true,
     },
     {
+      name: 'resumen',
+      type: 'richText',
+      localized: true,
+      admin: { description: 'Resumen de las líneas de trabajo de la fundación, para /nosotros/programas.' },
+    },
+    {
       name: 'foto',
       type: 'upload',
       relationTo: 'media',
