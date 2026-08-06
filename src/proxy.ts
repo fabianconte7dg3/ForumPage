@@ -26,9 +26,13 @@ import { defaultLocale, isLocale, locales } from '@/i18n'
 // propio 'self' sin depender de esa cadena.
 function construirCsp() {
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
+  // 'unsafe-eval' solo en dev: el devtool eval-source-map de `next dev`
+  // (webpack) envuelve cada módulo en eval(), y sin esto el navegador lo
+  // bloquea en silencio y React nunca hidrata. Producción no lo necesita.
+  const scriptSrcEval = process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''
   const csp = `
     default-src 'self';
-    script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
+    script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${scriptSrcEval};
     style-src 'self' 'unsafe-inline';
     img-src 'self' data: https://i.ytimg.com;
     font-src 'self';
