@@ -17,7 +17,8 @@ status: activo
 
 > [!flag] Estado General del Proyecto
 > Seguimiento vivo del progreso de desarrollo. Fuente original: [docs/plan.md](file:///home/fabianc/Documentos/ForumPage/docs/plan.md).
-> **Última actualización:** 2026-08-04 — Tres pendientes de deuda técnica cerrados a pedido del usuario ("arregla todo, dejalo listo"): destinos internacionales frecuentes ya no hardcodeados, visor de Auditoría en `/directiva/auditoria`, y `Becarios.foto` ya no queda pública para siempre tras revocar consentimiento.
+> **Última actualización:** 2026-08-09 — Bug real reportado por el usuario probando en producción: la galería de fotos de una Publicación nunca se guardaba. Causa raíz encontrada (cierre obsoleto sobre `e.target.files` en el input de galería de `FormularioActividadModal.tsx`, vaciado por `e.target.value = ''` antes de que React leyera el archivo) y corregida, más `bodySizeLimit` de Server Actions subido de 1MB a 20MB como defensivo. Verificado contra una instancia temporal conectada a la base de producción real (nunca contra el sitio público), con 12 fotos reales de celular.
+> **Última actualización anterior:** 2026-08-04 — Tres pendientes de deuda técnica cerrados a pedido del usuario ("arregla todo, dejalo listo"): destinos internacionales frecuentes ya no hardcodeados, visor de Auditoría en `/directiva/auditoria`, y `Becarios.foto` ya no queda pública para siempre tras revocar consentimiento.
 
 ---
 

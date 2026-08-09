@@ -22,6 +22,11 @@ const miniatura = (m: Media): string => m.thumbnailURL ?? m.sizes?.thumbnail?.ur
 
 const hoyISO = () => new Date().toISOString().slice(0, 10)
 
+// Debe quedar por debajo del `bodySizeLimit` de next.config.ts (20mb): portada
+// + galería viajan juntas en una sola Server Action, con margen para el resto
+// del formulario y el overhead de multipart.
+const MAX_FOTOS_MB = 18
+
 export function FormularioActividadModal({ actividad, comunidades, locale, programas, proyectos, triggerText, variant = 'primary' }: Props) {
   const router = useRouter()
   const [abierto, setAbierto] = useState(false)
@@ -73,6 +78,14 @@ export function FormularioActividadModal({ actividad, comunidades, locale, progr
 
     if (comunidadId === '') {
       setErrorMsg('La comunidad es obligatoria.')
+      return
+    }
+
+    const pesoFotosMB = ([...(portadaFile ? [portadaFile] : []), ...galeriaNuevos].reduce((acc, f) => acc + f.size, 0)) / 1024 / 1024
+    if (pesoFotosMB > MAX_FOTOS_MB) {
+      setErrorMsg(
+        `Las fotos pesan ${pesoFotosMB.toFixed(1)} MB en total — el máximo es ${MAX_FOTOS_MB} MB. Achicá alguna imagen o subí menos fotos a la vez.`
+      )
       return
     }
 
@@ -370,7 +383,11 @@ export function FormularioActividadModal({ actividad, comunidades, locale, progr
                   accept="image/*"
                   multiple
                   onChange={(e) => {
-                    setGaleriaNuevos((prev) => [...prev, ...Array.from(e.target.files ?? [])])
+                    // Leer los archivos antes de vaciar el input — `e.target` es el mismo nodo
+                    // del DOM, y React ejecuta el actualizador funcional despues de que esta
+                    // linea corre, no en el momento; para entonces `.files` ya estaria vacio.
+                    const nuevos = Array.from(e.target.files ?? [])
+                    setGaleriaNuevos((prev) => [...prev, ...nuevos])
                     e.target.value = ''
                   }}
                   className="w-full rounded-sm border border-piedra/25 px-3 py-2 font-lectura text-sm outline-none file:mr-3 file:rounded-sm file:border-0 file:bg-niebla file:px-3 file:py-1 file:font-dato file:text-xs file:uppercase"

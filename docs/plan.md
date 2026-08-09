@@ -5,9 +5,18 @@
 ## Estado actual
 
 **Fase:** 1 — Base pública (cerrada) + 2 — Centro de Aprendizaje (cerrada) + 3 — Portal del Becario / Staff (cerrada & optimizada).
-**Última actualización:** 2026-08-04 (Datos reales de comunidades/actividades/equipo cargados en producción — ver Fase 1, Paso T)
+**Última actualización:** 2026-08-09 (Fix real: galería de fotos en Publicaciones no se guardaba — ver detalle abajo)
 
 Fase 0 tiene sus entregables iniciales listos (ver abajo). **Ya existe un servidor real** (VPS de AWS, `https://volumetrix.servegame.com`, ver Fase 1 Paso Q) sirviendo la app con HTTPS real, Postgres migrado, y **contenido real ya cargado**: 36 comunidades, 2 sedes, 4 centros educativos, 71 actividades/historias, 8 del equipo, y sus 3316 archivos de imágenes reales (ver Fase 1 Paso T). No es el droplet definitivo de DigitalOcean que describe `01-documento-de-proyecto.md` §12 — es un VPS que ya tenía el usuario, usado mientras se define el presupuesto final; el proceso de despliegue (`scripts/deploy.sh`) no depende de cuál sea el servidor. **Sigue pendiente**: becarios reales (sin consentimiento firmado todavía, producción está en 0 a propósito), programas/proyectos reales (los de dev eran ficticios, no se llevaron), informes anuales/podcast, y una cuenta de staff real (nadie creó todavía el primer usuario de producción).
+
+### Fix (2026-08-09) — Galería de fotos en Publicaciones no se guardaba
+
+El usuario reportó que, al publicar una actividad real desde `/staff` con fotos de celular, la portada a veces no se veía y la galería nunca se guardaba. Dos causas distintas, no relacionadas:
+
+1. **Causa real de la galería, en `FormularioActividadModal.tsx`:** el `onChange` del input de galería leía `e.target.files` **dentro** de la función de actualización de `setGaleriaNuevos((prev) => [...prev, ...Array.from(e.target.files ?? [])])`, y esa función corre después, no en el momento — para entonces la línea siguiente (`e.target.value = ''`, que limpia el input para permitir re-seleccionar el mismo archivo) ya había vaciado `e.target.files`, porque es el mismo nodo del DOM. La galería quedaba vacía siempre, sin importar el tamaño de las fotos. Corregido leyendo los archivos a una constante antes de llamar a `setGaleriaNuevos` y antes de vaciar el input.
+2. **Defensivo, no la causa de este bug:** `next.config.ts` no tenía `experimental.serverActions.bodySizeLimit` — el default de Next.js es 1 MB, muy bajo para fotos de celular reales cuando portada+galería viajan juntas en una sola Server Action. Subido a 20 MB (por debajo del `max_size 25MB` del Caddyfile), más una validación en el formulario que avisa con un mensaje claro si el total supera el límite, en vez de publicar sin fotos sin decir nada.
+
+**Verificado de punta a punta contra el VPS real, nunca contra el sitio público:** se levantó una instancia temporal aislada (`docker run` desde la imagen del stage `build`, conectada a la misma red de Docker y al mismo Postgres de producción, publicada solo en `127.0.0.1:8888` del propio VPS, alcanzada por túnel SSH) — se reprodujo el bug con el código original usando 12 fotos reales de celular (una comunidad y un usuario staff descartables, borrados después junto con el contenedor), se aplicó el fix y se repitió la publicación: portada + las 11 fotos de galería quedaron guardadas con su tamaño exacto (`GET /api/actividades` sin sesión). `tsc --noEmit`, `eslint` y `check:budget` (163.1 KB / 500 KB) limpios.
 
 ## Principios de ejecución (no negociables)
 
