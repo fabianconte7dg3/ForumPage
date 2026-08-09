@@ -4,13 +4,14 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
+import type { Locale } from '@/i18n'
 
 export type CrearProgramaInput = {
   activo: boolean
   color: string
   descripcion?: string
   icono?: string
-  locale: string
+  locale: Locale
   nombre: string
 }
 
@@ -33,6 +34,7 @@ export async function crearPrograma(input: CrearProgramaInput) {
   try {
     const nuevo = await payload.create({
       collection: 'programas',
+      locale: input.locale,
       data: {
         nombre: input.nombre.trim(),
         descripcion: input.descripcion?.trim() || undefined,

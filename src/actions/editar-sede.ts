@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
+import type { Locale } from '@/i18n'
 import type { Sede } from '@/payload-types'
 
 export type EditarSedeInput = {
@@ -13,7 +14,7 @@ export type EditarSedeInput = {
   id: number
   lat: number
   lng: number
-  locale: string
+  locale: Locale
   nombre: string
   tipo: Sede['tipo']
 }
@@ -38,6 +39,7 @@ export async function editarSede(input: EditarSedeInput) {
     await payload.update({
       collection: 'sedes',
       id: input.id,
+      locale: input.locale,
       data: {
         nombre: input.nombre.trim(),
         tipo: input.tipo,

@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
+import type { Locale } from '@/i18n'
 
 export type CrearComunidadInput = {
   nombre: string
@@ -12,7 +13,7 @@ export type CrearComunidadInput = {
   lat: number
   lng: number
   descripcion?: string
-  locale: string
+  locale: Locale
 }
 
 export async function crearComunidad(input: CrearComunidadInput) {
@@ -49,6 +50,7 @@ export async function crearComunidad(input: CrearComunidadInput) {
 
     const nueva = await payload.create({
       collection: 'comunidades',
+      locale: input.locale,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: dataToCreate as any,
       overrideAccess: false,

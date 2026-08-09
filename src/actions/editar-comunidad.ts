@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
+import type { Locale } from '@/i18n'
 
 export type EditarComunidadInput = {
   id: number
@@ -13,7 +14,7 @@ export type EditarComunidadInput = {
   lat: number
   lng: number
   descripcion?: string
-  locale: string
+  locale: Locale
 }
 
 export async function editarComunidad(input: EditarComunidadInput) {
@@ -51,6 +52,7 @@ export async function editarComunidad(input: EditarComunidadInput) {
     await payload.update({
       collection: 'comunidades',
       id: input.id,
+      locale: input.locale,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: dataToUpdate as any,
       overrideAccess: false,

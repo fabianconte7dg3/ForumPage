@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
+import type { Locale } from '@/i18n'
 
 export type EditarEquipoInput = {
   id: number
@@ -13,7 +14,7 @@ export type EditarEquipoInput = {
   destacado: boolean
   orden: number
   fotoFile?: FormData
-  locale: string
+  locale: Locale
 }
 
 export async function editarEquipo(input: EditarEquipoInput) {
@@ -73,6 +74,7 @@ export async function editarEquipo(input: EditarEquipoInput) {
     await payload.update({
       collection: 'equipo',
       id: input.id,
+      locale: input.locale,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: dataToUpdate as any,
       overrideAccess: false,

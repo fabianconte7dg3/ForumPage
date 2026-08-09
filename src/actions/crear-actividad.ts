@@ -81,6 +81,7 @@ export async function crearActividad(input: CrearActividadInput) {
 
     const nueva = await payload.create({
       collection: 'actividades',
+      locale: input.locale,
       data: {
         titulo: input.titulo.trim(),
         extracto: input.extracto?.trim() || undefined,

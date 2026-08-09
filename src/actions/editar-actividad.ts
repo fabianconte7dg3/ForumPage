@@ -95,6 +95,7 @@ export async function editarActividad(input: EditarActividadInput) {
     await payload.update({
       collection: 'actividades',
       id: input.id,
+      locale: input.locale,
       data: {
         titulo: input.titulo.trim(),
         extracto: input.extracto?.trim() || undefined,

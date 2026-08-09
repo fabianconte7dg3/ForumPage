@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
+import type { Locale } from '@/i18n'
 
 export type EditarRecursoInput = {
   id: number
@@ -15,7 +16,7 @@ export type EditarRecursoInput = {
   url?: string
   fuenteYLicencia: string
   archivo?: FormData
-  locale: string
+  locale: Locale
 }
 
 export async function editarRecurso(input: EditarRecursoInput) {
@@ -69,6 +70,7 @@ export async function editarRecurso(input: EditarRecursoInput) {
     await payload.update({
       collection: 'recursos',
       id: input.id,
+      locale: input.locale,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: dataToUpdate as any,
       overrideAccess: false,

@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { getPayload, type Payload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
+import type { Locale } from '@/i18n'
 import type { User } from '@/payload-types'
 
 export type SeccionResumenInput = {
@@ -17,7 +18,7 @@ export type EditarNosotrosInput = {
   misionText: string
   historiaText: string
   secciones: SeccionResumenInput[]
-  locale: string
+  locale: Locale
 }
 
 async function subirImagen(payload: Payload, file: File, alt: string, usuario: User) {
@@ -93,6 +94,7 @@ export async function editarNosotrosGlobal(input: EditarNosotrosInput) {
 
     await payload.updateGlobal({
       slug: 'nosotros',
+      locale: input.locale,
       data: {
         mision: richMision,
         historia: richHistoria,

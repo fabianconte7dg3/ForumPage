@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
+import type { Locale } from '@/i18n'
 import type { Sede } from '@/payload-types'
 
 export type CrearSedeInput = {
@@ -12,7 +13,7 @@ export type CrearSedeInput = {
   horario?: string
   lat: number
   lng: number
-  locale: string
+  locale: Locale
   nombre: string
   tipo: Sede['tipo']
 }
@@ -36,6 +37,7 @@ export async function crearSede(input: CrearSedeInput) {
   try {
     const nueva = await payload.create({
       collection: 'sedes',
+      locale: input.locale,
       data: {
         nombre: input.nombre.trim(),
         tipo: input.tipo,

@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
+import type { Locale } from '@/i18n'
 
 export type EditarProgramaInput = {
   activo: boolean
@@ -11,7 +12,7 @@ export type EditarProgramaInput = {
   descripcion?: string
   icono?: string
   id: number
-  locale: string
+  locale: Locale
   nombre: string
 }
 
@@ -35,6 +36,7 @@ export async function editarPrograma(input: EditarProgramaInput) {
     await payload.update({
       collection: 'programas',
       id: input.id,
+      locale: input.locale,
       data: {
         nombre: input.nombre.trim(),
         descripcion: input.descripcion?.trim() || undefined,

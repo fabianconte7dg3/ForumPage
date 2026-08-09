@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
+import type { Locale } from '@/i18n'
 
 export type CrearProyectoInput = {
   titulo: string
@@ -14,7 +15,7 @@ export type CrearProyectoInput = {
   monto?: number
   fecha_inicio?: string
   fecha_fin?: string
-  locale: string
+  locale: Locale
 }
 
 export async function crearProyecto(input: CrearProyectoInput) {
@@ -49,6 +50,7 @@ export async function crearProyecto(input: CrearProyectoInput) {
 
     const nuevo = await payload.create({
       collection: 'proyectos',
+      locale: input.locale,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: dataToCreate as any,
       overrideAccess: false,

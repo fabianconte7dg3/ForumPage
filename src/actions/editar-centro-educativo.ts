@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
+import type { Locale } from '@/i18n'
 
 export type EditarCentroEducativoInput = {
   comunidadId: number
@@ -11,7 +12,7 @@ export type EditarCentroEducativoInput = {
   id: number
   lat: number
   lng: number
-  locale: string
+  locale: Locale
   matricula_aproximada?: number
   niveles_atendidos?: string
   nombre: string
@@ -37,6 +38,7 @@ export async function editarCentroEducativo(input: EditarCentroEducativoInput) {
     await payload.update({
       collection: 'centros-educativos',
       id: input.id,
+      locale: input.locale,
       data: {
         nombre: input.nombre.trim(),
         comunidad: input.comunidadId,

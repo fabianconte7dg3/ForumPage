@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
+import type { Locale } from '@/i18n'
 
 export type EditarBecarioInput = {
   id: number
@@ -23,7 +24,7 @@ export type EditarBecarioInput = {
   consentimiento_firmado: boolean
   mostrar_en_mapa: boolean
   cita?: string
-  locale: string
+  locale: Locale
 }
 
 export async function editarBecario(input: EditarBecarioInput) {
@@ -74,6 +75,7 @@ export async function editarBecario(input: EditarBecarioInput) {
     await payload.update({
       collection: 'becarios',
       id: input.id,
+      locale: input.locale,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: dataToUpdate as any,
       overrideAccess: false,

@@ -5,7 +5,7 @@
 ## Estado actual
 
 **Fase:** 1 — Base pública (cerrada) + 2 — Centro de Aprendizaje (cerrada) + 3 — Portal del Becario / Staff (cerrada & optimizada).
-**Última actualización:** 2026-08-09 (Fix real: galería de fotos en Publicaciones no se guardaba — ver detalle abajo)
+**Última actualización:** 2026-08-09 (Fix real: el selector de idioma en Publicaciones no cambiaba el contenido — ver detalle abajo)
 
 Fase 0 tiene sus entregables iniciales listos (ver abajo). **Ya existe un servidor real** (VPS de AWS, `https://volumetrix.servegame.com`, ver Fase 1 Paso Q) sirviendo la app con HTTPS real, Postgres migrado, y **contenido real ya cargado**: 36 comunidades, 2 sedes, 4 centros educativos, 71 actividades/historias, 8 del equipo, y sus 3316 archivos de imágenes reales (ver Fase 1 Paso T). No es el droplet definitivo de DigitalOcean que describe `01-documento-de-proyecto.md` §12 — es un VPS que ya tenía el usuario, usado mientras se define el presupuesto final; el proceso de despliegue (`scripts/deploy.sh`) no depende de cuál sea el servidor. **Sigue pendiente**: becarios reales (sin consentimiento firmado todavía, producción está en 0 a propósito), programas/proyectos reales (los de dev eran ficticios, no se llevaron), informes anuales/podcast, y una cuenta de staff real (nadie creó todavía el primer usuario de producción).
 
@@ -17,6 +17,20 @@ El usuario reportó que, al publicar una actividad real desde `/staff` con fotos
 2. **Defensivo, no la causa de este bug:** `next.config.ts` no tenía `experimental.serverActions.bodySizeLimit` — el default de Next.js es 1 MB, muy bajo para fotos de celular reales cuando portada+galería viajan juntas en una sola Server Action. Subido a 20 MB (por debajo del `max_size 25MB` del Caddyfile), más una validación en el formulario que avisa con un mensaje claro si el total supera el límite, en vez de publicar sin fotos sin decir nada.
 
 **Verificado de punta a punta contra el VPS real, nunca contra el sitio público:** se levantó una instancia temporal aislada (`docker run` desde la imagen del stage `build`, conectada a la misma red de Docker y al mismo Postgres de producción, publicada solo en `127.0.0.1:8888` del propio VPS, alcanzada por túnel SSH) — se reprodujo el bug con el código original usando 12 fotos reales de celular (una comunidad y un usuario staff descartables, borrados después junto con el contenedor), se aplicó el fix y se repitió la publicación: portada + las 11 fotos de galería quedaron guardadas con su tamaño exacto (`GET /api/actividades` sin sesión). `tsc --noEmit`, `eslint` y `check:budget` (163.1 KB / 500 KB) limpios.
+
+### Fix (2026-08-09) — El selector de idioma no cambiaba el contenido de las publicaciones
+
+Reportado por el usuario probando en producción: cambiar el sitio a inglés no traducía nada, el contenido se quedaba en el idioma en el que se había escrito.
+
+**Causa raíz, sistémica, no exclusiva de Actividades:** ninguna Server Action de `/staff` pasaba `locale` a `payload.create()`/`payload.update()`. Sin ese parámetro, Payload usa siempre el `defaultLocale` (`es`) — así que cualquier publicación, sin importar en qué idioma estuviera el panel al guardar, escribía únicamente el valor en español. El campo `en` de `titulo`/`extracto`/`contenido` (y equivalentes en otras colecciones) nunca se llegaba a completar; al visitar el sitio en inglés, Payload hace *fallback* al español porque no hay nada en `en` — de ahí que "cambiar de idioma" pareciera no hacer nada. Peor aún: si un miembro del staff cambiaba el panel a `/en/staff` para escribir la traducción real, el guardado **pisaba el español** en vez de crear el inglés, por la misma ausencia del parámetro.
+
+**Alcance real, confirmado colección por colección (`grep` de las ~30 acciones de `/staff` que aceptan `locale` cruzado con las colecciones que tienen campos `localized: true`):** afectaba a Actividades, Equipo, Recursos, Proyectos, Sedes, Programas, Centros Educativos, Comunidades, Prácticas, el global Nosotros, y los campos `carrera`/`cita` de Becarios — 21 archivos en `src/actions/`. **Fuera de alcance, confirmado sin campos localizados:** Tutorías y Necesidades (ésta última solo cambia `estado`/`prioridad`/`visible_publicamente`, ningún campo de texto).
+
+**Corregido:** `locale: input.locale` agregado a cada llamada de `payload.create`/`payload.update`/`payload.updateGlobal` de los 21 archivos. De paso, 19 de esos archivos tenían el campo `locale` tipado como `string` genérico en vez de `Locale` (`'es' | 'en'`) — cambiado al tipo real (con su import de `@/i18n`) en vez de silenciar el error de TypeScript con un cast, siguiendo la regla de `.agents/AGENTS.md` de nunca callar al compilador.
+
+**Verificado de punta a punta, no solo compilado:** contra Postgres local con un usuario staff descartable — se publicó una actividad en español desde `/es/staff`, se cambió el panel a `/en/staff`, se editó la misma publicación con una traducción real en inglés, y `GET /api/actividades/:id?locale=es` vs `?locale=en` devolvieron **textos distintos y correctos** en cada idioma (antes del fix, ambos habrían devuelto el español). Se confirmó también que el formulario precarga el español como *fallback* al editar en inglés una publicación sin traducir todavía — comportamiento esperado de Payload, no un bug. `tsc --noEmit`, `eslint .` y `check:budget` (163.1 KB / 500 KB) limpios.
+
+**Pendiente, no arreglado en este cambio (fuera de alcance del reporte):** las etiquetas del panel de staff (ej. "+ Nueva Publicación", "Editar") están hardcodeadas en español y no se traducen aunque el panel esté en `/en/staff` — es un gap de UI distinto, cosmético, no de datos.
 
 ## Principios de ejecución (no negociables)
 

@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
+import type { Locale } from '@/i18n'
 
 export type EditarProyectoInput = {
   id: number
@@ -15,7 +16,7 @@ export type EditarProyectoInput = {
   monto?: number
   fecha_inicio?: string
   fecha_fin?: string
-  locale: string
+  locale: Locale
 }
 
 export async function editarProyecto(input: EditarProyectoInput) {
@@ -51,6 +52,7 @@ export async function editarProyecto(input: EditarProyectoInput) {
     await payload.update({
       collection: 'proyectos',
       id: input.id,
+      locale: input.locale,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: dataToUpdate as any,
       overrideAccess: false,

@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
+import type { Locale } from '@/i18n'
 
 export type PreguntaInput = {
   enunciado: string
@@ -19,7 +20,7 @@ export type CrearPracticaInput = {
   modalidad: 'descargable' | 'quiz_autocorregido' | 'quiz_con_progreso'
   archivo?: FormData
   preguntas?: PreguntaInput[]
-  locale: string
+  locale: Locale
 }
 
 function validarPreguntas(preguntas: PreguntaInput[] | undefined): string | null {
@@ -91,6 +92,7 @@ export async function crearPractica(input: CrearPracticaInput) {
 
     const nueva = await payload.create({
       collection: 'practicas',
+      locale: input.locale,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: dataToCreate as any,
       overrideAccess: false,

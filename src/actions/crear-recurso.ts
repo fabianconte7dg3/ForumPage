@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
+import type { Locale } from '@/i18n'
 
 export type CrearRecursoInput = {
   titulo: string
@@ -14,7 +15,7 @@ export type CrearRecursoInput = {
   url?: string
   fuenteYLicencia: string
   archivo?: FormData
-  locale: string
+  locale: Locale
 }
 
 export async function crearRecurso(input: CrearRecursoInput) {
@@ -71,6 +72,7 @@ export async function crearRecurso(input: CrearRecursoInput) {
 
     const nuevo = await payload.create({
       collection: 'recursos',
+      locale: input.locale,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: dataToCreate as any,
       overrideAccess: false,

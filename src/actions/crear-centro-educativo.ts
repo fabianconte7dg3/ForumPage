@@ -4,13 +4,14 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
+import type { Locale } from '@/i18n'
 
 export type CrearCentroEducativoInput = {
   comunidadId: number
   contacto?: string
   lat: number
   lng: number
-  locale: string
+  locale: Locale
   matricula_aproximada?: number
   niveles_atendidos?: string
   nombre: string
@@ -35,6 +36,7 @@ export async function crearCentroEducativo(input: CrearCentroEducativoInput) {
   try {
     const nuevo = await payload.create({
       collection: 'centros-educativos',
+      locale: input.locale,
       data: {
         nombre: input.nombre.trim(),
         comunidad: input.comunidadId,

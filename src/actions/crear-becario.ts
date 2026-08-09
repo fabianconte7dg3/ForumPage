@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
+import type { Locale } from '@/i18n'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -25,7 +26,7 @@ export type CrearBecarioInput = {
   consentimiento_firmado: boolean
   mostrar_en_mapa: boolean
   cita?: string
-  locale: string
+  locale: Locale
 }
 
 export async function crearBecario(input: CrearBecarioInput) {
@@ -77,6 +78,7 @@ export async function crearBecario(input: CrearBecarioInput) {
 
     const nuevo = await payload.create({
       collection: 'becarios',
+      locale: input.locale,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: dataToCreate as any,
       overrideAccess: false,

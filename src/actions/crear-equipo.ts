@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sesionActual } from '@/lib/auth'
+import type { Locale } from '@/i18n'
 
 export type CrearEquipoInput = {
   nombre: string
@@ -12,7 +13,7 @@ export type CrearEquipoInput = {
   destacado: boolean
   orden: number
   fotoFile?: FormData
-  locale: string
+  locale: Locale
 }
 
 export async function crearEquipo(input: CrearEquipoInput) {
@@ -68,6 +69,7 @@ export async function crearEquipo(input: CrearEquipoInput) {
 
     const nuevo = await payload.create({
       collection: 'equipo',
+      locale: input.locale,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: dataToCreate as any,
       overrideAccess: false,
