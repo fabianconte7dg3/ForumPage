@@ -38,6 +38,10 @@ export function FormularioEditarBecario({ locale, becario, comunidades, destinos
   // Form states pre-filled
   const [nombre, setNombre] = useState(becario.nombre ?? '')
   const [comunidadId, setComunidadId] = useState<number | undefined>(comunidadInicialId)
+  const [nivelEducativo, setNivelEducativo] = useState<'primaria' | 'premedia' | 'media' | 'universidad'>(
+    becario.nivel_educativo ?? 'universidad'
+  )
+  const [tipoApoyo, setTipoApoyo] = useState<('hospedaje' | 'transporte' | 'alimento')[]>(becario.tipo_apoyo ?? [])
   const [universidad, setUniversidad] = useState(becario.universidad ?? '')
   const [carrera, setCarrera] = useState(becario.carrera ?? '')
   const [anio, setAnio] = useState<number | ''>(becario.anio ?? '')
@@ -62,6 +66,8 @@ export function FormularioEditarBecario({ locale, becario, comunidades, destinos
       id: becario.id,
       nombre,
       comunidadId: comunidadId ? Number(comunidadId) : undefined,
+      nivel_educativo: nivelEducativo,
+      tipo_apoyo: tipoApoyo,
       universidad,
       carrera,
       anio: anio !== '' ? Number(anio) : undefined,
@@ -154,8 +160,25 @@ export function FormularioEditarBecario({ locale, becario, comunidades, destinos
                     ))}
                   </select>
                 </div>
+
+                <div>
+                  <label className="mb-1 block font-dato text-xs uppercase tracking-widest text-tinta">
+                    Nivel Educativo
+                  </label>
+                  <select
+                    value={nivelEducativo}
+                    onChange={(e) => setNivelEducativo(e.target.value as typeof nivelEducativo)}
+                    className="w-full rounded-sm border border-piedra/25 px-3 py-2 font-lectura text-sm outline-none focus:border-montana bg-white"
+                  >
+                    <option value="primaria">Primaria (Becas de Comunidad)</option>
+                    <option value="premedia">Premedia (Becas de Comunidad)</option>
+                    <option value="media">Media (Becas de Comunidad)</option>
+                    <option value="universidad">Universidad (Becas Keffer)</option>
+                  </select>
+                </div>
               </div>
 
+              {nivelEducativo === 'universidad' && (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1 block font-dato text-xs uppercase tracking-widest text-tinta">
@@ -181,8 +204,10 @@ export function FormularioEditarBecario({ locale, becario, comunidades, destinos
                   />
                 </div>
               </div>
+              )}
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                {nivelEducativo === 'universidad' && (
                 <div>
                   <label className="mb-1 block font-dato text-xs uppercase tracking-widest text-tinta">
                     Año que cursa actualmente
@@ -196,6 +221,7 @@ export function FormularioEditarBecario({ locale, becario, comunidades, destinos
                     className="w-full rounded-sm border border-piedra/25 px-3 py-2 font-lectura text-sm outline-none focus:border-montana font-bold text-montana"
                   />
                 </div>
+                )}
 
                 <div>
                   <label className="mb-1 block font-dato text-xs uppercase tracking-widest text-tinta">
@@ -353,6 +379,27 @@ export function FormularioEditarBecario({ locale, becario, comunidades, destinos
                     </div>
                   </div>
                 )}
+              </div>
+
+              <div>
+                <label className="mb-2 block font-dato text-xs uppercase tracking-widest text-tinta">
+                  Tipo de Apoyo (además de la beca académica)
+                </label>
+                <div className="flex flex-wrap gap-4">
+                  {(['hospedaje', 'transporte', 'alimento'] as const).map((tipo) => (
+                    <label key={tipo} className="flex items-center space-x-2 font-lectura text-sm capitalize text-tinta cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={tipoApoyo.includes(tipo)}
+                        onChange={(e) =>
+                          setTipoApoyo((prev) => (e.target.checked ? [...prev, tipo] : prev.filter((t) => t !== tipo)))
+                        }
+                        className="accent-montana"
+                      />
+                      <span>{tipo}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
 
               <div className="space-y-2 pt-2">

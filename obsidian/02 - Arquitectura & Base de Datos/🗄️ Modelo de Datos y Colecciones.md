@@ -69,12 +69,18 @@ erDiagram
 - `Tutorias`: Sesiones presenciales o virtuales anunciadas con sede, horario y cupos. Desde 2026-08-10, también `realizada` (checkbox) + `participantes` (número, condicionado a `realizada`) para registrar asistencia real, no solo el anuncio.
 
 ### 4. Portal del Becario & Cierre (Fase 3 - Bloques 5 y 6)
-- `Becarios`: Expediente del estudiante, universidad, tipo de estudio, `estado`, `fecha_suspension`, `fecha_reactivacion` y campos de privacidad socioeconómica.
+- `Becarios`: Expediente del estudiante, universidad, tipo de estudio, `estado`, `fecha_suspension`, `fecha_reactivacion` y campos de privacidad socioeconómica. Desde 2026-08-10, también `nivel_educativo` (primaria/premedia/media/universidad, default `universidad`) y `tipo_apoyo` (hospedaje/transporte/alimento) — cubre tanto Becas Keffer universitarias como Becas de Comunidad K-12; `universidad`/`carrera`/`año` quedan condicionados a `nivel_educativo === 'universidad'`.
 - `RegistrosAcademicos`: Notas del período, materias aprobadas/reprobadas, índice y `nota_interna_evaluacion`.
 - `Recuperaciones`: Registro de materias recuperadas con estado de verificación.
 - `HorasLaborSocial`: Horas comunitarias reportadas por el becario con estado de aprobación.
 - `Desembolsos`: Calendario de pagos (`programado`, `retenido`, `pagado`, `cancelado`). Borrado bloqueado.
 - `Necesidades`: Carestías comunitarias reportadas (`evaluacion`, `aprobada`, `en_ejecucion`, `completada`), con prioridad (`alta`, `media`, `baja`), `prioridad_orden` (campo numérico ordenado), `costo_estimado`, `visible_publicamente` y campo sensible `solicitante` (protegido con `FieldAccess`).
+
+### 5. Programas de Impacto Comunitario (2026-08-10, auditoría contra el Informe Anual 2025)
+- `Cursos`: Cursos de estudiantes/adultos, con `realizada` + `participantes` reales (mismo patrón que Tutorías).
+- `Talleres`: Igual que Cursos, colección separada porque el informe anual las reporta como programas distintos.
+- `GirasEducativas` (slug `giras-educativas`): Giras por escuela (relación a `CentrosEducativos`), con `destino`, `nivel` opcional, `realizada` + `participantes`.
+- `Donaciones`: Donaciones a instituciones (`institucion` texto libre, no relación — el informe dona a escuelas, universidades, centros de salud e iglesias por igual), con `tipo_institucion` y `comunidad` opcional.
 
 ---
 

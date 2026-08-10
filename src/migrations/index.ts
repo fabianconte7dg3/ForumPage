@@ -20,6 +20,7 @@ import * as migration_20260804_171527_agregar_fotos_becarios from './20260804_17
 import * as migration_20260806_043317_agregar_resumen_nosotros from './20260806_043317_agregar_resumen_nosotros';
 import * as migration_20260806_060854_reemplazar_resumen_por_secciones from './20260806_060854_reemplazar_resumen_por_secciones';
 import * as migration_20260810_010852_agregar_asistencia_tutorias from './20260810_010852_agregar_asistencia_tutorias';
+import * as migration_20260810_013450_agregar_cursos_talleres_giras_donaciones from './20260810_013450_agregar_cursos_talleres_giras_donaciones';
 
 export const migrations = [
   {
@@ -130,6 +131,11 @@ export const migrations = [
   {
     up: migration_20260810_010852_agregar_asistencia_tutorias.up,
     down: migration_20260810_010852_agregar_asistencia_tutorias.down,
-    name: '20260810_010852_agregar_asistencia_tutorias'
+    name: '20260810_010852_agregar_asistencia_tutorias',
+  },
+  {
+    up: migration_20260810_013450_agregar_cursos_talleres_giras_donaciones.up,
+    down: migration_20260810_013450_agregar_cursos_talleres_giras_donaciones.down,
+    name: '20260810_013450_agregar_cursos_talleres_giras_donaciones'
   },
 ];

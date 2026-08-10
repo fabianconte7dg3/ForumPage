@@ -10,6 +10,8 @@ export type EditarBecarioInput = {
   id: number
   nombre: string
   comunidadId?: number
+  nivel_educativo: 'primaria' | 'premedia' | 'media' | 'universidad'
+  tipo_apoyo?: ('hospedaje' | 'transporte' | 'alimento')[]
   universidad?: string
   carrera?: string
   anio?: number
@@ -47,6 +49,8 @@ export async function editarBecario(input: EditarBecarioInput) {
     const dataToUpdate: Record<string, unknown> = {
       nombre: input.nombre.trim(),
       comunidad: input.comunidadId || undefined,
+      nivel_educativo: input.nivel_educativo,
+      tipo_apoyo: input.tipo_apoyo?.length ? input.tipo_apoyo : null,
       universidad: input.universidad?.trim() || undefined,
       carrera: input.carrera?.trim() || undefined,
       anio: input.anio || undefined,

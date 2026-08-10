@@ -5,7 +5,8 @@
 ## Estado actual
 
 **Fase:** 1 — Base pública (cerrada) + 2 — Centro de Aprendizaje (cerrada) + 3 — Portal del Becario / Staff (cerrada & optimizada).
-**Última actualización:** 2026-08-10 — Auditoría de cobertura de programas contra el Informe Anual 2025 impreso de la Fundación (fotos reales aportadas por el usuario) + primer gap cerrado: asistencia real a Tutorías. Ver detalle abajo.
+**Última actualización:** 2026-08-10 (2) — Cerrados los 4 gaps restantes de la auditoría de programas: Becas de Comunidad (K-12), Cursos, Talleres, Giras Educativas y Donaciones, todos administrables ahora desde `/staff`. Ver detalle abajo.
+**Actualización anterior (2026-08-10, 1):** Auditoría de cobertura de programas contra el Informe Anual 2025 impreso de la Fundación (fotos reales aportadas por el usuario) + primer gap cerrado: asistencia real a Tutorías. Ver detalle abajo.
 **Actualización anterior (2026-08-09):** Fix real: el selector de idioma en Publicaciones no cambiaba el contenido — ver detalle abajo.
 
 Fase 0 tiene sus entregables iniciales listos (ver abajo). **Ya existe un servidor real** (VPS de AWS, `https://volumetrix.servegame.com`, ver Fase 1 Paso Q) sirviendo la app con HTTPS real, Postgres migrado, y **contenido real ya cargado**: 36 comunidades, 2 sedes, 4 centros educativos, 71 actividades/historias, 8 del equipo, y sus 3316 archivos de imágenes reales (ver Fase 1 Paso T). No es el droplet definitivo de DigitalOcean que describe `01-documento-de-proyecto.md` §12 — es un VPS que ya tenía el usuario, usado mientras se define el presupuesto final; el proceso de despliegue (`scripts/deploy.sh`) no depende de cuál sea el servidor. **Sigue pendiente**: becarios reales (sin consentimiento firmado todavía, producción está en 0 a propósito), programas/proyectos reales (los de dev eran ficticios, no se llevaron), informes anuales/podcast, y una cuenta de staff real (nadie creó todavía el primer usuario de producción).
@@ -56,7 +57,25 @@ Propagado a `crear-tutoria.ts`/`editar-tutoria.ts` (Server Actions) y `Formulari
 
 **Verificado de punta a punta contra Postgres local, no solo compilado:** con comunidad/sede/materia/staff descartables — se agendó una tutoría real desde `/staff`, se marcó "Se realizó" con 27 participantes, `GET /api/tutorias/1` confirmó `realizada: true, participantes: 27`; se volvió a editar, se desmarcó, y `GET /api/tutorias/1` confirmó `realizada: false, participantes: null` (no quedó pisado). Migración `20260810_010852_agregar_asistencia_tutorias` generada y verificada `up`/`down`/`up` completo contra un Postgres vacío. `tsc --noEmit`, `eslint`, `pnpm build` y `check:budget` (163.1 KB / 500 KB) limpios.
 
-**Pendiente, fuera de alcance de este cambio:** los otros 4 gaps de la auditoría (Becas de Comunidad K-12, Cursos, Talleres, Giras Educativas, Donaciones) siguen sin colección — quedan para cuando el usuario decida priorizarlos.
+**Pendiente en ese momento (cerrado en el bloque siguiente, mismo día):** los otros 4 gaps de la auditoría (Becas de Comunidad K-12, Cursos, Talleres, Giras Educativas, Donaciones) — ver abajo.
+
+### Fix (2026-08-10, bloque 2) — Cerrados los 4 gaps restantes de la auditoría de programas
+
+A pedido explícito del usuario ("arreglemos todo"), se cerraron los 4 gaps que quedaban abiertos de la auditoría contra el Informe Anual 2025 impreso.
+
+**Becas de Comunidad (K-12):** `Becarios` estaba modelado solo para el track universitario. Se agregó `nivel_educativo` (select: primaria/premedia/media/universidad, `defaultValue: 'universidad'` para no alterar los 203 becarios universitarios existentes) y `tipo_apoyo` (select `hasMany`: hospedaje/transporte/alimento, la categorización que muestra el informe). Los campos `universidad`/`carrera`/`año` ahora están condicionados (`admin.condition`) a `nivel_educativo === 'universidad'` — mismo patrón que ya usaba `pais_estudio` condicionado a `tipo_estudio === 'internacional'`. Propagado a `crear-becario.ts`/`editar-becario.ts` y a los dos formularios del panel (`FormularioNuevoBecario.tsx`/`FormularioEditarBecario.tsx`).
+
+**Cursos, Talleres, Giras Educativas, Donaciones:** 4 colecciones nuevas, deliberadamente mínimas — mismo patrón `realizada`/`participantes` que ya se usó para Tutorías (sin lista de asistencia individual, el informe solo necesita el conteo agregado). `GirasEducativas` referencia `centros-educativos` (la colección que ya usa el informe para nombrar cada escuela) y `niveles`. `Donaciones` usa un campo de texto libre para la institución en vez de una relación, porque el informe dona a escuelas, universidades, centros de salud e iglesias por igual — ninguna colección única las cubre todas.
+
+**Nueva pestaña "Programas" en `/staff`** (`TabProgramas.tsx`), agregada a `NavegacionStaff.tsx` — las 4 colecciones nuevas no encajaban conceptualmente en "Centro de Aprendizaje" (que es específicamente sobre la Biblioteca pública en `/aprende`), así que se les dio espacio propio en vez de forzarlas ahí.
+
+**Bug propio encontrado en el camino, no de producción:** Payload deriva el nombre de la interfaz TypeScript del slug de la colección quitando la `s` final — funciona para `cursos`→`Curso` pero rompe para `talleres`→`Tallere` y `donaciones`→`Donacione`. Corregido con `typescript: { interface: 'Taller' }` / `{ interface: 'Donacion' }` explícitos en esas dos colecciones (mismo patrón que ya usaba `GirasEducativas` con `interface: 'GiraEducativa'`).
+
+**Efecto colateral real, corregido:** `scripts/seed-becarios-internacionales.ts` (script de un solo uso para becarios internacionales de ejemplo) dejó de tipar por el nuevo campo requerido `nivel_educativo` — se le agregó `nivel_educativo: 'universidad'` a sus dos registros de ejemplo, coherente con que ambos son becarios universitarios.
+
+**Verificado de punta a punta contra Postgres local, no solo compilado:** con comunidad/sede/centro educativo/staff descartables, se registró un becario real de nivel `primaria` con `tipo_apoyo: ['hospedaje','alimento']` desde `/staff` (confirmando que los campos de universidad/carrera quedan ocultos y vacíos, no solo ocultos en la UI) y se creó un Curso, un Taller, una Gira Educativa y una Donación reales desde la pestaña nueva, cada uno marcado como realizado con su conteo de participantes — los cinco confirmados vía `GET /api/<coleccion>` con los valores exactos guardados. Migración `20260810_013450_agregar_cursos_talleres_giras_donaciones` verificada `up`/`down`/`up` completo contra un Postgres vacío — el `down()` generado tenía el mismo bug de `DROP TABLE ... CASCADE` seguido de un `DROP CONSTRAINT` ya arrastrado por el CASCADE (la lección del Paso L), corregido con `IF EXISTS` en las constraints e índices del `down()`. `tsc --noEmit`, `eslint .`, `pnpm build` y `check:budget` (163.1 KB / 500 KB) limpios.
+
+**Pendiente, fuera de alcance:** las tablas de Cursos/Talleres/Giras/Donaciones en `/staff` no tienen filtros ni paginación (aceptable mientras el volumen sea bajo); no hay una vista pública ni un "Informe Anual" digital que sume estas cifras automáticamente — los datos ya se pueden cargar y consultar vía API, pero armar esa página de reporte es un paso aparte, no pedido todavía.
 
 ## Principios de ejecución (no negociables)
 

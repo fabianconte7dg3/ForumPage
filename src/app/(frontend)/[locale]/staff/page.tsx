@@ -10,11 +10,12 @@ import { TabComunidades } from '@/components/staff/TabComunidades'
 import { TabProyectos } from '@/components/staff/TabProyectos'
 import { TabEquipo } from '@/components/staff/TabEquipo'
 import { TabAprendizaje } from '@/components/staff/TabAprendizaje'
+import { TabProgramas } from '@/components/staff/TabProgramas'
 import { FormularioConfiguracionModal } from '@/components/staff/FormularioConfiguracionModal'
 import { defaultLocale, type Locale } from '@/i18n'
 import { sesionActual } from '@/lib/auth'
 import config from '@/payload.config'
-import type { Becario, HoraLaborSocial, Actividad, Comunidad, Proyecto, Programa, Equipo, Recurso, Tutoria, Practica, Nivel, Materia, Sede, CentroEducativo, Configuracion } from '@/payload-types'
+import type { Becario, HoraLaborSocial, Actividad, Comunidad, Proyecto, Programa, Equipo, Recurso, Tutoria, Practica, Nivel, Materia, Sede, CentroEducativo, Configuracion, Curso, Taller, GiraEducativa, Donacion } from '@/payload-types'
 
 export const dynamic = 'force-dynamic'
 
@@ -384,6 +385,33 @@ export default async function StaffDashboardPage({
               niveles={nivelesRes.docs as Nivel[]}
               materias={materiasRes.docs as Materia[]}
               sedes={sedesRes.docs as Sede[]}
+            />
+          )
+        })()
+      )}
+
+      {tab === 'programas' && (
+        await (async () => {
+          const [cursosRes, talleresRes, girasRes, donacionesRes, sedesRes, centrosRes, nivelesRes] = await Promise.all([
+            payload.find({ collection: 'cursos', limit: 200, depth: 1, sort: '-createdAt', overrideAccess: true }),
+            payload.find({ collection: 'talleres', limit: 200, depth: 1, sort: '-createdAt', overrideAccess: true }),
+            payload.find({ collection: 'giras-educativas', limit: 200, depth: 1, sort: '-createdAt', overrideAccess: true }),
+            payload.find({ collection: 'donaciones', limit: 200, depth: 1, sort: '-createdAt', overrideAccess: true }),
+            payload.find({ collection: 'sedes', limit: 200, sort: 'nombre', overrideAccess: true }),
+            payload.find({ collection: 'centros-educativos', limit: 200, sort: 'nombre', overrideAccess: true }),
+            payload.find({ collection: 'niveles', limit: 100, sort: 'nombre', overrideAccess: true }),
+          ])
+          return (
+            <TabProgramas
+              locale={locale}
+              cursos={cursosRes.docs as Curso[]}
+              talleres={talleresRes.docs as Taller[]}
+              giras={girasRes.docs as GiraEducativa[]}
+              donaciones={donacionesRes.docs as Donacion[]}
+              sedes={sedesRes.docs as Sede[]}
+              escuelas={centrosRes.docs as CentroEducativo[]}
+              niveles={nivelesRes.docs as Nivel[]}
+              comunidades={comunidades}
             />
           )
         })()

@@ -21,6 +21,10 @@ import { Materias } from './collections/Materias'
 import { Recursos } from './collections/Recursos'
 import { Practicas } from './collections/Practicas'
 import { Tutorias } from './collections/Tutorias'
+import { Cursos } from './collections/Cursos'
+import { Talleres } from './collections/Talleres'
+import { GirasEducativas } from './collections/GirasEducativas'
+import { Donaciones } from './collections/Donaciones'
 import { RegistrosAcademicos } from './collections/RegistrosAcademicos'
 import { Recuperaciones } from './collections/Recuperaciones'
 import { HorasLaborSocial } from './collections/HorasLaborSocial'
@@ -67,6 +71,10 @@ export default buildConfig({
     Recursos,
     Practicas,
     Tutorias,
+    Cursos,
+    Talleres,
+    GirasEducativas,
+    Donaciones,
     RegistrosAcademicos,
     Recuperaciones,
     HorasLaborSocial,

@@ -105,20 +105,51 @@ export const Becarios: CollectionConfig = {
       access: { update: esStaffOSuperiorFieldAccess },
     },
     {
+      name: 'nivel_educativo',
+      type: 'select',
+      required: true,
+      defaultValue: 'universidad',
+      options: [
+        { label: 'Primaria', value: 'primaria' },
+        { label: 'Premedia', value: 'premedia' },
+        { label: 'Media', value: 'media' },
+        { label: 'Universidad', value: 'universidad' },
+      ],
+      admin: { description: 'Determina si aplican los campos de universidad/carrera o es un becario de escuela (Becas de Comunidad)' },
+      access: { update: esStaffOSuperiorFieldAccess },
+    },
+    {
+      name: 'tipo_apoyo',
+      type: 'select',
+      hasMany: true,
+      options: [
+        { label: 'Hospedaje', value: 'hospedaje' },
+        { label: 'Transporte', value: 'transporte' },
+        { label: 'Alimento', value: 'alimento' },
+      ],
+      admin: { description: 'Apoyo adicional que recibe además de la beca académica' },
+      access: { update: esStaffOSuperiorFieldAccess },
+    },
+    {
       name: 'universidad',
       type: 'text',
+      admin: { condition: (data) => data?.nivel_educativo === 'universidad' },
       access: { update: esStaffOSuperiorFieldAccess },
     },
     {
       name: 'carrera',
       type: 'text',
       localized: true,
+      admin: { condition: (data) => data?.nivel_educativo === 'universidad' },
       access: { update: esStaffOSuperiorFieldAccess },
     },
     {
       name: 'anio',
       type: 'number',
-      admin: { description: 'Año de la carrera que cursa actualmente' },
+      admin: {
+        description: 'Año de la carrera que cursa actualmente',
+        condition: (data) => data?.nivel_educativo === 'universidad',
+      },
       access: { update: esStaffOSuperiorFieldAccess },
     },
     {

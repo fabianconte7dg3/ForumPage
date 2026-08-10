@@ -38,6 +38,8 @@ export function FormularioNuevoBecario({ locale, comunidades, destinos }: Props)
   const [nombre, setNombre] = useState('')
   const [email, setEmail] = useState('')
   const [comunidadId, setComunidadId] = useState<number | undefined>(undefined)
+  const [nivelEducativo, setNivelEducativo] = useState<'primaria' | 'premedia' | 'media' | 'universidad'>('universidad')
+  const [tipoApoyo, setTipoApoyo] = useState<('hospedaje' | 'transporte' | 'alimento')[]>([])
   const [universidad, setUniversidad] = useState('')
   const [carrera, setCarrera] = useState('')
   const [anio, setAnio] = useState<number | ''>('')
@@ -61,6 +63,8 @@ export function FormularioNuevoBecario({ locale, comunidades, destinos }: Props)
       nombre,
       email,
       comunidadId: comunidadId ? Number(comunidadId) : undefined,
+      nivel_educativo: nivelEducativo,
+      tipo_apoyo: tipoApoyo,
       universidad,
       carrera,
       anio: anio !== '' ? Number(anio) : undefined,
@@ -87,6 +91,8 @@ export function FormularioNuevoBecario({ locale, comunidades, destinos }: Props)
     // Reset form
     setNombre('')
     setEmail('')
+    setNivelEducativo('universidad')
+    setTipoApoyo([])
     setUniversidad('')
     setCarrera('')
     setCita('')
@@ -235,8 +241,25 @@ export function FormularioNuevoBecario({ locale, comunidades, destinos }: Props)
                     ))}
                   </select>
                 </div>
+
+                <div>
+                  <label className="mb-1 block font-dato text-xs uppercase tracking-widest text-tinta">
+                    Nivel Educativo
+                  </label>
+                  <select
+                    value={nivelEducativo}
+                    onChange={(e) => setNivelEducativo(e.target.value as typeof nivelEducativo)}
+                    className="w-full rounded-sm border border-piedra/25 px-3 py-2 font-lectura text-sm outline-none focus:border-montana bg-white"
+                  >
+                    <option value="primaria">Primaria (Becas de Comunidad)</option>
+                    <option value="premedia">Premedia (Becas de Comunidad)</option>
+                    <option value="media">Media (Becas de Comunidad)</option>
+                    <option value="universidad">Universidad (Becas Keffer)</option>
+                  </select>
+                </div>
               </div>
 
+              {nivelEducativo === 'universidad' && (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1 block font-dato text-xs uppercase tracking-widest text-tinta">
@@ -264,8 +287,10 @@ export function FormularioNuevoBecario({ locale, comunidades, destinos }: Props)
                   />
                 </div>
               </div>
+              )}
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                {nivelEducativo === 'universidad' && (
                 <div>
                   <label className="mb-1 block font-dato text-xs uppercase tracking-widest text-tinta">
                     Año que cursa
@@ -280,6 +305,7 @@ export function FormularioNuevoBecario({ locale, comunidades, destinos }: Props)
                     className="w-full rounded-sm border border-piedra/25 px-3 py-2 font-lectura text-sm outline-none focus:border-montana"
                   />
                 </div>
+                )}
 
                 <div>
                   <label className="mb-1 block font-dato text-xs uppercase tracking-widest text-tinta">
@@ -422,6 +448,27 @@ export function FormularioNuevoBecario({ locale, comunidades, destinos }: Props)
                     </div>
                   </div>
                 )}
+              </div>
+
+              <div>
+                <label className="mb-2 block font-dato text-xs uppercase tracking-widest text-tinta">
+                  Tipo de Apoyo (además de la beca académica)
+                </label>
+                <div className="flex flex-wrap gap-4">
+                  {(['hospedaje', 'transporte', 'alimento'] as const).map((tipo) => (
+                    <label key={tipo} className="flex items-center space-x-2 font-lectura text-sm capitalize text-tinta cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={tipoApoyo.includes(tipo)}
+                        onChange={(e) =>
+                          setTipoApoyo((prev) => (e.target.checked ? [...prev, tipo] : prev.filter((t) => t !== tipo)))
+                        }
+                        className="accent-montana"
+                      />
+                      <span>{tipo}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
 
               <div className="space-y-2 pt-2">

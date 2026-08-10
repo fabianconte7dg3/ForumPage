@@ -85,6 +85,10 @@ export interface Config {
     recursos: Recurso;
     practicas: Practica;
     tutorias: Tutoria;
+    cursos: Curso;
+    talleres: Taller;
+    'giras-educativas': GiraEducativa;
+    donaciones: Donacion;
     'registros-academicos': RegistrosAcademico;
     recuperaciones: Recuperacion;
     'horas-labor-social': HoraLaborSocial;
@@ -116,6 +120,10 @@ export interface Config {
     recursos: RecursosSelect<false> | RecursosSelect<true>;
     practicas: PracticasSelect<false> | PracticasSelect<true>;
     tutorias: TutoriasSelect<false> | TutoriasSelect<true>;
+    cursos: CursosSelect<false> | CursosSelect<true>;
+    talleres: TalleresSelect<false> | TalleresSelect<true>;
+    'giras-educativas': GirasEducativasSelect<false> | GirasEducativasSelect<true>;
+    donaciones: DonacionesSelect<false> | DonacionesSelect<true>;
     'registros-academicos': RegistrosAcademicosSelect<false> | RegistrosAcademicosSelect<true>;
     recuperaciones: RecuperacionesSelect<false> | RecuperacionesSelect<true>;
     'horas-labor-social': HorasLaborSocialSelect<false> | HorasLaborSocialSelect<true>;
@@ -219,6 +227,14 @@ export interface Becario {
   id: number;
   nombre: string;
   comunidad?: (number | null) | Comunidad;
+  /**
+   * Determina si aplican los campos de universidad/carrera o es un becario de escuela (Becas de Comunidad)
+   */
+  nivel_educativo: 'primaria' | 'premedia' | 'media' | 'universidad';
+  /**
+   * Apoyo adicional que recibe además de la beca académica
+   */
+  tipo_apoyo?: ('hospedaje' | 'transporte' | 'alimento')[] | null;
   universidad?: string | null;
   carrera?: string | null;
   /**
@@ -694,6 +710,97 @@ export interface Tutoria {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cursos".
+ */
+export interface Curso {
+  id: number;
+  nombre: string;
+  tipo: 'estudiantes' | 'adultos';
+  sede?: (number | null) | Sede;
+  fecha_inicio?: string | null;
+  responsable?: string | null;
+  /**
+   * Marcalo una vez que el curso ocurrió, para que cuente en las cifras reales de participación
+   */
+  realizada?: boolean | null;
+  /**
+   * Cantidad real de participantes
+   */
+  participantes?: number | null;
+  notas?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "talleres".
+ */
+export interface Taller {
+  id: number;
+  nombre: string;
+  tipo: 'estudiantes' | 'adultos';
+  sede?: (number | null) | Sede;
+  fecha?: string | null;
+  responsable?: string | null;
+  /**
+   * Marcalo una vez que el taller ocurrió, para que cuente en las cifras reales de participación
+   */
+  realizada?: boolean | null;
+  /**
+   * Cantidad real de participantes
+   */
+  participantes?: number | null;
+  notas?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "giras-educativas".
+ */
+export interface GiraEducativa {
+  id: number;
+  /**
+   * Ej. Biomuseo, Ruinas de Panamá Viejo
+   */
+  destino: string;
+  escuela: number | CentroEducativo;
+  nivel?: (number | null) | Nivel;
+  fecha?: string | null;
+  /**
+   * Marcalo una vez que la gira ocurrió, para que cuente en las cifras reales de participación
+   */
+  realizada?: boolean | null;
+  /**
+   * Cantidad real de estudiantes que participaron
+   */
+  participantes?: number | null;
+  notas?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "donaciones".
+ */
+export interface Donacion {
+  id: number;
+  /**
+   * Ej. Escuela Membrillo, U. Tecnológica de Panamá - Coclé
+   */
+  institucion: string;
+  tipo_institucion?: ('escuela' | 'universidad' | 'centro_salud' | 'iglesia' | 'otro') | null;
+  comunidad?: (number | null) | Comunidad;
+  /**
+   * Qué se donó
+   */
+  descripcion?: string | null;
+  fecha?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "registros-academicos".
  */
 export interface RegistrosAcademico {
@@ -948,6 +1055,22 @@ export interface PayloadLockedDocument {
         value: number | Tutoria;
       } | null)
     | ({
+        relationTo: 'cursos';
+        value: number | Curso;
+      } | null)
+    | ({
+        relationTo: 'talleres';
+        value: number | Taller;
+      } | null)
+    | ({
+        relationTo: 'giras-educativas';
+        value: number | GiraEducativa;
+      } | null)
+    | ({
+        relationTo: 'donaciones';
+        value: number | Donacion;
+      } | null)
+    | ({
         relationTo: 'registros-academicos';
         value: number | RegistrosAcademico;
       } | null)
@@ -1195,6 +1318,8 @@ export interface AuditoriaSelect<T extends boolean = true> {
 export interface BecariosSelect<T extends boolean = true> {
   nombre?: T;
   comunidad?: T;
+  nivel_educativo?: T;
+  tipo_apoyo?: T;
   universidad?: T;
   carrera?: T;
   anio?: T;
@@ -1430,6 +1555,66 @@ export interface TutoriasSelect<T extends boolean = true> {
   notas?: T;
   realizada?: T;
   participantes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cursos_select".
+ */
+export interface CursosSelect<T extends boolean = true> {
+  nombre?: T;
+  tipo?: T;
+  sede?: T;
+  fecha_inicio?: T;
+  responsable?: T;
+  realizada?: T;
+  participantes?: T;
+  notas?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "talleres_select".
+ */
+export interface TalleresSelect<T extends boolean = true> {
+  nombre?: T;
+  tipo?: T;
+  sede?: T;
+  fecha?: T;
+  responsable?: T;
+  realizada?: T;
+  participantes?: T;
+  notas?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "giras-educativas_select".
+ */
+export interface GirasEducativasSelect<T extends boolean = true> {
+  destino?: T;
+  escuela?: T;
+  nivel?: T;
+  fecha?: T;
+  realizada?: T;
+  participantes?: T;
+  notas?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "donaciones_select".
+ */
+export interface DonacionesSelect<T extends boolean = true> {
+  institucion?: T;
+  tipo_institucion?: T;
+  comunidad?: T;
+  descripcion?: T;
+  fecha?: T;
   updatedAt?: T;
   createdAt?: T;
 }

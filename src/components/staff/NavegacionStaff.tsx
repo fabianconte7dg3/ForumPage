@@ -11,6 +11,7 @@ const TABS = {
     { id: 'proyectos', label: 'Proyectos' },
     { id: 'equipo', label: 'Nosotros / Equipo' },
     { id: 'aprendizaje', label: 'Centro de Aprendizaje' },
+    { id: 'programas', label: 'Programas' },
   ],
   en: [
     { id: 'becarios', label: 'Becarios' },
@@ -19,6 +20,7 @@ const TABS = {
     { id: 'proyectos', label: 'Projects' },
     { id: 'equipo', label: 'About / Team' },
     { id: 'aprendizaje', label: 'Learning Center' },
+    { id: 'programas', label: 'Programs' },
   ],
 } as const
 
