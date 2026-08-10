@@ -2,11 +2,11 @@ import { getPayload } from 'payload'
 
 import { ImpactoMapLoader } from '@/components/ImpactoMapLoader'
 import { ImpactoTabs } from '@/components/ImpactoTabs'
-import type { ProyectoActivo, DestinoEstudio, BecarioDestacado } from '@/components/ImpactoOverview'
+import type { ProyectoActivo, DestinoEstudio, BecarioDestacado, ProgramasStats } from '@/components/ImpactoOverview'
 import type { ComunidadFeature, SedeFeature } from '@/components/ImpactoMap'
 import { defaultLocale, type Locale } from '@/i18n'
 import config from '@/payload.config'
-import type { Actividad, Becario, Comunidad, Programa, Proyecto, Sede } from '@/payload-types'
+import type { Actividad, Becario, Comunidad, Programa, Proyecto, Sede, Tutoria, Curso, Taller, GiraEducativa } from '@/payload-types'
 
 const ESTADOS = {
   es: { propuesto: 'Propuesto', aprobado: 'Aprobado', en_ejecucion: 'En ejecución', completado: 'Completado' },
@@ -69,6 +69,12 @@ const TEXTOS = {
     scholars: 'Becarios',
     abroad: 'Extranjero',
     atHome: 'Panamá',
+    programasTitulo: 'Programas Comunitarios',
+    tutoriasRealizadas: 'Tutorías Realizadas',
+    cursosRealizados: 'Cursos Realizados',
+    talleresRealizados: 'Talleres Realizados',
+    girasRealizadas: 'Giras Educativas',
+    donacionesEntregadas: 'Donaciones Entregadas',
   },
   en: {
     titulo: 'Impact Map',
@@ -115,8 +121,19 @@ const TEXTOS = {
     scholars: 'Scholars',
     abroad: 'Abroad',
     atHome: 'Panama',
+    programasTitulo: 'Community Programs',
+    tutoriasRealizadas: 'Tutoring Sessions Held',
+    cursosRealizados: 'Courses Completed',
+    talleresRealizados: 'Workshops Held',
+    girasRealizadas: 'Educational Field Trips',
+    donacionesEntregadas: 'Donations Delivered',
   },
 } satisfies Record<Locale, Record<string, unknown>>
+
+function participantesReales(n: number, locale: Locale): string {
+  if (n <= 0) return locale === 'en' ? 'No participants recorded yet' : 'Sin participantes registrados aún'
+  return locale === 'en' ? `${n} real participants` : `${n} participantes reales`
+}
 
 export default async function ImpactoPage({ params }: { params: Promise<{ locale: Locale }> }) {
   const { locale } = await params
@@ -125,7 +142,20 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
   const tiposSede = TIPOS_SEDE[locale] ?? TIPOS_SEDE[defaultLocale]
   const payload = await getPayload({ config })
 
-  const [comunidades, sedes, proyectos, actividades, programas, becariosActivosTodos, becariosTotalesRes] = await Promise.all([
+  const [
+    comunidades,
+    sedes,
+    proyectos,
+    actividades,
+    programas,
+    becariosActivosTodos,
+    becariosTotalesRes,
+    tutoriasRealizadasRes,
+    cursosRealizadosRes,
+    talleresRealizadosRes,
+    girasRealizadasRes,
+    donacionesRes,
+  ] = await Promise.all([
     payload.find({ collection: 'comunidades', limit: 200, locale, overrideAccess: true }),
     payload.find({ collection: 'sedes', limit: 200, depth: 1, locale, overrideAccess: true }),
     payload.find({ collection: 'proyectos', limit: 500, depth: 0, locale, overrideAccess: true }),
@@ -139,7 +169,32 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
       overrideAccess: true,
     }),
     payload.count({ collection: 'becarios', overrideAccess: true }),
+    payload.find({ collection: 'tutorias', where: { realizada: { equals: true } }, limit: 1000, depth: 0, overrideAccess: true }),
+    payload.find({ collection: 'cursos', where: { realizada: { equals: true } }, limit: 1000, depth: 0, overrideAccess: true }),
+    payload.find({ collection: 'talleres', where: { realizada: { equals: true } }, limit: 1000, depth: 0, overrideAccess: true }),
+    payload.find({ collection: 'giras-educativas', where: { realizada: { equals: true } }, limit: 1000, depth: 0, overrideAccess: true }),
+    payload.count({ collection: 'donaciones', overrideAccess: true }),
   ])
+
+  const sumarParticipantes = (docs: { participantes?: number | null }[]) =>
+    docs.reduce((suma, d) => suma + (d.participantes ?? 0), 0)
+
+  const programasStats: ProgramasStats = {
+    tutoriasRealizadas: tutoriasRealizadasRes.totalDocs,
+    participantesTutorias: sumarParticipantes(tutoriasRealizadasRes.docs as Tutoria[]),
+    cursosRealizados: cursosRealizadosRes.totalDocs,
+    participantesCursos: sumarParticipantes(cursosRealizadosRes.docs as Curso[]),
+    talleresRealizados: talleresRealizadosRes.totalDocs,
+    participantesTalleres: sumarParticipantes(talleresRealizadosRes.docs as Taller[]),
+    girasRealizadas: girasRealizadasRes.totalDocs,
+    participantesGiras: sumarParticipantes(girasRealizadasRes.docs as GiraEducativa[]),
+    donaciones: donacionesRes.totalDocs,
+  }
+
+  const subtitleTutorias = participantesReales(programasStats.participantesTutorias, locale)
+  const subtitleCursos = participantesReales(programasStats.participantesCursos, locale)
+  const subtitleTalleres = participantesReales(programasStats.participantesTalleres, locale)
+  const subtitleGiras = participantesReales(programasStats.participantesGiras, locale)
 
   const programasPorComunidad = new Map<number, Set<number>>()
   const proyectosPorComunidad = new Map<
@@ -352,6 +407,7 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
             studyingPanama: studyingPanama,
             studyingAbroad: studyingAbroad,
           },
+          programas: programasStats,
           proyectos: proyectosActivosList.slice(0, 5),
           destinos: destinos,
           textos: {
@@ -378,6 +434,16 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
             scholars: t.scholars,
             abroad: t.abroad,
             atHome: t.atHome,
+            programasTitulo: t.programasTitulo,
+            tutoriasRealizadas: t.tutoriasRealizadas,
+            cursosRealizados: t.cursosRealizados,
+            talleresRealizados: t.talleresRealizados,
+            girasRealizadas: t.girasRealizadas,
+            donacionesEntregadas: t.donacionesEntregadas,
+            subtitleTutorias,
+            subtitleCursos,
+            subtitleTalleres,
+            subtitleGiras,
           }
         }}
       />

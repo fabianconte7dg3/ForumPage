@@ -5,7 +5,8 @@
 ## Estado actual
 
 **Fase:** 1 — Base pública (cerrada) + 2 — Centro de Aprendizaje (cerrada) + 3 — Portal del Becario / Staff (cerrada & optimizada).
-**Última actualización:** 2026-08-10 (2) — Cerrados los 4 gaps restantes de la auditoría de programas: Becas de Comunidad (K-12), Cursos, Talleres, Giras Educativas y Donaciones, todos administrables ahora desde `/staff`. Ver detalle abajo.
+**Última actualización:** 2026-08-10 (3) — `/impacto` ahora muestra las cifras reales de los 4 programas nuevos (tutorías/cursos/talleres/giras realizados + donaciones entregadas), en vez de dejarlas solo disponibles vía API. Ver detalle abajo.
+**Actualización anterior (2026-08-10, 2):** Cerrados los 4 gaps restantes de la auditoría de programas: Becas de Comunidad (K-12), Cursos, Talleres, Giras Educativas y Donaciones, todos administrables ahora desde `/staff`. Ver detalle abajo.
 **Actualización anterior (2026-08-10, 1):** Auditoría de cobertura de programas contra el Informe Anual 2025 impreso de la Fundación (fotos reales aportadas por el usuario) + primer gap cerrado: asistencia real a Tutorías. Ver detalle abajo.
 **Actualización anterior (2026-08-09):** Fix real: el selector de idioma en Publicaciones no cambiaba el contenido — ver detalle abajo.
 
@@ -76,6 +77,16 @@ A pedido explícito del usuario ("arreglemos todo"), se cerraron los 4 gaps que 
 **Verificado de punta a punta contra Postgres local, no solo compilado:** con comunidad/sede/centro educativo/staff descartables, se registró un becario real de nivel `primaria` con `tipo_apoyo: ['hospedaje','alimento']` desde `/staff` (confirmando que los campos de universidad/carrera quedan ocultos y vacíos, no solo ocultos en la UI) y se creó un Curso, un Taller, una Gira Educativa y una Donación reales desde la pestaña nueva, cada uno marcado como realizado con su conteo de participantes — los cinco confirmados vía `GET /api/<coleccion>` con los valores exactos guardados. Migración `20260810_013450_agregar_cursos_talleres_giras_donaciones` verificada `up`/`down`/`up` completo contra un Postgres vacío — el `down()` generado tenía el mismo bug de `DROP TABLE ... CASCADE` seguido de un `DROP CONSTRAINT` ya arrastrado por el CASCADE (la lección del Paso L), corregido con `IF EXISTS` en las constraints e índices del `down()`. `tsc --noEmit`, `eslint .`, `pnpm build` y `check:budget` (163.1 KB / 500 KB) limpios.
 
 **Pendiente, fuera de alcance:** las tablas de Cursos/Talleres/Giras/Donaciones en `/staff` no tienen filtros ni paginación (aceptable mientras el volumen sea bajo); no hay una vista pública ni un "Informe Anual" digital que sume estas cifras automáticamente — los datos ya se pueden cargar y consultar vía API, pero armar esa página de reporte es un paso aparte, no pedido todavía.
+
+### Fix (2026-08-10, bloque 3) — Cifras reales de los programas nuevos, visibles en `/impacto`
+
+El usuario preguntó qué se recomendaba como siguiente paso ("¿hacer un dashboard?"). En vez de un dashboard nuevo (duplicaría autenticación, navegación y la lógica de agregación que ya vive en el mismo lugar), se extendió la página pública `/impacto` — ya tiene una pestaña "Resumen" con estadísticas de becarios — con una fila nueva de tarjetas para los 4 programas cerrados en el bloque 2: Tutorías realizadas, Cursos realizados, Talleres realizados, Giras Educativas realizadas (cada una con el conteo de participantes reales como subtítulo) y Donaciones entregadas.
+
+**Datos:** `src/app/(frontend)/[locale]/impacto/page.tsx` agrega 5 consultas al `Promise.all` existente (`tutorias`/`cursos`/`talleres`/`giras-educativas` filtradas por `realizada: true`, más `payload.count` de `donaciones`) y suma `participantes` de cada colección con un helper simple (`sumarParticipantes`).
+
+**Bug propio encontrado antes de commitear (RSC, no de producción):** el primer intento pasaba una función `participantesReales(n) => string` como parte del objeto de `textos` desde el Server Component (`page.tsx`) al Client Component (`ImpactoOverview.tsx`), reproduciendo el patrón que ya usaba `inXCountries` — pero ese sí se resolvía a un string *antes* de cruzar la frontera server/client (`t.inXCountries(paisesUnicos.size)`), mientras que el intento nuevo dejaba la función sin invocar. Next.js lo rechaza en build: "Functions cannot be passed directly to Client Components". Corregido calculando los 4 subtítulos (`subtitleTutorias`, etc.) como strings ya formateados en el propio Server Component, exactamente el mismo patrón que `inXCountries` — no una excepción, una inconsistencia que se corrigió para seguir la convención ya existente en el archivo.
+
+**Verificado de punta a punta contra Postgres local, no solo compilado:** se sembraron 2 tutorías (20 participantes), 1 curso (20), 1 taller (15), 1 gira (30) y 2 donaciones reales vía Local API, y se confirmó por HTML servido (`fetch('/es/impacto')` y `fetch('/en/impacto')`, sin cache de navegador de por medio) que las 5 tarjetas nuevas muestran exactamente esos números en ambos idiomas, con las etiquetas correctamente traducidas ("Tutoring Sessions Held", "20 real participants", etc.). `tsc --noEmit`, `eslint .`, `pnpm build` y `check:budget` (163.1 KB / 500 KB, sin cambios) limpios. Sin migración — la extensión es de solo lectura sobre columnas que ya existían desde el bloque 2.
 
 ## Principios de ejecución (no negociables)
 

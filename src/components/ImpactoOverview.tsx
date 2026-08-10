@@ -49,11 +49,34 @@ export type ImpactoOverviewTextos = {
   scholars: string
   abroad: string
   atHome: string
+  programasTitulo: string
+  tutoriasRealizadas: string
+  cursosRealizados: string
+  talleresRealizados: string
+  girasRealizadas: string
+  donacionesEntregadas: string
+  subtitleTutorias: string
+  subtitleCursos: string
+  subtitleTalleres: string
+  subtitleGiras: string
+}
+
+export type ProgramasStats = {
+  tutoriasRealizadas: number
+  participantesTutorias: number
+  cursosRealizados: number
+  participantesCursos: number
+  talleresRealizados: number
+  participantesTalleres: number
+  girasRealizadas: number
+  participantesGiras: number
+  donaciones: number
 }
 
 export function ImpactoOverview({
   becario,
   stats,
+  programas,
   proyectos,
   destinos,
   textos: t,
@@ -67,6 +90,7 @@ export function ImpactoOverview({
     studyingPanama: number
     studyingAbroad: number
   }
+  programas: ProgramasStats
   proyectos: ProyectoActivo[]
   destinos: DestinoEstudio[]
   textos: ImpactoOverviewTextos
@@ -120,6 +144,18 @@ export function ImpactoOverview({
         <StatCard title={t.projectsInCocle} value={stats.projectsCocle} subtitle={t.currentlyTracked} />
         <StatCard title={t.studyingInPanama} value={stats.studyingPanama} subtitle={t.outsideCocle} />
         <StatCard title={t.studyingAbroad} value={stats.studyingAbroad} subtitle={t.inXCountries} />
+      </section>
+
+      {/* Programas Stats Row */}
+      <section>
+        <h3 className="mb-4 font-dato text-xs uppercase tracking-widest text-piedra">{t.programasTitulo}</h3>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+          <StatCard title={t.tutoriasRealizadas} value={programas.tutoriasRealizadas} subtitle={t.subtitleTutorias} />
+          <StatCard title={t.cursosRealizados} value={programas.cursosRealizados} subtitle={t.subtitleCursos} />
+          <StatCard title={t.talleresRealizados} value={programas.talleresRealizados} subtitle={t.subtitleTalleres} />
+          <StatCard title={t.girasRealizadas} value={programas.girasRealizadas} subtitle={t.subtitleGiras} />
+          <StatCard title={t.donacionesEntregadas} value={programas.donaciones} subtitle="" />
+        </div>
       </section>
 
       {/* Tables Row */}
