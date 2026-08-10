@@ -63,5 +63,22 @@ export const Tutorias: CollectionConfig = {
       name: 'notas',
       type: 'textarea',
     },
+    {
+      name: 'realizada',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        description: 'Marcalo una vez que la tutoría ocurrió, para que cuente en las cifras reales de participación',
+      },
+    },
+    {
+      name: 'participantes',
+      type: 'number',
+      min: 0,
+      admin: {
+        description: 'Cantidad real de estudiantes que asistieron',
+        condition: (data) => data?.realizada === true,
+      },
+    },
   ],
 }

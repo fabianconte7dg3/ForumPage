@@ -681,6 +681,14 @@ export interface Tutoria {
   responsable?: string | null;
   recurrencia?: ('ninguna' | 'semanal' | 'quincenal' | 'mensual') | null;
   notas?: string | null;
+  /**
+   * Marcalo una vez que la tutoría ocurrió, para que cuente en las cifras reales de participación
+   */
+  realizada?: boolean | null;
+  /**
+   * Cantidad real de estudiantes que asistieron
+   */
+  participantes?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1420,6 +1428,8 @@ export interface TutoriasSelect<T extends boolean = true> {
   responsable?: T;
   recurrencia?: T;
   notas?: T;
+  realizada?: T;
+  participantes?: T;
   updatedAt?: T;
   createdAt?: T;
 }

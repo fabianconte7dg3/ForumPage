@@ -15,6 +15,8 @@ export type EditarTutoriaInput = {
   responsable?: string
   recurrencia?: 'ninguna' | 'semanal' | 'quincenal' | 'mensual'
   notas?: string
+  realizada: boolean
+  participantes?: number
   locale: string
 }
 
@@ -49,6 +51,8 @@ export async function editarTutoria(input: EditarTutoriaInput) {
       responsable: input.responsable?.trim() || undefined,
       recurrencia: input.recurrencia ?? 'ninguna',
       notas: input.notas?.trim() || undefined,
+      realizada: input.realizada,
+      participantes: input.realizada ? input.participantes || undefined : null,
     }
 
     await payload.update({

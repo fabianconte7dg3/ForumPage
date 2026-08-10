@@ -5,7 +5,8 @@
 ## Estado actual
 
 **Fase:** 1 — Base pública (cerrada) + 2 — Centro de Aprendizaje (cerrada) + 3 — Portal del Becario / Staff (cerrada & optimizada).
-**Última actualización:** 2026-08-09 (Fix real: el selector de idioma en Publicaciones no cambiaba el contenido — ver detalle abajo)
+**Última actualización:** 2026-08-10 — Auditoría de cobertura de programas contra el Informe Anual 2025 impreso de la Fundación (fotos reales aportadas por el usuario) + primer gap cerrado: asistencia real a Tutorías. Ver detalle abajo.
+**Actualización anterior (2026-08-09):** Fix real: el selector de idioma en Publicaciones no cambiaba el contenido — ver detalle abajo.
 
 Fase 0 tiene sus entregables iniciales listos (ver abajo). **Ya existe un servidor real** (VPS de AWS, `https://volumetrix.servegame.com`, ver Fase 1 Paso Q) sirviendo la app con HTTPS real, Postgres migrado, y **contenido real ya cargado**: 36 comunidades, 2 sedes, 4 centros educativos, 71 actividades/historias, 8 del equipo, y sus 3316 archivos de imágenes reales (ver Fase 1 Paso T). No es el droplet definitivo de DigitalOcean que describe `01-documento-de-proyecto.md` §12 — es un VPS que ya tenía el usuario, usado mientras se define el presupuesto final; el proceso de despliegue (`scripts/deploy.sh`) no depende de cuál sea el servidor. **Sigue pendiente**: becarios reales (sin consentimiento firmado todavía, producción está en 0 a propósito), programas/proyectos reales (los de dev eran ficticios, no se llevaron), informes anuales/podcast, y una cuenta de staff real (nadie creó todavía el primer usuario de producción).
 
@@ -31,6 +32,31 @@ Reportado por el usuario probando en producción: cambiar el sitio a inglés no 
 **Verificado de punta a punta, no solo compilado:** contra Postgres local con un usuario staff descartable — se publicó una actividad en español desde `/es/staff`, se cambió el panel a `/en/staff`, se editó la misma publicación con una traducción real en inglés, y `GET /api/actividades/:id?locale=es` vs `?locale=en` devolvieron **textos distintos y correctos** en cada idioma (antes del fix, ambos habrían devuelto el español). Se confirmó también que el formulario precarga el español como *fallback* al editar en inglés una publicación sin traducir todavía — comportamiento esperado de Payload, no un bug. `tsc --noEmit`, `eslint .` y `check:budget` (163.1 KB / 500 KB) limpios.
 
 **Pendiente, no arreglado en este cambio (fuera de alcance del reporte):** las etiquetas del panel de staff (ej. "+ Nueva Publicación", "Editar") están hardcodeadas en español y no se traducen aunque el panel esté en `/en/staff` — es un gap de UI distinto, cosmético, no de datos.
+
+### Auditoría (2026-08-10) — Cobertura de programas vs. Informe Anual 2025 impreso
+
+El usuario compartió 8 fotos reales de las páginas del Informe Anual 2025 impreso de la Fundación (Programas Forum, Becas Keffer comunitarias/universitarias, Tutorías, Cursos, Talleres, Giras Educativas, Donaciones). Se comparó cada programa contra las 24 colecciones reales de Payload (lista tomada de `src/payload.config.ts`, no de memoria) para ver qué se administra hoy en el sistema y qué se sigue armando a mano fuera de él.
+
+**Bien cubierto:** Becas universitarias (Keffer) — colección `Becarios` con `universidad`/`carrera`/`año`/`tipo_estudio`/`estado`, pestaña en `/staff`, alimenta el Mapa de Impacto y el Portal del Becario.
+
+**Parcial (primer gap cerrado, ver abajo):** Tutorías — existía la colección pero era solo un calendario de anuncios, sin forma de registrar si la sesión ocurrió de verdad ni cuántos asistieron.
+
+**Sin cubrir, confirmado por ausencia de colección, no arreglado en este cambio:**
+- **Becas de Comunidad** (114 becarios K-12: primaria/premedia/media): `Becarios` está modelado solo para el track universitario (`universidad`/`carrera` no tienen sentido para un niño de primaria); no hay campo de nivel escolar (`Niveles` existe como colección pero `Becarios` no la referencia) ni de tipo de apoyo (hospedaje/transporte/alimento) que muestra el informe. Es probable que esta cohorte no esté cargada en el sistema en absoluto.
+- **Cursos** (estudiantes + adultos), **Talleres** (estudiantes + adultos), **Giras Educativas**, **Donaciones**: ninguna tiene colección — cero rastro en `payload.config.ts`.
+- **Copias/impresiones, uso de equipos, uso de biblioteca**: contadores de uso de servicio, tampoco modelados.
+
+Esto explica por qué la página "Informe Anual" del sitio público está vacía ("Aún no hay informes anuales cargados") — no hay de dónde sacar la mayoría de estos números automáticamente todavía.
+
+### Fix (2026-08-10) — Asistencia real a Tutorías
+
+Primer gap cerrado de la auditoría de arriba, a pedido del usuario. Se agregaron dos campos a `Tutorias` (`realizada`: checkbox, `participantes`: número, condicionado a `realizada === true` vía `admin.condition`, mismo patrón ya usado en `Becarios.pais_estudio` condicionado a `tipo_estudio === 'internacional'`) — deliberadamente mínimo, sin lista de asistencia individual ni sistema de check-in, porque el informe solo necesita el conteo agregado.
+
+Propagado a `crear-tutoria.ts`/`editar-tutoria.ts` (Server Actions) y `FormularioTutoriaModal.tsx` (checkbox "Se realizó" + input de participantes que solo aparece si está marcado). En la edición, desmarcar "Se realizó" limpia `participantes` con `null` explícito, no `undefined` — la misma regla ya aprendida en este repo (`.agents/AGENTS.md`, gap de `texto_aviso_suspension`) de que `undefined` en un update parcial de Payload deja el campo como estaba, no lo vacía.
+
+**Verificado de punta a punta contra Postgres local, no solo compilado:** con comunidad/sede/materia/staff descartables — se agendó una tutoría real desde `/staff`, se marcó "Se realizó" con 27 participantes, `GET /api/tutorias/1` confirmó `realizada: true, participantes: 27`; se volvió a editar, se desmarcó, y `GET /api/tutorias/1` confirmó `realizada: false, participantes: null` (no quedó pisado). Migración `20260810_010852_agregar_asistencia_tutorias` generada y verificada `up`/`down`/`up` completo contra un Postgres vacío. `tsc --noEmit`, `eslint`, `pnpm build` y `check:budget` (163.1 KB / 500 KB) limpios.
+
+**Pendiente, fuera de alcance de este cambio:** los otros 4 gaps de la auditoría (Becas de Comunidad K-12, Cursos, Talleres, Giras Educativas, Donaciones) siguen sin colección — quedan para cuando el usuario decida priorizarlos.
 
 ## Principios de ejecución (no negociables)
 

@@ -14,6 +14,8 @@ export type CrearTutoriaInput = {
   responsable?: string
   recurrencia?: 'ninguna' | 'semanal' | 'quincenal' | 'mensual'
   notas?: string
+  realizada: boolean
+  participantes?: number
   locale: string
 }
 
@@ -48,6 +50,8 @@ export async function crearTutoria(input: CrearTutoriaInput) {
       responsable: input.responsable?.trim() || undefined,
       recurrencia: input.recurrencia ?? 'ninguna',
       notas: input.notas?.trim() || undefined,
+      realizada: input.realizada,
+      participantes: input.realizada ? input.participantes || undefined : undefined,
     }
 
     const nueva = await payload.create({

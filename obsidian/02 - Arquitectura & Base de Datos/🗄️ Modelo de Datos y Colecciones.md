@@ -66,7 +66,7 @@ erDiagram
 - `Materias`: Asignaturas (Matemáticas, Inglés, etc.).
 - `Recursos`: Materiales educativos en la biblioteca (PDFs propios, enlaces, videos de YouTube).
 - `Practicas`: Quizzes autocorregibles de opción múltiple.
-- `Tutorias`: Sesiones presenciales o virtuales anunciadas con sede, horario y cupos.
+- `Tutorias`: Sesiones presenciales o virtuales anunciadas con sede, horario y cupos. Desde 2026-08-10, también `realizada` (checkbox) + `participantes` (número, condicionado a `realizada`) para registrar asistencia real, no solo el anuncio.
 
 ### 4. Portal del Becario & Cierre (Fase 3 - Bloques 5 y 6)
 - `Becarios`: Expediente del estudiante, universidad, tipo de estudio, `estado`, `fecha_suspension`, `fecha_reactivacion` y campos de privacidad socioeconómica.

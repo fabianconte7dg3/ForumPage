@@ -19,6 +19,7 @@ import * as migration_20260804_165434_agregar_destinos_internacionales from './2
 import * as migration_20260804_171527_agregar_fotos_becarios from './20260804_171527_agregar_fotos_becarios';
 import * as migration_20260806_043317_agregar_resumen_nosotros from './20260806_043317_agregar_resumen_nosotros';
 import * as migration_20260806_060854_reemplazar_resumen_por_secciones from './20260806_060854_reemplazar_resumen_por_secciones';
+import * as migration_20260810_010852_agregar_asistencia_tutorias from './20260810_010852_agregar_asistencia_tutorias';
 
 export const migrations = [
   {
@@ -124,6 +125,11 @@ export const migrations = [
   {
     up: migration_20260806_060854_reemplazar_resumen_por_secciones.up,
     down: migration_20260806_060854_reemplazar_resumen_por_secciones.down,
-    name: '20260806_060854_reemplazar_resumen_por_secciones'
+    name: '20260806_060854_reemplazar_resumen_por_secciones',
+  },
+  {
+    up: migration_20260810_010852_agregar_asistencia_tutorias.up,
+    down: migration_20260810_010852_agregar_asistencia_tutorias.down,
+    name: '20260810_010852_agregar_asistencia_tutorias'
   },
 ];

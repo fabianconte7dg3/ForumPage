@@ -59,6 +59,8 @@ export function FormularioTutoriaModal({
     tutoria?.recurrencia ?? 'ninguna'
   )
   const [notas, setNotas] = useState(tutoria?.notas ?? '')
+  const [realizada, setRealizada] = useState(tutoria?.realizada ?? false)
+  const [participantes, setParticipantes] = useState<number | ''>(tutoria?.participantes ?? '')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -80,6 +82,8 @@ export function FormularioTutoriaModal({
       responsable: responsable || undefined,
       recurrencia,
       notas: notas || undefined,
+      realizada,
+      participantes: realizada && participantes ? Number(participantes) : undefined,
       locale,
     }
 
@@ -102,6 +106,8 @@ export function FormularioTutoriaModal({
         setResponsable('')
         setRecurrencia('ninguna')
         setNotas('')
+        setRealizada(false)
+        setParticipantes('')
       }
       router.refresh()
     }
@@ -262,6 +268,33 @@ export function FormularioTutoriaModal({
                   placeholder="Ej. Traer calculadora"
                   className="w-full rounded-sm border border-piedra/25 px-3 py-2 font-lectura text-sm outline-none focus:border-montana"
                 />
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 border-t border-piedra/25 pt-4">
+                <label className="flex items-center gap-2 font-dato text-xs uppercase tracking-widest text-tinta">
+                  <input
+                    type="checkbox"
+                    checked={realizada}
+                    onChange={(e) => setRealizada(e.target.checked)}
+                  />
+                  Se realizó
+                </label>
+
+                {realizada && (
+                  <div>
+                    <label className="mb-1 block font-dato text-xs uppercase tracking-widest text-tinta">
+                      Participantes reales
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={participantes}
+                      onChange={(e) => setParticipantes(e.target.value ? Number(e.target.value) : '')}
+                      placeholder="Ej. 12"
+                      className="w-full rounded-sm border border-piedra/25 px-3 py-2 font-lectura text-sm outline-none focus:border-montana"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-end space-x-3 pt-4 border-t border-piedra/25">
