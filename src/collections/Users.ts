@@ -367,6 +367,13 @@ export const Users: CollectionConfig = {
     { handler: desactivarDosFA, method: 'post', path: '/2fa/desactivar' },
   ],
   access: {
+    // Sin esto, Payload usa su default: cualquier usuario autenticado de
+    // esta colección entra a /admin — incluido un becario. Bug real
+    // encontrado probando en el VPS: un becario recién invitado, tras
+    // activar su cuenta, quedó redirigido a /admin (en vez de /portal) y
+    // podía ver ahí las Publicaciones. El becario nunca debe tener acceso al
+    // panel nativo de Payload, solo a /portal.
+    admin: ({ req }) => ['staff', 'directiva', 'admin'].includes((req.user as User | null)?.rol ?? ''),
     // Staff invita becarios/directiva; escalar a admin queda bloqueado en el
     // validate del campo `rol`, no acá — bloquear todo el `create` para
     // no-admin dejaría al staff sin poder invitar a nadie.

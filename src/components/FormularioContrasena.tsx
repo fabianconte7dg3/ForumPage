@@ -97,7 +97,7 @@ export function FormularioContrasena({ enviarLabel, locale, token }: { enviarLab
     return (
       <div className="space-y-4">
         <p className="font-lectura text-sm text-montana">{t.exito}</p>
-        <Link className="inline-block rounded-sm bg-montana px-6 py-2 font-dato text-xs uppercase tracking-widest text-white" href="/admin">
+        <Link className="inline-block rounded-sm bg-montana px-6 py-2 font-dato text-xs uppercase tracking-widest text-white" href={`/${locale}/portal`}>
           {t.irAlPanel}
         </Link>
       </div>
