@@ -5,7 +5,8 @@
 ## Estado actual
 
 **Fase:** 1 — Base pública (cerrada) + 2 — Centro de Aprendizaje (cerrada) + 3 — Portal del Becario / Staff (cerrada & optimizada).
-**Última actualización:** 2026-08-10 (5) — Auditoría de ciberseguridad y suite de pruebas en runtime (`tests/acceso.test.ts`) ejecutada y completada (100% de los tests pasados en las 5 personas x 28 colecciones por `/api/`). Ver `docs/auditoria.md`.
+**Última actualización:** 2026-08-10 (6) — Módulo de Solicitudes de Servicios (Impresiones y Compras/Materiales) con trazabilidad (Carta/WhatsApp y retiro en Auditorio) completado e integrado en la nueva pestaña "Servicios & Copias" de `/staff`. Colección 29 `solicitudes-servicios`, Server Actions, modales y migración SQL probados `up`/`down` e integrados.
+**Actualización anterior (2026-08-10, 5):** Auditoría de ciberseguridad y suite de pruebas en runtime (`tests/acceso.test.ts`) ejecutada y completada (100% de los tests pasados en las 5 personas x 28 colecciones por `/api/`). Ver `docs/auditoria.md`.
 **Actualización anterior (2026-08-10, 4):** Nueva pestaña "Importar" en `/staff`: el staff puede descargar una plantilla Excel por colección (Tutorías/Cursos/Talleres/Giras/Donaciones) y subir su historial en papel/Excel, con fechas reales de cuando ocurrió cada cosa. Ver detalle abajo.
 **Actualización anterior (2026-08-10, 3):** `/impacto` ahora muestra las cifras reales de los 4 programas nuevos (tutorías/cursos/talleres/giras realizados + donaciones entregadas), en vez de dejarlas solo disponibles vía API. Ver detalle abajo.
 **Actualización anterior (2026-08-10, 2):** Cerrados los 4 gaps restantes de la auditoría de programas: Becas de Comunidad (K-12), Cursos, Talleres, Giras Educativas y Donaciones, todos administrables ahora desde `/staff`. Ver detalle abajo.

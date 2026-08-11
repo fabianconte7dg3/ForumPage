@@ -33,6 +33,7 @@ import { Equipo } from './collections/Equipo'
 import { DocumentosPrivados } from './collections/DocumentosPrivados'
 import { DestinosInternacionales } from './collections/DestinosInternacionales'
 import { FotosBecarios } from './collections/FotosBecarios'
+import { SolicitudesServicios } from './collections/SolicitudesServicios'
 import { Configuracion } from './globals/Configuracion'
 import { Nosotros } from './globals/Nosotros'
 
@@ -81,6 +82,7 @@ export default buildConfig({
     Desembolsos,
     Equipo,
     DestinosInternacionales,
+    SolicitudesServicios,
   ],
   globals: [Configuracion, Nosotros],
   editor: lexicalEditor(),

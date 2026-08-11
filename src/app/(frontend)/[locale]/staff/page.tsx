@@ -11,12 +11,13 @@ import { TabProyectos } from '@/components/staff/TabProyectos'
 import { TabEquipo } from '@/components/staff/TabEquipo'
 import { TabAprendizaje } from '@/components/staff/TabAprendizaje'
 import { TabProgramas } from '@/components/staff/TabProgramas'
+import { TabSolicitudesServicio } from '@/components/staff/TabSolicitudesServicio'
 import { TabImportar } from '@/components/staff/TabImportar'
 import { FormularioConfiguracionModal } from '@/components/staff/FormularioConfiguracionModal'
 import { defaultLocale, type Locale } from '@/i18n'
 import { sesionActual } from '@/lib/auth'
 import config from '@/payload.config'
-import type { Becario, HoraLaborSocial, Actividad, Comunidad, Proyecto, Programa, Equipo, Recurso, Tutoria, Practica, Nivel, Materia, Sede, CentroEducativo, Configuracion, Curso, Taller, GiraEducativa, Donacion } from '@/payload-types'
+import type { Becario, HoraLaborSocial, Actividad, Comunidad, Proyecto, Programa, Equipo, Recurso, Tutoria, Practica, Nivel, Materia, Sede, CentroEducativo, Configuracion, Curso, Taller, GiraEducativa, Donacion, SolicitudServicio } from '@/payload-types'
 
 export const dynamic = 'force-dynamic'
 
@@ -412,6 +413,25 @@ export default async function StaffDashboardPage({
               sedes={sedesRes.docs as Sede[]}
               escuelas={centrosRes.docs as CentroEducativo[]}
               niveles={nivelesRes.docs as Nivel[]}
+              comunidades={comunidades}
+            />
+          )
+        })()
+      )}
+
+      {tab === 'servicios' && (
+        await (async () => {
+          const solicitudesRes = await payload.find({
+            collection: 'solicitudes-servicios',
+            limit: 300,
+            depth: 1,
+            sort: '-fecha_solicitud',
+            overrideAccess: true,
+          })
+          return (
+            <TabSolicitudesServicio
+              locale={locale}
+              solicitudes={solicitudesRes.docs as SolicitudServicio[]}
               comunidades={comunidades}
             />
           )

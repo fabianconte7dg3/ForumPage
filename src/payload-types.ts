@@ -95,6 +95,7 @@ export interface Config {
     desembolsos: Desembolso;
     equipo: Equipo;
     'destinos-internacionales': DestinosInternacionale;
+    'solicitudes-servicios': SolicitudServicio;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -130,6 +131,7 @@ export interface Config {
     desembolsos: DesembolsosSelect<false> | DesembolsosSelect<true>;
     equipo: EquipoSelect<false> | EquipoSelect<true>;
     'destinos-internacionales': DestinosInternacionalesSelect<false> | DestinosInternacionalesSelect<true>;
+    'solicitudes-servicios': SolicitudesServiciosSelect<false> | SolicitudesServiciosSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -960,6 +962,71 @@ export interface DestinosInternacionale {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "solicitudes-servicios".
+ */
+export interface SolicitudServicio {
+  id: number;
+  /**
+   * Nombre del estudiante, docente, acudiente o institución que solicita el servicio
+   */
+  solicitante: string;
+  /**
+   * Comunidad de origen del solicitante (opcional)
+   */
+  comunidad?: (number | null) | Comunidad;
+  /**
+   * Canal por el cual se recibió la solicitud
+   */
+  canal: 'whatsapp' | 'carta';
+  /**
+   * Categoría del servicio gratuito brindado por la fundación
+   */
+  tipo_servicio: 'impresion_copia' | 'materiales_compras' | 'ambos';
+  /**
+   * Detalle de lo solicitado (ej. 25 copias de folleto de español, 3 cuadernos)
+   */
+  descripcion: string;
+  /**
+   * Número total de páginas/hojas impresas o fotocopiadas (opcional)
+   */
+  cantidad_hojas?: number | null;
+  /**
+   * Foto de la carta física o captura de pantalla del mensaje de WhatsApp
+   */
+  documento_solicitud?: (number | null) | Media;
+  /**
+   * Ubicación física donde se retira el trabajo impreso o insumos
+   */
+  lugar_retiro: string;
+  /**
+   * Estado en la línea de trazabilidad
+   */
+  estado: 'recibida' | 'en_preparacion' | 'lista_para_retirar' | 'entregada' | 'cancelada';
+  /**
+   * Fecha y hora en que se recibió la solicitud
+   */
+  fecha_solicitud: string;
+  /**
+   * Fecha y hora en que se entregó efectivamente en el Auditorio
+   */
+  fecha_entrega?: string | null;
+  /**
+   * Nombre de la persona que se presentó en el Auditorio a retirar
+   */
+  recibido_por?: string | null;
+  /**
+   * Foto del acta o recibo firmado al momento de entregar
+   */
+  comprobante_entrega?: (number | null) | Media;
+  /**
+   * Notas internas del staff sobre el seguimiento o entrega
+   */
+  observaciones?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -1093,6 +1160,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'destinos-internacionales';
         value: number | DestinosInternacionale;
+      } | null)
+    | ({
+        relationTo: 'solicitudes-servicios';
+        value: number | SolicitudServicio;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1723,6 +1794,28 @@ export interface DestinosInternacionalesSelect<T extends boolean = true> {
         lng?: T;
       };
   bandera?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "solicitudes-servicios_select".
+ */
+export interface SolicitudesServiciosSelect<T extends boolean = true> {
+  solicitante?: T;
+  comunidad?: T;
+  canal?: T;
+  tipo_servicio?: T;
+  descripcion?: T;
+  cantidad_hojas?: T;
+  documento_solicitud?: T;
+  lugar_retiro?: T;
+  estado?: T;
+  fecha_solicitud?: T;
+  fecha_entrega?: T;
+  recibido_por?: T;
+  comprobante_entrega?: T;
+  observaciones?: T;
   updatedAt?: T;
   createdAt?: T;
 }
