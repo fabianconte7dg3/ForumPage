@@ -11,6 +11,7 @@ import { TabProyectos } from '@/components/staff/TabProyectos'
 import { TabEquipo } from '@/components/staff/TabEquipo'
 import { TabAprendizaje } from '@/components/staff/TabAprendizaje'
 import { TabProgramas } from '@/components/staff/TabProgramas'
+import { TabImportar } from '@/components/staff/TabImportar'
 import { FormularioConfiguracionModal } from '@/components/staff/FormularioConfiguracionModal'
 import { defaultLocale, type Locale } from '@/i18n'
 import { sesionActual } from '@/lib/auth'
@@ -416,6 +417,8 @@ export default async function StaffDashboardPage({
           )
         })()
       )}
+
+      {tab === 'importar' && <TabImportar locale={locale} />}
         </main>
       </div>
     </div>

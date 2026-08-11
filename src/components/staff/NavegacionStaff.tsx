@@ -12,6 +12,7 @@ const TABS = {
     { id: 'equipo', label: 'Nosotros / Equipo' },
     { id: 'aprendizaje', label: 'Centro de Aprendizaje' },
     { id: 'programas', label: 'Programas' },
+    { id: 'importar', label: 'Importar' },
   ],
   en: [
     { id: 'becarios', label: 'Becarios' },
@@ -21,6 +22,7 @@ const TABS = {
     { id: 'equipo', label: 'About / Team' },
     { id: 'aprendizaje', label: 'Learning Center' },
     { id: 'programas', label: 'Programs' },
+    { id: 'importar', label: 'Import' },
   ],
 } as const
 
