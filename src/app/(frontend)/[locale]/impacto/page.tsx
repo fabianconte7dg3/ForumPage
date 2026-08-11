@@ -158,7 +158,7 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
   ] = await Promise.all([
     payload.find({ collection: 'comunidades', limit: 200, locale, overrideAccess: true }),
     payload.find({ collection: 'sedes', limit: 200, depth: 1, locale, overrideAccess: true }),
-    payload.find({ collection: 'proyectos', limit: 500, depth: 0, locale, overrideAccess: true }),
+    payload.find({ collection: 'proyectos', limit: 500, depth: 1, locale, overrideAccess: true }),
     payload.find({ collection: 'actividades', limit: 500, depth: 0, overrideAccess: true }),
     payload.find({ collection: 'programas', where: { activo: { equals: true } }, limit: 100, locale, overrideAccess: true }),
     payload.find({
@@ -335,7 +335,12 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
   const paisesUnicos = new Set(becariosDocsActivos.filter(b => b.tipo_estudio === 'internacional' && b.pais_estudio).map(b => b.pais_estudio))
 
   const destinosMap = new Map<string, { instituciones: Set<string>, cantidad: number }>()
+  // mostrar_en_mapa también acá: con cantidad:1 en un país, el nombre de la
+  // universidad identifica a un becario puntual aunque haya revocado el
+  // consentimiento — misma regresión que becarioDestacado arriba, encontrada
+  // en la auditoría de agosto 2026 (docs/auditoria.md).
   for (const b of becariosDocsActivos) {
+    if (!b.mostrar_en_mapa) continue
     let lugar = t.atHome
     if (b.tipo_estudio === 'internacional' && b.pais_estudio) {
       lugar = b.pais_estudio

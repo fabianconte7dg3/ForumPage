@@ -1,6 +1,6 @@
 import { getPayload } from 'payload'
 
-import type { Becario, Media, RegistrosAcademico } from '@/payload-types'
+import type { Becario, RegistrosAcademico } from '@/payload-types'
 import { defaultLocale, type Locale } from '@/i18n'
 import { NotaInternaEditor } from '@/components/staff/NotaInternaEditor'
 import { BotonVerDocumento } from '@/components/staff/BotonVerDocumento'
@@ -41,8 +41,8 @@ export async function TabPrivado({ becario, locale }: { becario: Becario; locale
   })
   const ultimoRegistro = registrosRes.docs[0] as RegistrosAcademico | undefined
 
-  const docUrl = becario.documentacion_socioeconomica && typeof becario.documentacion_socioeconomica === 'object' 
-    ? (becario.documentacion_socioeconomica as Media).url 
+  const docUrl = becario.documentacion_socioeconomica && typeof becario.documentacion_socioeconomica === 'object'
+    ? becario.documentacion_socioeconomica.url
     : null
 
   return (

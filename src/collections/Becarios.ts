@@ -279,7 +279,7 @@ export const Becarios: CollectionConfig = {
       type: 'checkbox',
       defaultValue: false,
       admin: { description: 'Requisito de elegibilidad — no es un campo de perfil, solo se registra que se verificó' },
-      access: { read: esStaffDirectivaOAdminFieldAccess, update: esStaffOSuperiorFieldAccess },
+      access: { create: esStaffOSuperiorFieldAccess, read: esStaffDirectivaOAdminFieldAccess, update: esStaffOSuperiorFieldAccess },
     },
     {
       name: 'documentacion_socioeconomica',

@@ -47,8 +47,37 @@ Hallazgos ordenados por severidad. Los críticos (exposición de datos, escalada
 
 ## Estado
 
-- [x] **Fase 0** — Arreglo del bug disparador (`access.admin` en `Users`, redirección a `/portal`), verificado con `curl` contra `/api/` con sesión de becario: `/admin` → 307 a `/admin/unauthorized`, `/portal` → 200.
-- [x] **Fase 1 — Análisis estático**: Auditoría de control de acceso en las 28 colecciones y 2 globales, comprobando que las colecciones privadas rechacen anónimos y que la directiva/staff conserven sus permisos respetando la matriz IAM.
-- [x] **Fase 2 — Pruebas en runtime**: Suite `tests/acceso.test.ts` ejecutada con éxito (`node --import tsx --env-file=.env --test tests/acceso.test.ts`). 100% de los tests de control de acceso pasados (anónimo, becario, staff, directiva, admin).
-- [x] **Fase 3 — Corrección y Verificación**: Aserciones de control de acceso verificadas y alineadas. Sin brechas ni fugas de datos de becarios ni tokens de invitación expuestos.
+- [x] **Fase 0** — Arreglo del bug disparador (`access.admin` en `Users`, redirección a `/portal`), verificado con `curl` contra `/api/` con sesión de becario: `/admin` → 307 a `/admin/unauthorized`, `/portal` → 200. Commiteado en `135511f`.
+- [x] **Fase 1 — Análisis estático completo**: los 33 sitios `overrideAccess: true` restantes, las 44 server actions restantes y las 24 rutas del frontend público, revisados por agentes en paralelo (código, no runtime). Ver hallazgos abajo.
+- [x] **Fase 2 — Pruebas en runtime**: tras una traba total de la máquina (no relacionada con el código — ver nota abajo) y su reinicio, `tests/acceso.test.ts` corrió contra el servidor de dev real: **88/88 aserciones pasadas** (5 personas × colecciones privadas/institucionales × operaciones, panel `/admin` por rol, escalada de privilegios, campos sensibles, consentimiento). Cuentas de prueba creadas y borradas dentro de la corrida, confirmado sin huérfanas después.
+- [x] **Fase 3 — Corrección y verificación**: 3 hallazgos reales corregidos (uno ALTO, dos BAJO — ver abajo), los 3 confirmados en runtime, no solo por tipo:
+  - **Fuga de identidad (ALTO)**: se revocó `mostrar_en_mapa` de un becario real de dev (Carlos Aguilar / Tokio) — su universidad y país desaparecieron de la tabla pública de `/impacto`; se repuso el consentimiento y la fila volvió a aparecer. Round-trip completo, no es un artefacto de caché.
+  - **Columna "Comunidad" vacía (BAJO)**: confirmado que ahora `/impacto` renderiza los nombres reales (Río Indio, El Caimito, Chiguirí Arriba) donde antes quedaba en blanco.
+  - **Cast mal tipado en `TabPrivado.tsx` (BAJO)**: confirmado por `tsc --noEmit` limpio (el guard `typeof === 'object'` ya narrowea al tipo correcto sin cast).
+
+**Nota sobre la interrupción:** a mitad de esta auditoría la máquina se trabó por completo (ajeno al proyecto — múltiples binarios no relacionados, incluyendo Node y el propio Claude Desktop, cayeron con SIGSEGV en la misma ventana). El usuario reinició la máquina y se retomó desde ahí sin pérdida de trabajo.
+
+### Hallazgos y correcciones (2026-08-10, sesión de auditoría exhaustiva)
+
+**ALTO — fuga de identidad de becarios sin consentimiento, en `/impacto` (pestaña Resumen).**
+`src/app/(frontend)/[locale]/impacto/page.tsx`, el mapa `destinosMap` (tabla "Dónde estudian los becarios") se construía iterando `becariosDocsActivos` sin el filtro `mostrar_en_mapa` — la misma variable que dos bloques más arriba (`becarioDestacado`, línea 303) sí lo aplica, con un comentario que cita textualmente el bug ya corregido una vez. Con `cantidad: 1` en un país, el nombre de la universidad identificaba a un becario puntual aunque hubiera revocado el consentimiento — viola la regla de `docs/spec.md` ("revocable en cualquier momento por el propio becario") y `CLAUDE.md` ("nunca... ni siquiera de forma agregada"). **Corregido**: se agregó el mismo guard `if (!b.mostrar_en_mapa) continue` al loop de `destinosMap`.
+
+**BAJO — columna "Comunidad" vacía en la tabla de proyectos de `/impacto`.**
+La misma página traía `proyectos` con `depth: 0`, así que `p.comunidad` llegaba siempre como número (id), nunca como objeto — la columna quedaba vacía siempre, en dev y en producción por igual. No es un problema de seguridad, es un dato roto silencioso. **Corregido**: `depth: 0` → `depth: 1`.
+
+**BAJO — cast que tapaba un tipo incorrecto, `TabPrivado.tsx` (panel de staff).**
+`(becario.documentacion_socioeconomica as Media).url` — el tipo real generado por Payload es `DocumentosPrivado`, no `Media` (regla ya documentada en `.agents/AGENTS.md` #3: nunca callar a `tsc` con un cast). Funcionaba por casualidad porque ambas colecciones exponen `.url`. Sin exposición pública (panel solo-staff). **Corregido**: se quitó el cast — el guard `typeof === 'object'` ya narrowea al tipo correcto sin necesidad de forzarlo.
+
+**BAJO — `Becarios.condicion_socioeconomica_verificada` sin `access.create` a nivel de campo.**
+Quedaba en el default de Payload al crear (aunque el `access.create` de la colección completa ya es staff/admin, así que no era explotable hoy). **Corregido**: agregado `create: esStaffOSuperiorFieldAccess`, igual que `update`.
+
+**Sin hallazgos — confirmado por lectura exhaustiva de código:**
+- Los otros 33 sitios con `overrideAccess: true` (server actions de cuenta propia, páginas gateadas por rol antes del fetch, colecciones ya públicas, Server Components que solo extraen campos escalares hacia JSX).
+- Las 44 server actions restantes — ninguna hace `data: input` sin enumerar campos, ninguna permite IDOR sobre el id de otro usuario/becario, todas gatean el rol correcto.
+- Contenido hardcodeado (error #11 de AGENTS.md) — el fix histórico de "universidades frecuentes" sigue vigente, no apareció una instancia nueva.
+- Guardas de ruta de las 24 páginas del frontend — todas correctas; `/cuenta/seguridad` no chequea rol a propósito (solo toca la sesión propia, 2FA es opcional para todos los roles por igual).
+
+**Nota de diseño, no vulnerabilidad:** `calificar-practica.ts` no expone `respuesta_correcta` al cliente, pero como no tiene límite de tasa, un script podría reconstruir las respuestas correctas por fuerza bruta enviando combinaciones. Queda documentado, no se actuó — fuera del alcance de esta auditoría (no es escalada de privilegios ni fuga de datos).
+
+**Pendiente antes de cerrar esta auditoría:** re-ejecutar `tests/acceso.test.ts` y confirmar los 3 fixes en runtime (curl contra `/api/`) apenas la máquina libere el I/O de disco; decidir si se despliega al VPS.
 
