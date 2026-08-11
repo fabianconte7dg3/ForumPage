@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 import { BotonCerrarSesion } from '@/components/BotonCerrarSesion'
+import { BotonReportarAcademico } from '@/components/BotonReportarAcademico'
 import { BotonReportarHoras } from '@/components/BotonReportarHoras'
 import { FormularioLogin } from '@/components/FormularioLogin'
 import { defaultLocale, type Locale } from '@/i18n'
@@ -44,6 +45,10 @@ const TEXTOS = {
     horaEstadoAprobada: 'Aprobada',
     horaEstadoRechazada: 'Rechazada',
     estadoCancelado: 'Cancelado',
+    academicoTitulo: 'Registros académicos',
+    academicoVacio: 'Todavía no has subido ninguna constancia. Usá el botón para subir tu período actual.',
+    academicoEstadoPendiente: 'Pendiente de revisión',
+    academicoEstadoVerificado: 'Verificado',
   },
   en: {
     tituloLogin: 'Becario Portal',
@@ -71,6 +76,10 @@ const TEXTOS = {
     horaEstadoPendiente: 'Pending',
     horaEstadoAprobada: 'Approved',
     horaEstadoRechazada: 'Rejected',
+    academicoTitulo: 'Academic records',
+    academicoVacio: 'You haven\'t uploaded any proof yet. Use the button to upload your current term.',
+    academicoEstadoPendiente: 'Pending review',
+    academicoEstadoVerificado: 'Verified',
   },
 } satisfies Record<Locale, Record<string, string>>
 
@@ -151,6 +160,18 @@ export default async function PortalPage({ params }: { params: Promise<{ locale:
     : []
   const horasAprobadas = todasLasHoras.filter((h) => h.estado === 'aprobada').reduce((acc, h) => acc + h.horas, 0)
   const progreso = meta > 0 ? Math.min(100, Math.round((horasAprobadas / meta) * 100)) : 0
+
+  const registrosAcademicosPropios = becario
+    ? (
+        await payload.find({
+          collection: 'registros-academicos',
+          where: { becario: { equals: becario.id } },
+          sort: '-createdAt',
+          limit: 1000,
+          overrideAccess: true,
+        })
+      ).docs as RegistrosAcademico[]
+    : []
 
   const desembolsos = becario
     ? (
@@ -252,6 +273,41 @@ export default async function PortalPage({ params }: { params: Promise<{ locale:
                       {h.comentario}
                     </p>
                   )}
+                </li>
+              )
+            })}
+          </ul>
+        )}
+      </section>
+
+      <section className="mb-8">
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-sm font-bold uppercase tracking-widest text-tinta">{t.academicoTitulo}</h2>
+          <BotonReportarAcademico locale={locale} />
+        </div>
+
+        {registrosAcademicosPropios.length === 0 ? (
+          <p className="mt-2 font-lectura text-sm text-tinta/70">{t.academicoVacio}</p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {registrosAcademicosPropios.map((r) => {
+              const ESTADO_ACADEMICO_LABEL: Record<RegistrosAcademico['estado_verificacion'], string> = {
+                pendiente: t.academicoEstadoPendiente,
+                verificado: t.academicoEstadoVerificado,
+              }
+              const ESTADO_ACADEMICO_ESTILO: Record<RegistrosAcademico['estado_verificacion'], string> = {
+                pendiente: 'border-piedra/25 text-tinta',
+                verificado: 'border-montana/40 bg-montana/10 text-montana',
+              }
+              return (
+                <li className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-piedra/25 bg-white px-4 py-3" key={r.id}>
+                  <div>
+                    <p className="font-dato text-xs text-tinta/70">{r.periodo}</p>
+                    {r.universidad && <p className="font-lectura text-sm text-tinta">{r.universidad}</p>}
+                  </div>
+                  <span className={`rounded-sm border px-2 py-0.5 font-dato text-xs uppercase tracking-widest ${ESTADO_ACADEMICO_ESTILO[r.estado_verificacion]}`}>
+                    {ESTADO_ACADEMICO_LABEL[r.estado_verificacion]}
+                  </span>
                 </li>
               )
             })}
