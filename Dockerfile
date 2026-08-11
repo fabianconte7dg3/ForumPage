@@ -34,6 +34,16 @@ RUN pnpm run build
 FROM base AS runner
 ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
+# Los 3 directorios de subida son volúmenes con nombre montados por docker-compose
+# (media_uploads, documentos_privados_uploads, fotos_becarios_uploads) — Docker
+# solo copia el dueño de la carpeta de la imagen a un volumen la PRIMERA vez que
+# se monta (volumen vacío/nuevo), nunca en montajes posteriores. Sin crearlas acá
+# con el dueño correcto, un volumen nuevo queda root:root y la app (USER nextjs)
+# no puede escribir — bug real encontrado en prod: un becario no podía subir
+# evidencia de horas porque documentos-privados/fotos-becarios nunca se crearon
+# así (media sí, por casualidad de un fix manual anterior).
+RUN mkdir -p /app/media /app/documentos-privados /app/fotos-becarios \
+  && chown -R nextjs:nodejs /app/media /app/documentos-privados /app/fotos-becarios
 COPY --from=build --chown=nextjs:nodejs /app/public ./public
 COPY --from=build --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=build --chown=nextjs:nodejs /app/.next/static ./.next/static

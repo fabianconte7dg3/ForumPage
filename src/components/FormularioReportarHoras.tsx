@@ -129,18 +129,26 @@ export function FormularioReportarHoras({ locale, onClose }: { locale: Locale; o
       formData.append('evidencia', archivo)
     }
 
-    const resultado = await reportarHoras(formData)
+    try {
+      const resultado = await reportarHoras(formData)
 
-    if (!resultado.ok) {
-      setError(resultado.error)
+      if (!resultado.ok) {
+        setError(resultado.error)
+        setEnviando(false)
+        return
+      }
+
+      setExito(true)
+      // Refrescar la data del server component
+      router.refresh()
+    } catch {
+      // Sin este catch, una excepción del server action (ej. un error de
+      // disco al subir la evidencia) dejaba el botón trabado en "Enviando…"
+      // para siempre, sin forma de reintentar. Bug real reportado en prod.
+      setError(locale === 'es' ? 'No se pudo enviar el registro. Intentá de nuevo.' : 'Could not submit the log. Please try again.')
+    } finally {
       setEnviando(false)
-      return
     }
-
-    setExito(true)
-    setEnviando(false)
-    // Refrescar la data del server component
-    router.refresh()
   }
 
   if (exito) {

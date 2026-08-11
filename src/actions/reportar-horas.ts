@@ -28,6 +28,7 @@ export async function reportarHoras(formData: FormData): Promise<ResultadoReport
   const fecha = (formData.get('fecha') as string)?.trim()
   const horasStr = (formData.get('horas') as string)?.trim()
   const actividad = (formData.get('actividad') as string)?.trim()
+  const descripcionDetallada = (formData.get('descripcion_detallada') as string)?.trim()
   const evidenciaArchivo = formData.get('evidencia') as File | null
 
   // Validación
@@ -40,8 +41,11 @@ export async function reportarHoras(formData: FormData): Promise<ResultadoReport
     return { error: 'El número de horas debe ser un valor positivo (máximo 200).', ok: false }
   }
 
-  if (actividad.length > 2000) {
-    return { error: 'La descripción de la actividad no puede superar los 2000 caracteres.', ok: false }
+  if (actividad.length > 200) {
+    return { error: 'El título de la actividad no puede superar los 200 caracteres.', ok: false }
+  }
+  if (descripcionDetallada && descripcionDetallada.length > 2000) {
+    return { error: 'La descripción detallada no puede superar los 2000 caracteres.', ok: false }
   }
 
   // Validar fecha: no futura
@@ -99,7 +103,7 @@ export async function reportarHoras(formData: FormData): Promise<ResultadoReport
     collection: 'horas-labor-social',
     data: {
       becario: becarioId,
-      descripcion: actividad,
+      descripcion: descripcionDetallada ? `${actividad}\n\n${descripcionDetallada}` : actividad,
       estado: 'pendiente',
       evidencia: evidenciaId ?? null,
       fecha: fechaDate.toISOString(),
