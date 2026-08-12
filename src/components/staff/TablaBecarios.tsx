@@ -122,9 +122,9 @@ export function TablaBecarios({ locale, becarios, horasPorBecario, comunidades =
                     <td className="hidden py-3 pr-4 text-right sm:table-cell">
                       <span className="font-dato text-xs text-tinta">{horas.aprobadas}h</span>
                     </td>
-                    <td className="py-3 text-right">
+                    <td className="whitespace-nowrap py-3 pl-3 text-right">
                       <Link
-                        className="rounded-sm border border-montana px-3 py-1.5 font-dato text-xs uppercase tracking-widest text-montana transition-colors hover:bg-montana hover:text-white"
+                        className="inline-block whitespace-nowrap rounded-sm border border-montana px-3 py-1.5 font-dato text-xs uppercase tracking-widest text-montana transition-colors hover:bg-montana hover:text-white"
                         href={`/${locale}/staff/${b.id}`}
                       >
                         {t.verExpediente}
