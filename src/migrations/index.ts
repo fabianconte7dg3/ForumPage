@@ -22,6 +22,7 @@ import * as migration_20260806_060854_reemplazar_resumen_por_secciones from './2
 import * as migration_20260810_010852_agregar_asistencia_tutorias from './20260810_010852_agregar_asistencia_tutorias';
 import * as migration_20260810_013450_agregar_cursos_talleres_giras_donaciones from './20260810_013450_agregar_cursos_talleres_giras_donaciones';
 import * as migration_20260811_015711_agregar_solicitudes_servicios from './20260811_015711_agregar_solicitudes_servicios';
+import * as migration_20260811_191618_documentos_multiples from './20260811_191618_documentos_multiples';
 
 export const migrations = [
   {
@@ -143,5 +144,10 @@ export const migrations = [
     up: migration_20260811_015711_agregar_solicitudes_servicios.up,
     down: migration_20260811_015711_agregar_solicitudes_servicios.down,
     name: '20260811_015711_agregar_solicitudes_servicios'
+  },
+  {
+    up: migration_20260811_191618_documentos_multiples.up,
+    down: migration_20260811_191618_documentos_multiples.down,
+    name: '20260811_191618_documentos_multiples'
   },
 ];

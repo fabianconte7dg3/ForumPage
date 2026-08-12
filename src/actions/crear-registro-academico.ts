@@ -8,7 +8,8 @@ import { sesionActual } from '@/lib/auth'
 export async function crearRegistroAcademico(
   becarioId: number,
   periodo: string,
-  documentoId: number | undefined,
+  documentoMatriculaId: number | undefined,
+  documentoCreditosId: number | undefined,
   locale: string
 ) {
   const usuario = await sesionActual()
@@ -21,10 +22,11 @@ export async function crearRegistroAcademico(
   try {
     await payload.create({
       collection: 'registros-academicos',
-      data: { 
+      data: {
         becario: becarioId,
         periodo,
-        documento: documentoId,
+        documento_creditos: documentoCreditosId,
+        documento_matricula: documentoMatriculaId,
         estado_verificacion: 'pendiente'
       },
       overrideAccess: false,

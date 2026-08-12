@@ -170,9 +170,16 @@ export const RegistrosAcademicos: CollectionConfig = {
       admin: { description: 'Índice académico del período' },
     },
     {
-      name: 'documento',
+      name: 'documento_matricula',
       type: 'upload',
       relationTo: 'documentos-privados',
+      admin: { description: 'Constancia de matrícula del período' },
+    },
+    {
+      name: 'documento_creditos',
+      type: 'upload',
+      relationTo: 'documentos-privados',
+      admin: { description: 'Reporte de créditos / notas del período' },
     },
     {
       name: 'estado_verificacion',

@@ -109,6 +109,8 @@ export const HorasLaborSocial: CollectionConfig = {
       name: 'evidencia',
       type: 'upload',
       relationTo: 'documentos-privados',
+      hasMany: true,
+      admin: { description: 'Hasta 1 PDF y 5 fotos — el límite de mezcla se valida en reportar-horas.ts, no acá' },
     },
     {
       name: 'estado',

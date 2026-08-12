@@ -26,6 +26,9 @@ const TEXTOS = {
     formatosPermitidos: 'PNG, JPG, PDF (Máx. 10MB)',
     archivoSeleccionado: 'Archivo seleccionado:',
     eliminarArchivo: 'Eliminar',
+    limiteArchivos: 'Hasta 1 PDF y 5 fotos',
+    soloUnPdf: 'Solo se puede adjuntar un PDF.',
+    maxImagenes: 'Máximo 5 imágenes.',
     // Panel lateral
     requisitosTitulo: 'Requisitos de Evidencia',
     requisitosIntro: 'Para asegurar la validez del registro, la evidencia documental debe cumplir con los siguientes estándares:',
@@ -59,6 +62,9 @@ const TEXTOS = {
     formatosPermitidos: 'PNG, JPG, PDF (Max. 10MB)',
     archivoSeleccionado: 'Selected file:',
     eliminarArchivo: 'Remove',
+    limiteArchivos: 'Up to 1 PDF and 5 photos',
+    soloUnPdf: 'Only one PDF can be attached.',
+    maxImagenes: 'Maximum 5 images.',
     requisitosTitulo: 'Evidence Requirements',
     requisitosIntro: 'To ensure record validity, documentary evidence must meet the following standards:',
     req1Titulo: 'Visual Clarity',
@@ -81,38 +87,64 @@ export function FormularioReportarHoras({ locale, onClose }: { locale: Locale; o
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const [archivo, setArchivo] = useState<File | null>(null)
+  const MAX_IMAGENES = 5
+  const TIPOS_IMAGEN = ['image/png', 'image/jpeg', 'image/webp']
+
+  const [archivos, setArchivos] = useState<File[]>([])
   const [arrastrando, setArrastrando] = useState(false)
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [exito, setExito] = useState(false)
 
-  function handleArchivo(file: File | null) {
-    if (!file) return
+  function handleArchivos(files: FileList | File[]) {
     const MAX = 10 * 1024 * 1024
-    if (file.size > MAX) {
-      setError(locale === 'es' ? 'El archivo no puede superar los 10 MB.' : 'File cannot exceed 10 MB.')
-      return
-    }
     const permitidos = ['image/png', 'image/jpeg', 'image/webp', 'application/pdf']
-    if (!permitidos.includes(file.type)) {
-      setError(locale === 'es' ? 'Solo se aceptan PNG, JPG, WebP o PDF.' : 'Only PNG, JPG, WebP or PDF accepted.')
-      return
+    let pdfsActuales = archivos.filter((f) => f.type === 'application/pdf').length
+    let imagenesActuales = archivos.filter((f) => TIPOS_IMAGEN.includes(f.type)).length
+    const nuevos: File[] = []
+
+    for (const file of Array.from(files)) {
+      if (file.size > MAX) {
+        setError(locale === 'es' ? 'Cada archivo no puede superar los 10 MB.' : 'Each file cannot exceed 10 MB.')
+        return
+      }
+      if (!permitidos.includes(file.type)) {
+        setError(locale === 'es' ? 'Solo se aceptan PNG, JPG, WebP o PDF.' : 'Only PNG, JPG, WebP or PDF accepted.')
+        return
+      }
+      if (file.type === 'application/pdf') {
+        if (pdfsActuales >= 1) {
+          setError(t.soloUnPdf)
+          return
+        }
+        pdfsActuales += 1
+      } else {
+        if (imagenesActuales >= MAX_IMAGENES) {
+          setError(t.maxImagenes)
+          return
+        }
+        imagenesActuales += 1
+      }
+      nuevos.push(file)
     }
+
     setError(null)
-    setArchivo(file)
+    setArchivos((prev) => [...prev, ...nuevos])
+  }
+
+  function quitarArchivo(index: number) {
+    setArchivos((prev) => prev.filter((_, i) => i !== index))
   }
 
   function onDrop(e: DragEvent) {
     e.preventDefault()
     setArrastrando(false)
-    const file = e.dataTransfer.files[0]
-    if (file) handleArchivo(file)
+    if (e.dataTransfer.files.length > 0) handleArchivos(e.dataTransfer.files)
   }
 
   function onFileChange(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (file) handleArchivo(file)
+    if (e.target.files && e.target.files.length > 0) handleArchivos(e.target.files)
+    e.target.value = ''
   }
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -123,9 +155,9 @@ export function FormularioReportarHoras({ locale, onClose }: { locale: Locale; o
     const form = e.currentTarget
     const formData = new FormData(form)
 
-    // Reemplazar el archivo del input con el del state (en caso de drag-drop)
+    // Reemplazar el archivo del input con los del state (en caso de drag-drop)
     formData.delete('evidencia')
-    if (archivo) {
+    for (const archivo of archivos) {
       formData.append('evidencia', archivo)
     }
 
@@ -262,24 +294,31 @@ export function FormularioReportarHoras({ locale, onClose }: { locale: Locale; o
               <legend className="font-display text-sm font-bold uppercase tracking-widest text-tinta">{t.evidenciaTitulo}</legend>
               <div className="mt-2 border-t border-piedra/25 pt-4">
                 <p className="font-dato text-xs uppercase tracking-widest text-piedra">{t.cargaEvidencia}</p>
-                {archivo ? (
-                  <div className="mt-2 flex items-center justify-between rounded-sm border border-montana/40 bg-montana/5 px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <svg className="h-5 w-5 text-montana" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      <span className="font-lectura text-sm text-tinta">{archivo.name}</span>
-                      <span className="font-dato text-xs text-piedra">({(archivo.size / 1024).toFixed(0)} KB)</span>
-                    </div>
-                    <button
-                      className="font-dato text-xs uppercase tracking-widest text-cosecha transition-colors hover:text-cosecha/80"
-                      onClick={() => { setArchivo(null); if (fileInputRef.current) fileInputRef.current.value = '' }}
-                      type="button"
-                    >
-                      {t.eliminarArchivo}
-                    </button>
-                  </div>
-                ) : (
+
+                {archivos.length > 0 && (
+                  <ul className="mt-2 space-y-2">
+                    {archivos.map((archivo, i) => (
+                      <li className="flex items-center justify-between rounded-sm border border-montana/40 bg-montana/5 px-4 py-3" key={`${archivo.name}-${i}`}>
+                        <div className="flex items-center gap-2">
+                          <svg className="h-5 w-5 text-montana" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                          <span className="font-lectura text-sm text-tinta">{archivo.name}</span>
+                          <span className="font-dato text-xs text-piedra">({(archivo.size / 1024).toFixed(0)} KB)</span>
+                        </div>
+                        <button
+                          className="font-dato text-xs uppercase tracking-widest text-cosecha transition-colors hover:text-cosecha/80"
+                          onClick={() => quitarArchivo(i)}
+                          type="button"
+                        >
+                          {t.eliminarArchivo}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {(archivos.filter((f) => f.type === 'application/pdf').length < 1 || archivos.filter((f) => TIPOS_IMAGEN.includes(f.type)).length < MAX_IMAGENES) && (
                   <div
                     className={`mt-2 flex cursor-pointer flex-col items-center rounded-sm border-2 border-dashed px-6 py-8 text-center transition-colors ${
                       arrastrando ? 'border-montana bg-montana/5' : 'border-piedra/25 bg-niebla hover:border-piedra/50'
@@ -300,11 +339,13 @@ export function FormularioReportarHoras({ locale, onClose }: { locale: Locale; o
                       {t.oArrastrar}
                     </p>
                     <p className="mt-1 font-dato text-xs text-piedra">{t.formatosPermitidos}</p>
+                    <p className="mt-1 font-dato text-xs text-piedra">{t.limiteArchivos}</p>
                   </div>
                 )}
                 <input
                   accept="image/png,image/jpeg,image/webp,application/pdf"
                   className="hidden"
+                  multiple
                   name="evidencia"
                   onChange={onFileChange}
                   ref={fileInputRef}

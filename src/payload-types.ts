@@ -834,7 +834,14 @@ export interface RegistrosAcademico {
    * Índice académico del período
    */
   indice?: number | null;
-  documento?: (number | null) | DocumentosPrivado;
+  /**
+   * Constancia de matrícula del período
+   */
+  documento_matricula?: (number | null) | DocumentosPrivado;
+  /**
+   * Reporte de créditos / notas del período
+   */
+  documento_creditos?: (number | null) | DocumentosPrivado;
   estado_verificacion: 'pendiente' | 'verificado';
   /**
    * Se completa solo al verificar
@@ -886,7 +893,10 @@ export interface HoraLaborSocial {
   fecha: string;
   horas: number;
   descripcion?: string | null;
-  evidencia?: (number | null) | DocumentosPrivado;
+  /**
+   * Hasta 1 PDF y 5 fotos — el límite de mezcla se valida en reportar-horas.ts, no acá
+   */
+  evidencia?: (number | DocumentosPrivado)[] | null;
   estado: 'pendiente' | 'aprobada' | 'rechazada';
   /**
    * Se completa solo al aprobar o rechazar
@@ -1712,7 +1722,8 @@ export interface RegistrosAcademicosSelect<T extends boolean = true> {
         id?: T;
       };
   indice?: T;
-  documento?: T;
+  documento_matricula?: T;
+  documento_creditos?: T;
   estado_verificacion?: T;
   verificado_por?: T;
   fecha_verificacion?: T;

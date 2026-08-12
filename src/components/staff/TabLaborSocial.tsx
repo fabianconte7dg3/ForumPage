@@ -215,13 +215,18 @@ export async function TabLaborSocial({ becario, locale }: { becario: Becario; lo
                         </p>
                       )}
                       
-                      {h.evidencia && typeof h.evidencia === 'object' && h.evidencia.url && (
-                        <div className="mt-3">
-                          <BotonVerDocumento 
-                            url={h.evidencia.url} 
-                            locale={locale} 
-                            label={locale === 'es' ? 'Ver Evidencia' : 'View Evidence'} 
-                          />
+                      {h.evidencia && h.evidencia.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-x-4">
+                          {h.evidencia.map((doc, i) =>
+                            typeof doc === 'object' && doc.url ? (
+                              <BotonVerDocumento
+                                key={doc.id}
+                                url={doc.url}
+                                locale={locale}
+                                label={`${locale === 'es' ? 'Ver Evidencia' : 'View Evidence'} ${i + 1}`}
+                              />
+                            ) : null
+                          )}
                         </div>
                       )}
                     </div>

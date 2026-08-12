@@ -75,7 +75,8 @@ export async function TabAcademico({ becario, locale }: { becario: Becario; loca
           <ul className="space-y-4">
             {registros.map((reg) => {
               const reprobadas = reg.materias_reprobadas ?? []
-              const docUrl = reg.documento && typeof reg.documento === 'object' ? reg.documento.url : null
+              const matriculaUrl = reg.documento_matricula && typeof reg.documento_matricula === 'object' ? reg.documento_matricula.url : null
+              const creditosUrl = reg.documento_creditos && typeof reg.documento_creditos === 'object' ? reg.documento_creditos.url : null
               const isPendiente = reg.estado_verificacion === 'pendiente'
 
               return (
@@ -107,12 +108,15 @@ export async function TabAcademico({ becario, locale }: { becario: Becario; loca
                         </div>
                       </div>
                       
-                      <BotonVerDocumento url={docUrl} locale={locale} />
+                      <div className="flex flex-wrap gap-x-4">
+                        <BotonVerDocumento label={locale === 'es' ? 'Ver constancia de matrícula' : 'View enrollment proof'} url={matriculaUrl} locale={locale} />
+                        <BotonVerDocumento label={locale === 'es' ? 'Ver reporte de créditos' : 'View credits report'} url={creditosUrl} locale={locale} />
+                      </div>
                     </div>
 
                     {isPendiente && (
                       <div className="mt-4 sm:mt-0">
-                        <FormularioVerificacionAcademica 
+                        <FormularioVerificacionAcademica
                           id={reg.id} 
                           locale={locale} 
                           becarioId={becario.id} 

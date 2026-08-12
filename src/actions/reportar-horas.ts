@@ -8,6 +8,10 @@ import config from '@/payload.config'
 
 export type ResultadoReporteHoras = { ok: true } | { error: string; ok: false }
 
+const MAX_SIZE = 10 * 1024 * 1024 // 10 MB
+const MAX_IMAGENES = 5
+const TIPOS_IMAGEN = ['image/png', 'image/jpeg', 'image/webp']
+
 // El becario ya tiene permiso de `create` en horas-labor-social (creacionHoras
 // en HorasLaborSocial.ts lo permite), así que esta acción NO usa overrideAccess
 // — corre con la sesión real del usuario, y el hook forzarPropioBecario
@@ -29,7 +33,7 @@ export async function reportarHoras(formData: FormData): Promise<ResultadoReport
   const horasStr = (formData.get('horas') as string)?.trim()
   const actividad = (formData.get('actividad') as string)?.trim()
   const descripcionDetallada = (formData.get('descripcion_detallada') as string)?.trim()
-  const evidenciaArchivo = formData.get('evidencia') as File | null
+  const evidenciaArchivos = formData.getAll('evidencia').filter((v): v is File => v instanceof File && v.size > 0)
 
   // Validación
   if (!fecha || !horasStr || !actividad) {
@@ -57,41 +61,47 @@ export async function reportarHoras(formData: FormData): Promise<ResultadoReport
     return { error: 'La fecha no puede ser futura.', ok: false }
   }
 
+  // Evidencia: hasta 1 PDF + hasta 5 imágenes.
+  const pdfs = evidenciaArchivos.filter((f) => f.type === 'application/pdf')
+  const imagenes = evidenciaArchivos.filter((f) => TIPOS_IMAGEN.includes(f.type))
+  if (pdfs.length + imagenes.length !== evidenciaArchivos.length) {
+    return { error: 'Solo se aceptan archivos PNG, JPG, WebP o PDF.', ok: false }
+  }
+  if (pdfs.length > 1) {
+    return { error: 'Solo se puede adjuntar un PDF.', ok: false }
+  }
+  if (imagenes.length > MAX_IMAGENES) {
+    return { error: `Máximo ${MAX_IMAGENES} imágenes.`, ok: false }
+  }
+  for (const archivo of evidenciaArchivos) {
+    if (archivo.size > MAX_SIZE) {
+      return { error: 'Cada archivo no puede superar los 10 MB.', ok: false }
+    }
+  }
+
   const payload = await getPayload({ config })
 
   // Subir evidencia a documentos-privados — nunca a `media`, que es de lectura
-  // pública. El campo `evidencia` de HorasLaborSocial apunta a esta colección.
-  let evidenciaId: number | undefined
-  if (evidenciaArchivo && evidenciaArchivo.size > 0) {
-    const MAX_SIZE = 10 * 1024 * 1024 // 10 MB
-    if (evidenciaArchivo.size > MAX_SIZE) {
-      return { error: 'El archivo no puede superar los 10 MB.', ok: false }
-    }
-
-    const tiposPermitidos = ['image/png', 'image/jpeg', 'image/webp', 'application/pdf']
-    if (!tiposPermitidos.includes(evidenciaArchivo.type)) {
-      return { error: 'Solo se aceptan archivos PNG, JPG, WebP o PDF.', ok: false }
-    }
-
-    const buffer = Buffer.from(await evidenciaArchivo.arrayBuffer())
-    // `create` en documentos-privados es solo-staff a propósito: la única vía
-    // por la que un becario sube algo es esta acción, que ya validó tamaño y
-    // tipo. `user` va igual para que el hook registre quién lo subió.
-    const evidenciaDoc = await payload.create({
+  // pública. `create` ahí es solo-staff a propósito: la única vía por la que
+  // un becario sube algo es esta acción, que ya validó tamaño y tipo.
+  const evidenciaIds: number[] = []
+  for (const archivo of evidenciaArchivos) {
+    const buffer = Buffer.from(await archivo.arrayBuffer())
+    const doc = await payload.create({
       collection: 'documentos-privados',
       data: {
         alt: `Evidencia labor social — ${actividad.slice(0, 60)}`,
       },
       file: {
         data: buffer,
-        mimetype: evidenciaArchivo.type,
-        name: evidenciaArchivo.name,
-        size: evidenciaArchivo.size,
+        mimetype: archivo.type,
+        name: archivo.name,
+        size: archivo.size,
       },
       user: usuario,
       overrideAccess: true,
     })
-    evidenciaId = evidenciaDoc.id
+    evidenciaIds.push(doc.id)
   }
 
   // Crear el registro de horas — con la sesión real del usuario, no
@@ -105,7 +115,7 @@ export async function reportarHoras(formData: FormData): Promise<ResultadoReport
       becario: becarioId,
       descripcion: descripcionDetallada ? `${actividad}\n\n${descripcionDetallada}` : actividad,
       estado: 'pendiente',
-      evidencia: evidenciaId ?? null,
+      evidencia: evidenciaIds,
       fecha: fechaDate.toISOString(),
       horas,
     },

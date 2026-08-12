@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, type DragEvent, type FormEvent, type ChangeEvent } from 'react'
+import { useRef, useState, type DragEvent, type ChangeEvent, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { reportarRegistroAcademico } from '@/actions/reportar-registro-academico'
@@ -13,8 +13,8 @@ const TEXTOS = {
     placeholderPeriodo: 'Ej. 2026-1',
     universidad: 'Universidad',
     placeholderUniversidad: 'Ej. Universidad de Panamá',
-    documentoTitulo: 'Constancia de matrícula o créditos',
-    cargaDocumento: 'Carga de documento',
+    matriculaTitulo: 'Constancia de matrícula',
+    creditosTitulo: 'Reporte de créditos',
     subirArchivo: 'Subir archivo',
     oArrastrar: ' o arrastrar y soltar',
     formatosPermitidos: 'PNG, JPG, PDF (Máx. 10MB)',
@@ -23,6 +23,9 @@ const TEXTOS = {
     enviar: 'Enviar registro',
     enviando: 'Enviando…',
     exito: 'Tu registro fue enviado. El staff va a revisar el documento y completar tus materias e índice.',
+    faltaArchivo: 'Subí al menos la constancia de matrícula o el reporte de créditos.',
+    archivoGrande: 'El archivo no puede superar los 10 MB.',
+    tipoInvalido: 'Solo se aceptan PNG, JPG, WebP o PDF.',
   },
   en: {
     encabezado: 'Academic record',
@@ -31,8 +34,8 @@ const TEXTOS = {
     placeholderPeriodo: 'E.g. 2026-1',
     universidad: 'University',
     placeholderUniversidad: 'E.g. University of Panama',
-    documentoTitulo: 'Enrollment proof or credits report',
-    cargaDocumento: 'Document upload',
+    matriculaTitulo: 'Enrollment proof',
+    creditosTitulo: 'Credits report',
     subirArchivo: 'Upload file',
     oArrastrar: ' or drag and drop',
     formatosPermitidos: 'PNG, JPG, PDF (Max. 10MB)',
@@ -41,54 +44,121 @@ const TEXTOS = {
     enviar: 'Submit record',
     enviando: 'Submitting…',
     exito: 'Your record was submitted. Staff will review the document and fill in your courses and GPA.',
+    faltaArchivo: 'Upload the enrollment proof or the credits report, at least one.',
+    archivoGrande: 'File cannot exceed 10 MB.',
+    tipoInvalido: 'Only PNG, JPG, WebP or PDF accepted.',
   },
 } as const
 
 type Locale = 'es' | 'en'
+type Textos = Record<keyof (typeof TEXTOS)['es'], string>
+
+const MAX_SIZE = 10 * 1024 * 1024
+const TIPOS_PERMITIDOS = ['image/png', 'image/jpeg', 'image/webp', 'application/pdf']
+
+// Una zona de carga de archivo único, reutilizada para matrícula y créditos —
+// son el mismo widget dos veces, con nombre de campo y texto distintos.
+function CampoArchivo({
+  archivo,
+  name,
+  onError,
+  setArchivo,
+  t,
+  titulo,
+}: {
+  archivo: File | null
+  name: string
+  onError: (mensaje: string | null) => void
+  setArchivo: (file: File | null) => void
+  t: Textos
+  titulo: string
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [arrastrando, setArrastrando] = useState(false)
+
+  function handleArchivo(file: File | null) {
+    if (!file) return
+    if (file.size > MAX_SIZE) {
+      onError(t.archivoGrande)
+      return
+    }
+    if (!TIPOS_PERMITIDOS.includes(file.type)) {
+      onError(t.tipoInvalido)
+      return
+    }
+    onError(null)
+    setArchivo(file)
+  }
+
+  return (
+    <div>
+      <p className="font-dato text-xs uppercase tracking-widest text-piedra">{titulo}</p>
+      {archivo ? (
+        <div className="mt-2 flex items-center justify-between rounded-sm border border-montana/40 bg-montana/5 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <svg className="h-5 w-5 text-montana" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span className="font-lectura text-sm text-tinta">{archivo.name}</span>
+            <span className="font-dato text-xs text-piedra">({(archivo.size / 1024).toFixed(0)} KB)</span>
+          </div>
+          <button
+            className="font-dato text-xs uppercase tracking-widest text-cosecha transition-colors hover:text-cosecha/80"
+            onClick={() => { setArchivo(null); if (fileInputRef.current) fileInputRef.current.value = '' }}
+            type="button"
+          >
+            {t.eliminarArchivo}
+          </button>
+        </div>
+      ) : (
+        <div
+          className={`mt-2 flex cursor-pointer flex-col items-center rounded-sm border-2 border-dashed px-6 py-6 text-center transition-colors ${
+            arrastrando ? 'border-montana bg-montana/5' : 'border-piedra/25 bg-niebla hover:border-piedra/50'
+          }`}
+          onClick={() => fileInputRef.current?.click()}
+          onDragLeave={() => setArrastrando(false)}
+          onDragOver={(e) => { e.preventDefault(); setArrastrando(true) }}
+          onDrop={(e: DragEvent) => { e.preventDefault(); setArrastrando(false); const file = e.dataTransfer.files[0]; if (file) handleArchivo(file) }}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click() }}
+        >
+          <svg className="mb-2 h-6 w-6 text-piedra" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <p className="font-lectura text-sm text-tinta">
+            <span className="font-display font-bold text-montana">{t.subirArchivo}</span>
+            {t.oArrastrar}
+          </p>
+          <p className="mt-1 font-dato text-xs text-piedra">{t.formatosPermitidos}</p>
+        </div>
+      )}
+      <input
+        accept="image/png,image/jpeg,image/webp,application/pdf"
+        className="hidden"
+        name={name}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (file) handleArchivo(file) }}
+        ref={fileInputRef}
+        type="file"
+      />
+    </div>
+  )
+}
 
 export function FormularioReportarAcademico({ locale, onClose }: { locale: Locale; onClose: () => void }) {
   const t = TEXTOS[locale] ?? TEXTOS.es
   const router = useRouter()
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const [archivo, setArchivo] = useState<File | null>(null)
-  const [arrastrando, setArrastrando] = useState(false)
+  const [matricula, setMatricula] = useState<File | null>(null)
+  const [creditos, setCreditos] = useState<File | null>(null)
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [exito, setExito] = useState(false)
 
-  function handleArchivo(file: File | null) {
-    if (!file) return
-    const MAX = 10 * 1024 * 1024
-    if (file.size > MAX) {
-      setError(locale === 'es' ? 'El archivo no puede superar los 10 MB.' : 'File cannot exceed 10 MB.')
-      return
-    }
-    const permitidos = ['image/png', 'image/jpeg', 'image/webp', 'application/pdf']
-    if (!permitidos.includes(file.type)) {
-      setError(locale === 'es' ? 'Solo se aceptan PNG, JPG, WebP o PDF.' : 'Only PNG, JPG, WebP or PDF accepted.')
-      return
-    }
-    setError(null)
-    setArchivo(file)
-  }
-
-  function onDrop(e: DragEvent) {
-    e.preventDefault()
-    setArrastrando(false)
-    const file = e.dataTransfer.files[0]
-    if (file) handleArchivo(file)
-  }
-
-  function onFileChange(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (file) handleArchivo(file)
-  }
-
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    if (!archivo) {
-      setError(locale === 'es' ? 'Subí la constancia de matrícula o el reporte de créditos.' : 'Upload the enrollment proof or credits report.')
+    if (!matricula && !creditos) {
+      setError(t.faltaArchivo)
       return
     }
     setError(null)
@@ -96,7 +166,10 @@ export function FormularioReportarAcademico({ locale, onClose }: { locale: Local
 
     const form = e.currentTarget
     const formData = new FormData(form)
-    formData.set('documento', archivo)
+    formData.delete('documento_matricula')
+    formData.delete('documento_creditos')
+    if (matricula) formData.append('documento_matricula', matricula)
+    if (creditos) formData.append('documento_creditos', creditos)
 
     try {
       const resultado = await reportarRegistroAcademico(formData)
@@ -183,57 +256,8 @@ export function FormularioReportarAcademico({ locale, onClose }: { locale: Local
             />
           </label>
 
-          <div>
-            <p className="font-dato text-xs uppercase tracking-widest text-piedra">{t.documentoTitulo}</p>
-            {archivo ? (
-              <div className="mt-2 flex items-center justify-between rounded-sm border border-montana/40 bg-montana/5 px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <svg className="h-5 w-5 text-montana" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <span className="font-lectura text-sm text-tinta">{archivo.name}</span>
-                  <span className="font-dato text-xs text-piedra">({(archivo.size / 1024).toFixed(0)} KB)</span>
-                </div>
-                <button
-                  className="font-dato text-xs uppercase tracking-widest text-cosecha transition-colors hover:text-cosecha/80"
-                  onClick={() => { setArchivo(null); if (fileInputRef.current) fileInputRef.current.value = '' }}
-                  type="button"
-                >
-                  {t.eliminarArchivo}
-                </button>
-              </div>
-            ) : (
-              <div
-                className={`mt-2 flex cursor-pointer flex-col items-center rounded-sm border-2 border-dashed px-6 py-8 text-center transition-colors ${
-                  arrastrando ? 'border-montana bg-montana/5' : 'border-piedra/25 bg-niebla hover:border-piedra/50'
-                }`}
-                onClick={() => fileInputRef.current?.click()}
-                onDragLeave={() => setArrastrando(false)}
-                onDragOver={(e) => { e.preventDefault(); setArrastrando(true) }}
-                onDrop={onDrop}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click() }}
-              >
-                <svg className="mb-2 h-8 w-8 text-piedra" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                  <path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <p className="font-lectura text-sm text-tinta">
-                  <span className="font-display font-bold text-montana">{t.subirArchivo}</span>
-                  {t.oArrastrar}
-                </p>
-                <p className="mt-1 font-dato text-xs text-piedra">{t.formatosPermitidos}</p>
-              </div>
-            )}
-            <input
-              accept="image/png,image/jpeg,image/webp,application/pdf"
-              className="hidden"
-              name="documento"
-              onChange={onFileChange}
-              ref={fileInputRef}
-              type="file"
-            />
-          </div>
+          <CampoArchivo archivo={matricula} name="documento_matricula" onError={setError} setArchivo={setMatricula} t={t} titulo={t.matriculaTitulo} />
+          <CampoArchivo archivo={creditos} name="documento_creditos" onError={setError} setArchivo={setCreditos} t={t} titulo={t.creditosTitulo} />
 
           {error && (
             <div className="rounded-sm border border-cosecha bg-cosecha/10 px-4 py-3">
