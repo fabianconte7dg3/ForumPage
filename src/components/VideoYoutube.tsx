@@ -27,7 +27,7 @@ export function VideoYoutube({ videoId, titulo }: { videoId: string; titulo: str
       type="button"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img alt="" className="h-full w-full object-cover opacity-90" src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`} />
+      <img alt={titulo} className="h-full w-full object-cover opacity-90" src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`} />
       <span className="absolute inset-0 flex items-center justify-center">
         <span className="flex h-12 w-12 items-center justify-center rounded-full bg-cosecha text-white transition-transform group-hover:scale-110">
           ▶

@@ -360,48 +360,46 @@ export default async function ImpactoPage({ params }: { params: Promise<{ locale
 
   return (
     <div className="mx-auto max-w-(--container-content) px-4 py-12 md:px-16 md:py-24">
+      <header className="mb-8 border-b border-piedra/25 pb-8">
+        <h1 className="font-display text-3xl font-bold uppercase text-montana md:text-4xl">{t.titulo}</h1>
+        <p className="mt-2 font-lectura text-lg text-tinta/70">{t.subtitulo}</p>
+      </header>
       <ImpactoTabs
         textos={{ map: t.tabMap, overview: t.tabOverview }}
         mapaComponent={
-          <>
-            <header className="mb-8 border-b border-piedra/25 pb-8">
-              <h1 className="font-display text-3xl font-bold uppercase text-montana md:text-4xl">{t.titulo}</h1>
-              <p className="mt-2 font-lectura text-lg text-tinta/70">{t.subtitulo}</p>
-            </header>
-            <ImpactoMapLoader
-              becarios={becariosFeatures}
-              comunidades={comunidadesFeatures}
-              locale={locale}
-              maptilerKey={process.env.MAPTILER_KEY}
-              programas={(programas.docs as Programa[]).map((p) => ({ id: p.id, nombre: p.nombre, color: p.color }))}
-              sedes={sedesFeatures}
-              stats={{
-                comunidades: comunidadesFeatures.length,
-                sedes: sedesFeatures.length,
-                proyectosActivos: proyectosActivosList.length,
-                obrasCompletadas: proyectosCompletadosList.length,
-                becariosActivos: becariosDocsActivos.length,
-              }}
-              textos={{
-                todos: t.todos,
-                verFicha: t.verFicha,
-                statComunidades: t.statComunidades,
-                statSedes: t.statSedes,
-                statProyectosActivos: t.statProyectosActivos,
-                statObrasCompletadas: t.statObrasCompletadas,
-                statBecariosActivos: t.statBecariosActivos,
-                statPaises: t.statPaises,
-                capas: t.capas,
-                capaComunidades: t.capaComunidades,
-                capaSedes: t.capaSedes,
-                lugares: t.lugares,
-                sinProyectos: t.sinProyectos,
-                proyectosEnComunidad: t.proyectosEnComunidad,
-                avance: t.avance,
-                cerrar: t.cerrar,
-              }}
-            />
-          </>
+          <ImpactoMapLoader
+            becarios={becariosFeatures}
+            comunidades={comunidadesFeatures}
+            locale={locale}
+            maptilerKey={process.env.MAPTILER_KEY}
+            programas={(programas.docs as Programa[]).map((p) => ({ id: p.id, nombre: p.nombre, color: p.color }))}
+            sedes={sedesFeatures}
+            stats={{
+              comunidades: comunidadesFeatures.length,
+              sedes: sedesFeatures.length,
+              proyectosActivos: proyectosActivosList.length,
+              obrasCompletadas: proyectosCompletadosList.length,
+              becariosActivos: becariosDocsActivos.length,
+            }}
+            textos={{
+              todos: t.todos,
+              verFicha: t.verFicha,
+              statComunidades: t.statComunidades,
+              statSedes: t.statSedes,
+              statProyectosActivos: t.statProyectosActivos,
+              statObrasCompletadas: t.statObrasCompletadas,
+              statBecariosActivos: t.statBecariosActivos,
+              statPaises: t.statPaises,
+              capas: t.capas,
+              capaComunidades: t.capaComunidades,
+              capaSedes: t.capaSedes,
+              lugares: t.lugares,
+              sinProyectos: t.sinProyectos,
+              proyectosEnComunidad: t.proyectosEnComunidad,
+              avance: t.avance,
+              cerrar: t.cerrar,
+            }}
+          />
         }
         overviewProps={{
           becario: becarioDestacado,

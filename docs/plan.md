@@ -5,7 +5,13 @@
 ## Estado actual
 
 **Fase:** 1 — Base pública (cerrada) + 2 — Centro de Aprendizaje (cerrada) + 3 — Portal del Becario / Staff (cerrada & optimizada).
-**Última actualización:** 2026-08-11 (10) — Dos cambios de esquema pedidos por el usuario tras probar el flujo de subida:
+**Última actualización:** 2026-08-15 (11) — Fixes de accesibilidad/SEO tras una auditoría externa de 4 hallazgos, 2 reales y 2 no:
+1. **Real, corregido:** `/impacto` no tenía ningún `<h1>` en la carga por defecto — el encabezado vivía dentro de `mapaComponent` de `ImpactoTabs`, que solo se renderiza si la pestaña activa es "Mapa", pero la pestaña por defecto es "Resumen" (`ImpactoOverview`, que solo trae un `<h2>`). Movido el `<header>`/`<h1>` fuera del switch de pestañas en `page.tsx`, ahora se renderiza siempre.
+2. **Real, corregido:** la miniatura de YouTube en `VideoYoutube.tsx` tenía `alt=""` a pesar de recibir un `titulo` real como prop (ya usado en el `title` del iframe) — cambiado a `alt={titulo}`.
+3. **No es bug de código, es contenido de prueba en producción:** el recurso `video_youtube` id 2 ("Video: introducción a la fotosíntesis") tiene `url` con el id de YouTube literal `example`, de ahí el 404 de `i.ytimg.com/vi/example/...`. Pendiente que el staff lo reemplace o borre desde `/staff` — no se tocó, no es un cambio de código.
+4. **Falso positivo:** el error de red a `*.basemaps.cartocdn.com` se descartó — las 3 URLs responden `200` probadas con `curl` real; el CSP (`src/proxy.ts`) ya las permite en `connect-src`. El error solo aparece en el entorno sandboxeado del auditor (sin WebGL/red real), no en producción.
+
+**Actualización anterior (2026-08-11, 10):** Dos cambios de esquema pedidos por el usuario tras probar el flujo de subida:
 1. `RegistrosAcademicos.documento` (un solo archivo) se separó en `documento_matricula` + `documento_creditos` — el becario ahora sube cada constancia en su propia zona, tanto desde `/portal` como el staff desde `/staff/[becarioId]`. De paso se corrigió un bug preexistente real en `FormularioNuevoAcademico.tsx`: el formulario de staff subía el documento a `/api/media` (colección pública) en vez de `/api/documentos-privados`, y encima nunca pasaba el campo `alt` requerido en el formato que la API REST de Payload espera (`_payload` como JSON, no un campo plano) — la creación de período académico con documento adjunto **nunca había funcionado** desde el lado staff, para ningún becario.
 2. `HorasLaborSocial.evidencia` pasó de upload único a `hasMany: true` (hasta 1 PDF + 5 imágenes, validado en `reportar-horas.ts`).
 
